@@ -5,9 +5,9 @@ VALGRIND   = valgrind --leak-check=full --show-reachable=yes
 
 MKFILE     = Makefile
 DEPFILE    = Makefile.dep
-SOURCES    = cppstrtok.cpp
+SOURCES    = oc.cpp
 OBJECTS    = ${SOURCES:.cpp=.o}
-EXECBIN    = cppstrtok
+EXECBIN    = oc
 SRCFILES   = ${SOURCES} ${MKFILE}
 SMALLFILES = ${DEPFILE} foo.oc foo1.oh foo2.oh
 CHECKINS   = ${SRCFILES} ${SMALLFILES}
