@@ -5,7 +5,7 @@ VALGRIND   = valgrind --leak-check=full --show-reachable=yes
 
 MKFILE     = Makefile
 DEPFILE    = Makefile.dep
-SOURCES    = oc.cpp
+SOURCES    = oc.cpp stringset.cpp
 OBJECTS    = ${SOURCES:.cpp=.o}
 EXECBIN    = oc
 SRCFILES   = ${SOURCES} ${MKFILE}

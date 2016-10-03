@@ -6,19 +6,26 @@
 using namespace std;
 
 const string* stringset::intern_stringset(const char* val){
-   auto pair = set.insert(val);
-   auto iterator = get<0>pair;
-   return begin(iterator);
+   string sval = val;
+   auto pair = set.insert(sval);
+   auto iterator = pair.first;
+   return &(*iterator);
 }
 
-void stringset::dump_stringset(FILE*){
+void stringset::dump_stringset(ofstream* file){
    for(auto val: set){
-      cout << "hash[" + set.bucket(val) + "]: ";
+      *file << "hash[" << set.bucket(val) << "]: ";
       auto hfn = set.hash_function();
-      cout << hfn(val) + " " + val + "->\"" + *val + "\"";
+      auto strptr = &(*(set.find(val)));
+      *file << hfn(val) << " " << strptr << "->\"" << val << "\""
             << endl;
    }
-   cout << "load_factor = " + set.load_factor() << endl;
-   cout << "bucket_count = " + set.bucket_count() << endl;
-   cout << "max_bucket_size = " + set.bucket_size() << endl;
+   *file << "load_factor = " << set.load_factor() << endl;
+   *file << "bucket_count = " << set.bucket_count() << endl;
+   unsigned max_bucket_size = 0;
+   for(unsigned i = 0; i < set.bucket_count(); ++i){
+      if(max_bucket_size < set.bucket_size(i))
+         max_bucket_size = set.bucket_size(i);
+   }
+   *file << "max_bucket_size = " << max_bucket_size << endl;
 }

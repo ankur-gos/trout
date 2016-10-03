@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 #include <unistd.h>
+#include <fstream>
+#include "stringset.h"
 
 using namespace std;
 
@@ -13,10 +15,6 @@ const string CPP = "/usr/bin/cpp";
 constexpr size_t LINESIZE = 1024;
 
 void handle_debug(){
-   // STUB
-}
-
-void handle_cpp_arg(){
    // STUB
 }
 
@@ -31,44 +29,49 @@ void handle_yyparse_debug(){
 int check_file_extension(string filename){
    string ext;
    try{
-      ext = filename.substr(filename.size() - 4, 3);
+      ext = filename.substr(filename.size() - 3, 3);
    } catch(const out_of_range& oor){
       cerr << "Filename doesn't have correct extension";
       return -1;
    }
    if(ext.compare(".oc") != 0){
-      cerr << "Filename doesn't have correct extension";
+      cerr << "Filename doesn't have correct extension: " << ext << endl;
       return -2;
    }
    return 0;
 }
 
 void chomp(char* string, char delim){
-   if(strlen(string) == 0)
-      return
-
+   size_t len = strlen (string);
+   if (len == 0) return;
    char* nlpos = string + len - 1;
    if(*nlpos == delim)
       *nlpos = '\0';
 }
 
-int run_preprocessor(FILE* pipe, const char* filename){
+void dump_stringset_file(string filename, stringset strset){
+   auto fno_ext = filename.substr(0, filename.size() - 3);
+   auto fout_name = fno_ext + ".str";
+   ofstream fout;
+   fout.open(fout_name);
+   strset.dump_stringset(&fout);
+   fout.close();
+}
+
+int run_preprocessor(FILE* pipe, string filename){
    int linenr = 1;
    char inputname[LINESIZE];
-   strcpy(inputname, filename);
+   strcpy(inputname, filename.c_str());
+   stringset strset;
    for(;;){
       char buffer[LINESIZE];
-      if(fgets(buffer, LINESIZE, pipe) == NULL){
-         cerr << "fgets error in run_preprocessor";
-         return -1;
-      }
+      if(fgets(buffer, LINESIZE, pipe) == NULL)
+         break;
       chomp(buffer, '\n');
-      int sscanf_rc = sscanf (buffer, "# %d \"%[^\"]\"",
+      auto ret = sscanf (buffer, "# %d \"%[^\"]\"",
                               &linenr, inputname);
-      if (sscanf_rc == 2) {
-         printf ("DIRECTIVE: line %d file \"%s\"\n", linenr, inputname);
+      if(ret == 2)
          continue;
-      }
       char* savepos = NULL;
       char *bufptr = buffer;
       for(int tokenct = 1;; ++tokenct){
@@ -76,20 +79,26 @@ int run_preprocessor(FILE* pipe, const char* filename){
          bufptr = NULL;
          if(token == NULL)
             break;
+         strset.intern_stringset(token);
       }
       ++linenr;
    }
+   dump_stringset_file(filename, strset);
+   return 0;
 }
 
 int main(int argc, char** argv){
    int opt;
+   string cppflag = "";
+   string stroptarg;
    while((opt = getopt(argc, argv, "@:D:ly")) != -1){
       switch(opt){
          case '@':
             handle_debug();
             break;
          case 'D':
-            handle_cpp_arg();
+            stroptarg = optarg;
+            cppflag = "-D " + stroptarg; 
             break;
          case 'l':
             handle_yyflex_debug();
@@ -113,10 +122,10 @@ int main(int argc, char** argv){
    if(check_file_extension(filename))
       exit(EXIT_FAILURE);
 
-   string command = CPP + " " + filename;
+   string command = CPP + " " + cppflag + filename;
    FILE* pipe = popen(command.c_str(), "r");
    if(pipe == NULL){
-      cerr << "Invalid command run, pipe not opened."
+      cerr << "Invalid command run, pipe not opened.";
       exit(EXIT_FAILURE);
    }
 
@@ -124,7 +133,7 @@ int main(int argc, char** argv){
       exit(EXIT_FAILURE);
 
    if(pclose(pipe) != 0){
-      cerr << "Pipe close failed."
+      cerr << "Pipe close failed.";
       exit(EXIT_FAILURE);
    }
 
