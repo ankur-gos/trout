@@ -4,8 +4,8 @@ MKDEP      = g++ -MM -std=gnu++14
 VALGRIND   = valgrind --leak-check=full --show-reachable=yes
 
 MKFILE     = Makefile
-DEPFILE    = Makefile.dep
-SOURCES    = oc.cpp stringset.cpp
+DEPFILE    = Makefile.deps
+SOURCES    = oc.cpp stringset.cpp auxlib.cpp
 OBJECTS    = ${SOURCES:.cpp=.o}
 EXECBIN    = oc
 SRCFILES   = ${SOURCES} ${MKFILE}

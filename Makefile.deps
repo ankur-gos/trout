@@ -1,2 +1,3 @@
 oc.o: oc.cpp
 stringset.o: stringset.cpp
+auxlib.o: auxlib.cpp
