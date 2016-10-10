@@ -1,3 +1,8 @@
+/*
+ * Ankur Goswami (agoswam3@ucsc.edu)
+ * Morgan Grant (mlgrant@ucsc.edu)
+ */
+
 #ifndef __AUXLIB_H__
 #define __AUXLIB_H__
 

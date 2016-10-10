@@ -1,5 +1,9 @@
 // stringset.cpp
 // stringset implementation
+/*
+ * Ankur Goswami (agoswam3@ucsc.edu)
+ * Morgan Grant (mlgrant@ucsc.edu)
+ */
 
 #include "stringset.h"
 

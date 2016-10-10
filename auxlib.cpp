@@ -1,3 +1,8 @@
+/*
+ * Ankur Goswami (agoswam3@ucsc.edu)
+ * Morgan Grant (mlgrant@ucsc.edu)
+ */
+
 #include <assert.h>
 #include <errno.h>
 #include <libgen.h>

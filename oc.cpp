@@ -1,7 +1,12 @@
 /*
  * oc.cpp
  * Compiler main
+ *
+ *
+ * Ankur Goswami (agoswam3@ucsc.edu)
+ * Morgan Grant (mlgrant@ucsc.edu)
  */
+
 
 #include <string>
 #include <iostream>
