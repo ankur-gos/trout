@@ -8,14 +8,15 @@
 #include <unistd.h>
 #include <fstream>
 #include "stringset.h"
+#include "auxlib.h"
 
 using namespace std;
 
 const string CPP = "/usr/bin/cpp";
 constexpr size_t LINESIZE = 1024;
 
-void handle_debug(){
-   // STUB
+void handle_debug(const char *flags){
+   set_debugflags(flags);
 }
 
 void handle_yyflex_debug(){
@@ -94,7 +95,7 @@ int main(int argc, char** argv){
    while((opt = getopt(argc, argv, "@:D:ly")) != -1){
       switch(opt){
          case '@':
-            handle_debug();
+            handle_debug(optarg);
             break;
          case 'D':
             stroptarg = optarg;
