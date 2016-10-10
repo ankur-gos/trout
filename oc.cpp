@@ -7,6 +7,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <fstream>
+#include "string.h"
 #include "stringset.h"
 #include "auxlib.h"
 

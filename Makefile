@@ -39,7 +39,7 @@ dep :
 	- rm ${DEPFILE}
 	${MAKE} --no-print-directory ${DEPFILE}
 
-include Makefile.dep
+include ${DEPFILE}
 
 test : ${EXECBIN}
 	${VALGRIND} ${EXECBIN} foo.oc 1>test.out 2>&1
