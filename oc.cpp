@@ -42,7 +42,8 @@ int check_file_extension(string filename){
       return -1;
    }
    if(ext.compare(".oc") != 0){
-      cerr << "Filename doesn't have correct extension: " << ext << endl;
+      cerr << "Filename doesn't have correct extension: "
+         << ext << endl;
       return -2;
    }
    return 0;

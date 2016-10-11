@@ -26,14 +26,15 @@ void stringset::dump_stringset(ofstream* file){
       auto itr = set.begin(i);
       *file << "hash[" << setw(4) << i << "]: ";
       auto strptr = &(*(set.find(*itr)));
-      *file << setw(20) << hfn(*itr) << " " << strptr << "->\"" << *itr << "\""
-            << endl;
+      *file << setw(20) << hfn(*itr) << " " << strptr << "->\"" 
+         << *itr << "\"" << endl;
       ++itr;
 
       for(; itr != set.end(i); ++itr) {
          *file << "            ";
          auto strptr = &(*(set.find(*itr)));
-         *file << setw(20) << hfn(*itr) << " " << strptr << "->\"" << *itr << "\""
+         *file << setw(20) << hfn(*itr) << " " << strptr << "->\"" 
+            << *itr << "\""
                << endl;
       }
    }
