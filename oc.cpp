@@ -105,7 +105,7 @@ int main(int argc, char** argv){
             break;
          case 'D':
             stroptarg = optarg;
-            cppflag = "-D " + stroptarg; 
+            cppflag = "-D " + stroptarg + " "; 
             break;
          case 'l':
             handle_yyflex_debug();
