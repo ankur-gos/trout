@@ -16,7 +16,6 @@ EXECBIN    = oc
 SRCFILES   = ${SOURCES} ${MKFILE}
 SMALLFILES = ${DEPFILE} foo.oc foo1.oh foo2.oh
 CHECKINS   = ${SRCFILES} ${SMALLFILES}
-LISTING    = Listing.ps
 
 all : ${EXECBIN}
 
@@ -34,8 +33,8 @@ clean :
 	- rm ${OBJECTS}
 
 spotless : clean
-	- rm ${EXECBIN} ${LISTING} ${LISTING:.ps=.pdf} ${DEPFILE} \
-	     test.out misc.lis
+	- rm ${EXECBIN} ${DEPFILE} \
+	     test.out
 
 ${DEPFILE} :
 	${MKDEP} ${SOURCES} >${DEPFILE}
@@ -49,12 +48,6 @@ include ${DEPFILE}
 test : ${EXECBIN}
 	${VALGRIND} ${EXECBIN} foo.oc 1>test.out 2>&1
 
-misc.lis : ${DEPFILE} foo.oc foo1.oh foo2.oh
-	catnv ${DEPFILE} foo.oc foo1.oh foo2.oh >misc.lis
-
-lis : misc.lis test
-	mkpspdf ${LISTING} ${SRCFILES} misc.lis test.out
-
 again :
-	${MAKE} spotless dep all test lis
+	${MAKE} spotless dep all test
 
