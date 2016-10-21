@@ -8,13 +8,13 @@
 #include <string.h>
 
 #include "astree.h"
-#include "string_set.h"
+#include "stringset.h"
 #include "lyutils.h"
 
 astree::astree (int symbol_, const location& lloc_, const char* info) {
    symbol = symbol_;
    lloc = lloc_;
-   lexinfo = string_set::intern (info);
+   lexinfo = stringset::intern_stringset(info);
    // vector defaults to empty -- no children
 }
 

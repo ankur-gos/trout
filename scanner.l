@@ -36,8 +36,8 @@ IDENT           ({LETTER}({LETTER}|{DIGIT})*)
 [ \t]+          { }
 \n              { lexer::newline(); }
 
-{NUMBER}        { return yylval_token (NUMBER); }
-{IDENT}         { return yylval_token (IDENT); }
+{NUMBER}        { return yylval_token (TOK_INTCON); }
+{IDENT}         { return yylval_token (TOK_IDENT); }
 "="             { return yylval_token ('='); }
 "+"             { return yylval_token ('+'); }
 "-"             { return yylval_token ('-'); }
@@ -49,7 +49,7 @@ IDENT           ({LETTER}({LETTER}|{DIGIT})*)
 ";"             { return yylval_token (';'); }
 
 {NOTNUMBER}     { lexer::badtoken (yytext);
-                  return yylval_token (NUMBER); }
+                  return yylval_token (TOK_INTCON); }
 .               { lexer::badchar (*yytext); }
 
 %%
