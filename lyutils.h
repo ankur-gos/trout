@@ -5,6 +5,8 @@
 
 // Lex and Yacc interface utility.
 
+#define YYEOF 0
+
 #include <string>
 #include <vector>
 using namespace std;
@@ -19,6 +21,8 @@ extern char* yytext;
 extern int yy_flex_debug;
 extern int yydebug;
 extern size_t yyleng; 
+
+extern FILE* tok_out;
 
 int yylex();
 int yylex_destroy();

@@ -44,10 +44,9 @@ astree* astree::adopt_sym (astree* child, int symbol_) {
 
 
 void astree::dump_node (FILE* outfile) {
-   fprintf (outfile, "%p->{%s %zd.%zd.%zd \"%s\":",
-            this, parser::get_tname (symbol),
-            lloc.filenr, lloc.linenr, lloc.offset,
-            lexinfo->c_str());
+   fprintf (outfile, "%4zu %2zu.%03zu %3d %-15s (%s)",
+                     lloc.filenr, lloc.linenr, lloc.offset,
+                     symbol, parser::get_tname(symbol), lexinfo->c_str());
    for (size_t child = 0; child < children.size(); ++child) {
       fprintf (outfile, " %p", children.at(child));
    }

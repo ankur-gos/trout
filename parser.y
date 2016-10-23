@@ -28,8 +28,7 @@
 
 %%
 
-program : program token | ;
-token   : '(' | ')' | '[' | ']' | '{' | '}' | ';' | ',' | '.'
+program : program token | ; token   : '(' | ')' | '[' | ']' | '{' | '}' | ';' | ',' | '.'
         | '=' | '+' | '-' | '*' | '/' | '%' | '!'
         | TOK_VOID | TOK_CHAR | TOK_INT | TOK_STRING
         | TOK_IF | TOK_ELSE | TOK_WHILE | TOK_RETURN | TOK_STRUCT

@@ -15,6 +15,8 @@
 #include "string.h"
 #include "stringset.h"
 #include "auxlib.h"
+#include "astree.h"
+#include "lyutils.h"
 
 using namespace std;
 
@@ -26,11 +28,11 @@ void handle_debug(const char *flags){
 }
 
 void handle_yyflex_debug(){
-   // STUB
+   yy_flex_debug = 1;
 }
 
 void handle_yyparse_debug(){
-   // STUB
+   yydebug = 1;
 }
 
 int check_file_extension(string filename){
@@ -57,45 +59,25 @@ void chomp(char* string, char delim){
       *nlpos = '\0';
 }
 
-void dump_stringset_file(string filename, stringset strset){
-   auto fno_ext = filename.substr(0, filename.size() - 3);
-   auto fout_name = fno_ext + ".str";
+void dump_stringset_file(string filename){
+   string fout_name = filename + ".str";
    ofstream fout;
    fout.open(fout_name);
-   strset.dump_stringset(&fout);
+   stringset::dump_stringset(&fout);
    fout.close();
 }
 
-int run_preprocessor(FILE* pipe, string filename){
-   int linenr = 1;
-   char inputname[LINESIZE];
-   strcpy(inputname, filename.c_str());
-   stringset strset;
-   for(;;){
-      char buffer[LINESIZE];
-      if(fgets(buffer, LINESIZE, pipe) == NULL)
-         break;
-      chomp(buffer, '\n');
-      auto ret = sscanf (buffer, "# %d \"%[^\"]\"",
-                              &linenr, inputname);
-      if(ret == 2)
-         continue;
-      char* savepos = NULL;
-      char *bufptr = buffer;
-      for(int tokenct = 1;; ++tokenct){
-         char* token = strtok_r(bufptr, " \t\n", &savepos);
-         bufptr = NULL;
-         if(token == NULL)
-            break;
-         strset.intern_stringset(token);
-      }
-      ++linenr;
+void scan_to_file (string filename) {
+   string fout_name = filename + ".tok";
+   tok_out = fopen(fout_name.c_str(), "w");
+   while (yylex() != YYEOF) {
+      yylval->dump_node(tok_out);
+      fprintf(tok_out, "\n");
    }
-   dump_stringset_file(filename, strset);
-   return 0;
 }
 
 int main(int argc, char** argv){
+   yy_flex_debug = yydebug = 0;
    int opt;
    string cppflag = "";
    string stroptarg;
@@ -120,30 +102,38 @@ int main(int argc, char** argv){
       }
    }
    if(optind >= argc){
-      cerr << "No filename found";
+      cerr << "No filename found" << endl;
       exit(EXIT_FAILURE);
    }
 
+   exec::execname = basename (argv[0]);
    string filename = argv[optind];
+   string no_ext = filename.substr(0, filename.size() - 3);
 
    // Check file extension is .oc
    if(check_file_extension(filename))
       exit(EXIT_FAILURE);
 
    string command = CPP + " " + cppflag + filename;
-   FILE* pipe = popen(command.c_str(), "r");
-   if(pipe == NULL){
+   yyin = popen(command.c_str(), "r");
+   if(yyin == NULL){
       cerr << "Invalid command run, pipe not opened.";
       exit(EXIT_FAILURE);
    }
 
-   if(run_preprocessor(pipe, filename) != 0)
-      exit(EXIT_FAILURE);
+   if (yy_flex_debug) {
+      fprintf (stderr, "-- popen (%s), fileno(yyin) = %d\n",
+               command.c_str(), fileno (yyin));
+   }
 
-   if(pclose(pipe) != 0){
-      cerr << "Pipe close failed.";
+   lexer::newfilename (command);
+   scan_to_file (no_ext);
+   dump_stringset_file (no_ext);
+   if(pclose(yyin) != 0){
+      cerr << "Pipe close failed." << endl;
       exit(EXIT_FAILURE);
    }
+   yylex_destroy();
 
    exit(EXIT_SUCCESS);
 }

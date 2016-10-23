@@ -13,6 +13,7 @@ bool lexer::interactive = true;
 location lexer::lloc = {0, 1, 0};
 size_t lexer::last_yyleng = 0;
 vector<string> lexer::filenames;
+FILE* tok_out;
 
 astree* parser::root = nullptr;
 
@@ -24,7 +25,6 @@ void lexer::newfilename (const string& filename) {
    lexer::lloc.filenr = lexer::filenames.size();
    lexer::filenames.push_back (filename);
 }
-
 void lexer::advance() {
    if (not interactive) {
       if (lexer::lloc.offset == 0) {
@@ -62,7 +62,7 @@ void lexer::include() {
    int scan_rc = sscanf (yytext, "# %zd \"%[^\"]\"", &linenr, filename);
    if (scan_rc != 2) {
       errprintf ("%s: invalid directive, ignored\n", yytext);
-   }else {
+   } else {
       if (yy_flex_debug) {
          fprintf (stderr, "--included # %zd \"%s\"\n",
                   linenr, filename);
@@ -70,6 +70,7 @@ void lexer::include() {
       lexer::lloc.linenr = linenr - 1;
       lexer::newfilename (filename);
    }
+   fprintf(tok_out, "# %zu \"%s\"\n", lexer::filenames.size(), filename);
 }
 
 void yyerror (const char* message) {

@@ -10,7 +10,7 @@ using namespace std;
 unordered_set<string> stringset::set;
 
 stringset::stringset() {
-   set.max_load_factor(.5);
+   set.max_load_factor(0.5);
 }
 
 const string* stringset::intern_stringset(const char* val){
