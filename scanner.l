@@ -32,6 +32,12 @@ IDENT           ({LETTER}({LETTER}|{DIGIT})*)
 NOTIDENT        ({DIGIT}({LETTER}|{DIGIT})*)
 CHARCON         ('([^\\'\n]|\\[\\'"0nt])')
 STRINGCON       (\"([^\\"\n]|\\[\\"0nt])*\")
+CHARNOCLOSE     ('[^']*)
+STRINGNOCLOSE   (\"[^\"]*)
+CHARBADESCAPE   ('([^\\'\n]|\\[^\\'"0nt])')
+STRINGBADESCAPE (\"([^\\"\n]|\\[^\\"0nt])*\")
+NOTCHAR         ({CHARNOCLOSE}|{CHARBADESCAPE})
+NOTSTRING       ({STRINGNOCLOSE}|{STRINGBADESCAPE})
 
 %%
 
@@ -85,6 +91,10 @@ STRINGCON       (\"([^\\"\n]|\\[\\"0nt])*\")
                    RETURN (TOK_INTCON); }
 {NOTIDENT}      { lexer::badtoken (yytext);
                    RETURN (TOK_IDENT); }
+{NOTSTRING}     { lexer::badtoken (yytext);
+                   RETURN (TOK_STRINGCON); }
+{NOTCHAR}       { lexer::badtoken (yytext);
+                   RETURN (TOK_CHARCON); }
 .               { lexer::badchar (*yytext); }
 
 %%

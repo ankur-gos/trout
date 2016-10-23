@@ -24,6 +24,8 @@ const string* lexer::filename (int filenr) {
 void lexer::newfilename (const string& filename) {
    lexer::lloc.filenr = lexer::filenames.size();
    lexer::filenames.push_back (filename);
+   fprintf(tok_out, "# %-2zu \"%s\"\n", lexer::lloc.filenr,
+                                       filename.c_str());
 }
 void lexer::advance() {
    if (not interactive) {
@@ -70,7 +72,6 @@ void lexer::include() {
       lexer::lloc.linenr = linenr - 1;
       lexer::newfilename (filename);
    }
-   fprintf(tok_out, "# %zu \"%s\"\n", lexer::filenames.size(), filename);
 }
 
 void yyerror (const char* message) {
