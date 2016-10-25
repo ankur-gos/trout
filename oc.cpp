@@ -67,7 +67,7 @@ void dump_stringset_file(string filename){
    fout.close();
 }
 
-void scan_to_file (string filename, string command) {
+void scan_tok_to_file (string filename, string command) {
    string fout_name = filename + ".tok";
    tok_out = fopen(fout_name.c_str(), "w");
    lexer::newfilename (command);
@@ -126,7 +126,7 @@ int main(int argc, char** argv){
                command.c_str(), fileno (yyin));
    }
 
-   scan_to_file (no_ext, command);
+   scan_tok_to_file (no_ext, command);
    dump_stringset_file (no_ext);
    if(pclose(yyin) != 0){
       cerr << "Pipe close failed." << endl;
