@@ -42,6 +42,13 @@ astree* astree::adopt_sym (astree* child, int symbol_) {
    return adopt (child);
 }
 
+astree* astree::adopt_children (astree* node) {
+    for(auto c: node->children){
+        children.push_back (c);
+    }
+    return this;
+}
+
 
 void astree::dump_node (FILE* outfile) {
    fprintf (outfile, "  %-2zu %2zu.%03zu %3d %-15s (%s)\n",

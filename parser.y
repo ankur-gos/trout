@@ -39,11 +39,11 @@ program        : program structdef     { $$ = $1->adopt($2) }
 
 structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $2->symbol = TOK_TYPEID; $$ = $1->adopt($2);     }
                | TOK_STRUCT TOK_IDENT '{' fielddecl ';' '}'  { $2->symbol = TOK_TYPEID; $$ = $1->adopt($2, $4); }
-               | TOK_STRUCT TOK_IDENT '{' fielddeclarray '}' { $2->symbol = TOK_TYPEID; $$ = $1->adopt($2, $4)  }
+               | TOK_STRUCT TOK_IDENT '{' fielddeclarray '}' { $2->symbol = TOK_TYPEID; $1->adopt($2); $1->adopt_children($4) }
                ;
 
 fielddeclarray : fielddeclarray fielddecl ';' { $$ = $1->adopt($2) }
-               | fielddecl ';' fielddecl ';'  { $$ = $1->adopt($3) }
+               | fielddecl ';' fielddecl ';'  { $$ = $2->adopt($1, $3) }
                ;
 
 fielddecl      : basetype TOK_FIELD           { $$ = $1->adopt($2) }
@@ -60,9 +60,39 @@ indentdecl     : basetype TOK_IDENT { $$ = $1->adopt($2) }
                | basetype TOK_ARRAY TOK_IDENT { $$ = $2->adopt($1, $3)}
                ;
 
-block          : '{' '}'        { $$ = $1->adopt_sym(nullptr, TOK_BLOCK) }
-               : ';'            { $$ = $1->adopt_sym(nullptr, TOK_BLOCK) }
-               :
+block          : '{' '}'                { $$ = $1->adopt_sym(nullptr, TOK_BLOCK) }
+               | ';'                    { $$ = $1->adopt_sym(nullptr, TOK_BLOCK) }
+               | '{' statement '}'      { $$ = $1->adopt_sym($2, TOK_BLOCK) }
+               | statementarray '}' { $$ = $2 }
+               ;
+
+statement      : block { $$ = $1 }
+               | vardecl { $$ = $1 }
+               | while { $$ = $1 }
+               | ifelse { $$ = $1 }
+               | return { $$ = $1 }
+               | expr ';' { $$ = $1 }
+               ;
+
+statementarray : statementarray statement { $$ = $1->adopt($2) }
+               | '{' statement statement  { $$ = $1->adopt($2, $3) }
+               ;
+
+vardecl        : indentdecl '=' expr ';' { $$ = }
+               ;
+
+while          : TOK_WHILE '(' expr ')' statement { $$ = }
+               ;
+
+ifelse         : TOK_IF '(' expr ')' statement { $$ = }
+               | TOK_IF '(' expr ')' statement TOK_ELSE statement { $$ = }
+               ;
+
+return         : TOK_RETURN ';' { $$ = }
+               | TOK_RETURN expr { $$ = }
+               ;
+
+
 
 
 
