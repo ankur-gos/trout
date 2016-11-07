@@ -30,9 +30,9 @@ struct astree {
    astree* adopt_sym (astree* child, int symbol);
    astree* adopt_children (astree* node);
    astree* adopt_front(astree* child);
-   astree* struct_empty_arg(astree* structtok, astree* ident, astree* lb, astree* rb);
-   astree* struct_arg(astree* structtok, astree* ident, astree* lb, astree* stmt, astree* sc; astree* rb);
-   astree* struct_mult_args(astree* structtok, astree* ident, astree* argarray, astree* rb);
+   astree* struct_empty_arg(astree* ident, astree* lb, astree* rb);
+   astree* struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc; astree* rb);
+   astree* struct_mult_args(astree* ident, astree* argarray, astree* rb);
    static astree* generate_root();
    static astree* generate_function_tree(astree* identdecl, astree* paramlist, astree* block);
    void dump_node (FILE*);
