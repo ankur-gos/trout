@@ -33,6 +33,7 @@ struct astree {
    astree* struct_empty_arg(astree* ident, astree* lb, astree* rb);
    astree* struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc; astree* rb);
    astree* struct_mult_args(astree* ident, astree* argarray, astree* rb);
+   astree* destroy_adopt(astree* destroy, astree* a1, astree a2 = nullptr);
    static astree* generate_root();
    static astree* generate_function_tree(astree* identdecl, astree* paramlist, astree* block);
    void dump_node (FILE*);

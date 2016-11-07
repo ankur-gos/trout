@@ -71,6 +71,28 @@ astree* astree::generate_function_tree (astree* identdecl, astree* paramlist, as
     }
 }
 
+astree* astree::struct_empty_arg (astree* ident, astree* lb, astree* rb){
+    destroy(lb, rb);
+    ident->symbol = TOK_TYPEID;
+    return this->adopt(ident);
+}
+
+astree* astree::struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc; astree* rb){
+    destroy(lb, sc);
+    destroy(rb);
+    ident->symbol = TOK_TYPEID;
+    return this->adopt(ident, stmt);
+}
+
+astree* astree::struct_mult_args(astree* ident, astree* lb, astree* fdeclarray, astree* rb){
+    destroy(lb, rb);
+    ident->symbol = TOK_TYPEID;
+    this->adopt(ident);
+    this->adopt_children(fdeclarray);
+    destroy(fdeclarray);
+    return this;
+}
+
 
 void astree::dump_node (FILE* outfile) {
    fprintf (outfile, "  %-2zu %2zu.%03zu %3d %-15s (%s)\n",

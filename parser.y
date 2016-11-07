@@ -43,9 +43,9 @@ program        : program structdef     { $$ = $1->adopt($2) }
                |                       { $$ = astree::dump(stderr, parser::root) }
                ;
 
-structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { destroy($3); destroy($4); $2->symbol = TOK_TYPEID; $$ = $1->adopt($2);     }
-               | TOK_STRUCT TOK_IDENT '{' fielddecl ';' '}'  { destroy($3); destroy($5); destroy($6); $2->symbol = TOK_TYPEID; $$ = $1->adopt($2, $4); }
-               | TOK_STRUCT TOK_IDENT '{' fielddeclarray '}' { destroy($3); destroy($5); $2->symbol = TOK_TYPEID; $1->adopt($2); $1->adopt_children($4); destroy($4); $$ = $1; }
+structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $$ = $1->struct_empty_arg($2, $3, $4); }
+               | TOK_STRUCT TOK_IDENT '{' fielddecl ';' '}'  { $$ = $1->struct_arg($2, $3, $4, $5, $6); }
+               | TOK_STRUCT TOK_IDENT '{' fielddeclarray '}' { $$ = $1->struct_mult_args($2, $3, $4, $5); }
                ;
 
 fielddeclarray : fielddeclarray fielddecl ';' { destroy($3); $$ = $1->adopt($2) }
@@ -124,7 +124,7 @@ expr           : expr '=' expr          { $$ = $2.adopt($1, $3); }
                ;
              
 allocator      : TOK_NEW TOK_IDENT '(' ')'      { $2->symbol = TOK_TYPEID; $$ = $1.adopt($2); }
-               | TOK_NEW TOK_STRING '(' ')'     { $2->symbol = TOK_NEWSTRING; $$ = $1..adopt($2); }
+               | TOK_NEW TOK_STRING '(' ')'     { $2->symbol = TOK_NEWSTRING; $$ = $1.adopt($2); }
                | TOK_NEW basetype   '[' expr ']'{ $2->symbol = TOK_NEWARRAY; $$ = $1.adopt($2, $4); }
                ;
               
@@ -134,7 +134,7 @@ call           : TOK_IDENT '(' ')'      { $$ = $2.adopt_sym($1, TOK_CALL); }
                ;
 
 arglist        : arglist ',' expr       { $$ = $1.adopt($3); }
-               : '(' expr ',' expr      { $1->symbol = TOK_CALL; $$ = $1.adopt($2, $4);}
+               | '(' expr ',' expr      { $1->symbol = TOK_CALL; $$ = $1.adopt($2, $4);}
                ;
 
 variable       : TOK_IDENT
