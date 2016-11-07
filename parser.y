@@ -28,14 +28,38 @@
 
 %%
 
-start   : program       {}
-        ;
+start          : program               { parser::root = $1}
+               ;
 
-program : program structdef
-        | program function
-        | program statement
-        |                       { $$ = astree::astree() }
-        ;
+program        : program structdef     { $$ = $1->adopt($2) }
+               | program function      { $$ = $1->adopt($2) }
+               | program statement     { $$ = $1->adopt($2) }
+               |                       { $$ = astree::dump(stderr, parser::root) }
+               ;
+
+structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $$ = $1->adopt($2)}
+               | TOK_STRUCT TOK_IDENT '{' fielddecl ';' '}'  { $$ = $1->adopt($2, $4) }
+               | TOK_STRUCT TOK_IDENT '{' fielddeclarray '}' { $$ = $1->adopt($2, $4) }
+               ;
+
+fielddeclarray : fielddeclarray fielddecl ';' { $$ = $1->adopt($2) }
+               | fielddecl ';' fielddecl ';'  { $$ = TOK_ROOT->adopt($1, $3) }
+               ;
+
+fielddecl      : basetype TOK_FIELD           { $$ = $1->adopt($2) }
+               | basetype TOK_ARRAY TOK_FIELD { $$ = $2->adopt($1, $3) }
+               ;
+
+basetype       : TOK_VOID   { $$ = $1 }
+               | TOK_INT    { $$ = $1 }
+               | TOK_STRING { $$ = $1 }
+               | TOK_IDENT  { $$ = $1 }
+               ;
+
+indentdecl     : basetype TOK_IDENT { $$ = $1->adopt($2) }
+               | basetype TOK_ARRAY TOK_IDENT { $$ = $2->adopt($1, $3)}
+               ;
+
 
 
 
