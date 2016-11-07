@@ -92,26 +92,48 @@ return         : TOK_RETURN ';' { $$ = }
                | TOK_RETURN expr ';' { $$ = }
                ;
 
-expr           : expr '=' expr
-               | expr TOK_EQ expr
-               | expr TOK_GT expr
-               | expr TOK_GE expr
-               | expr TOK_LT expr
-               | expr TOK_LE expr
-               | expr TOK_NE expr
-               | expr '+' expr
-               | expr '-' expr
-               | expr '*' expr
-               | expr '/' expr
-               | expr '%' expr
-               | expr '^' expr
-               | '+' expr
-               | '-' expr
-               | allocator
-               | call
-               | '(' expr ')'
-               | variable
-               | constant
+expr           : expr '=' expr          { $$ = $2.adopt($1, $3); }
+               | expr TOK_EQ expr       { $$ = $2.adopt($1, $3); }
+               | expr TOK_GT expr       { $$ = $2.adopt($1, $3); }
+               | expr TOK_GE expr       { $$ = $2.adopt($1, $3); }
+               | expr TOK_LT expr       { $$ = $2.adopt($1, $3); }
+               | expr TOK_LE expr       { $$ = $2.adopt($1, $3); }
+               | expr TOK_NE expr       { $$ = $2.adopt($1, $3); }
+               | expr '+' expr          { $$ = $2.adopt($1, $3); }
+               | expr '-' expr          { $$ = $2.adopt($1, $3); }
+               | expr '*' expr          { $$ = $2.adopt($1, $3); }
+               | expr '/' expr          { $$ = $2.adopt($1, $3); }
+               | expr '%' expr          { $$ = $2.adopt($1, $3); }
+               | expr '^' expr          { $$ = $2.adopt($1, $3); }
+               | '+' expr               { $$ = $1.adopt_sym($2, TOK_POS); }
+               | '-' expr               { $$ = $1.adopt_sym($2, TOK_NEG); }
+               | allocator              { $$ = $1 }
+               | call                   { $$ = $1 }
+               | '(' expr ')'           { $$ = $2 }
+               | variable               { $$ = $1 }
+               | constant               { $$ = $1 }
+               ;
+             
+allocator      : TOK_NEW TOK_TYPEID '(' ')'
+               | TOK_NEW TOK_STRING '(' ')'
+               | TOK_NEW basetype   '[' expr ']'
+               ;
+              
+call           : TOK_IDENT '(' ')'
+               | TOK_IDENT '(' expr ')'
+               | TOK_IDENT arglist ')'
+               ;
+
+variable       : TOK_IDENT
+               | expr '[' expr ']'
+               | expr '.' TOK_IDENT
+               ;
+
+constant       : TOK_INTCON
+               | TOK_CHARCON
+               | TOK_STRINGCON
+               | TOK_NULL
+               ;
 
 
 
