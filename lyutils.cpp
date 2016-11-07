@@ -15,7 +15,7 @@ size_t lexer::last_yyleng = 0;
 vector<string> lexer::filenames;
 FILE* tok_out;
 
-astree* parser::root = nullptr;
+astree* parser::root = astree::generate_root();
 
 const string* lexer::filename (int filenr) {
    return &lexer::filenames.at(filenr);

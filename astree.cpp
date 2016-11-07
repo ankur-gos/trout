@@ -49,6 +49,28 @@ astree* astree::adopt_children (astree* node) {
     return this;
 }
 
+astree* astree::adopt_front (astree* node) {
+    children.insert(children.begin(), node);
+    return this;
+}
+
+astree* astree::generate_root (){
+    return new astree(TOK_ROOT, {0, 0, 0}, "");
+}
+
+astree* astree::generate_function_tree (astree* identdecl, astree* paramlist, astree* block) {
+    astree* func;
+    // Check if it's a function prototype
+    if (block->symbol == ';') {
+         func = new astree(TOK_PROTOTYPE, identdecl->lloc, "");
+         return func.adopt(identdecl, paramlist);
+    } else {
+         func = new astree(TOK_FUNCTION, identdecl->lloc, "");
+         func.adopt(identdecl, paramlist);
+         return func.adopt(block);
+    }
+}
+
 
 void astree::dump_node (FILE* outfile) {
    fprintf (outfile, "  %-2zu %2zu.%03zu %3d %-15s (%s)\n",
