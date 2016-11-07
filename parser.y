@@ -37,13 +37,13 @@ program        : program structdef     { $$ = $1->adopt($2) }
                |                       { $$ = astree::dump(stderr, parser::root) }
                ;
 
-structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $$ = $1->adopt($2)}
-               | TOK_STRUCT TOK_IDENT '{' fielddecl ';' '}'  { $$ = $1->adopt($2, $4) }
-               | TOK_STRUCT TOK_IDENT '{' fielddeclarray '}' { $$ = $1->adopt($2, $4) }
+structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $2->symbol = TOK_TYPEID; $$ = $1->adopt($2);     }
+               | TOK_STRUCT TOK_IDENT '{' fielddecl ';' '}'  { $2->symbol = TOK_TYPEID; $$ = $1->adopt($2, $4); }
+               | TOK_STRUCT TOK_IDENT '{' fielddeclarray '}' { $2->symbol = TOK_TYPEID; $$ = $1->adopt($2, $4)  }
                ;
 
 fielddeclarray : fielddeclarray fielddecl ';' { $$ = $1->adopt($2) }
-               | fielddecl ';' fielddecl ';'  { $$ = TOK_ROOT->adopt($1, $3) }
+               | fielddecl ';' fielddecl ';'  { $$ = $1->adopt($3) }
                ;
 
 fielddecl      : basetype TOK_FIELD           { $$ = $1->adopt($2) }
@@ -59,6 +59,10 @@ basetype       : TOK_VOID   { $$ = $1 }
 indentdecl     : basetype TOK_IDENT { $$ = $1->adopt($2) }
                | basetype TOK_ARRAY TOK_IDENT { $$ = $2->adopt($1, $3)}
                ;
+
+block          : '{' '}'        { $$ = $1->adopt_sym(nullptr, TOK_BLOCK) }
+               : ';'            { $$ = $1->adopt_sym(nullptr, TOK_BLOCK) }
+               :
 
 
 
