@@ -75,7 +75,7 @@ void scan_tok_to_file (string filename, string command) {
 }
 
 void dump_ast(string filename) {
-      string fout_name = filename + ".tok";
+      string fout_name = filename + ".ast";
       astree::print((fopen(fout_name.c_str(), "w")), parser::root);
 }
 
@@ -131,7 +131,7 @@ int main(int argc, char** argv){
 
    scan_tok_to_file (no_ext, command);
    dump_stringset_file (no_ext);
-   //dump_ast(no_ext);
+   dump_ast(no_ext);
    if(pclose(yyin) != 0){
       cerr << "Pipe close failed." << endl;
       exit(EXIT_FAILURE);
