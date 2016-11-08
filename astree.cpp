@@ -60,8 +60,8 @@ astree* astree::adopt_front (astree* node, astree* dest) {
     return this;
 }
 
-astree* astree::generate_root (){
-    return new astree(TOK_ROOT, {0, 0, 0}, "");
+astree* astree::generate_root (int sym){
+    return new astree(sym, {0, 0, 0}, "");
 }
 
 astree* astree::generate_function_tree (astree* identdecl, astree* paramlist, astree* block, int prototok, int functok) {

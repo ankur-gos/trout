@@ -28,7 +28,7 @@
 %token TOK_VARDECL TOK_NEWSTRING
 
 %initial-action {
-   parser::root = astree::generate_root();
+   parser::root = astree::generate_root(TOK_ROOT);
 }
 
 %right TOK_IF TOK_ELSE
