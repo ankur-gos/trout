@@ -28,13 +28,13 @@ struct astree {
    ~astree();
    astree* adopt (astree* child1, astree* child2 = nullptr);
    astree* adopt_sym (astree* child, int symbol);
-   astree* adopt_2_sym (astree* child1, child2, int sym);
+   astree* adopt_2_sym (astree* child1, astree* child2, int sym);
    astree* adopt_children (astree* node);
    astree* adopt_front(astree* child, astree* dest);
    astree* struct_empty_arg(astree* ident, astree* lb, astree* rb);
-   astree* struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc; astree* rb);
+   astree* struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc, astree* rb);
    astree* struct_mult_args(astree* ident, astree* argarray, astree* rb);
-   astree* destroy_adopt(astree* destroy, astree* a1, astree a2 = nullptr);
+   astree* destroy_adopt(astree* destroy, astree* a1, astree* a2 = nullptr);
    astree* destroy_sym_adopt(astree* destroy, int sym, astree* child1, astree* child2 = nullptr);
    astree* fn_empty(astree* lp, astree* rp, astree* block, int sym);
    astree* fn_arg(astree* lp, astree* param, astree* rp, astree* block, int sym);
