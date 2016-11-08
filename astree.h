@@ -34,10 +34,10 @@ struct astree {
    astree* struct_empty_arg(astree* ident, astree* lb, astree* rb, int sym);
    astree* struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc, astree* rb, int sym);
    astree* struct_mult_args(astree* ident, astree* lb, astree* argarray, astree* rb, int sym);
-   astree* destroy_adopt(astree* destroy, astree* a1, astree* a2 = nullptr);
+   astree* destroy_adopt(astree* dest, astree* a1, astree* a2 = nullptr);
    astree* destroy_sym_adopt(astree* destroy, int sym, astree* child1, astree* child2 = nullptr);
    astree* fn(astree* lp, astree* rp, astree* block, int sym, int prototok, int functok);
-   astree* adopt_child_sym(astree* d1, astree* d2, int sym, astree* child1, astree* child2 = nullptr);
+   astree* adopt_child_sym(int sym, astree* d1, astree* d2, astree* child1, astree* child2 = nullptr);
    astree* adopt_child_2_sym(int sym, astree* child1, astree* child2);
    astree* destroy_paren(astree* lp, astree* rp);
    astree* destroy_2_adopt(astree* d1, astree* d2, astree* child1, astree* child2);

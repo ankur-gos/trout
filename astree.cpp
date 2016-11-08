@@ -105,13 +105,13 @@ astree* astree::fn(astree* lp, astree* rp, astree* block, int sym, int prototok,
     return astree::generate_function_tree(this, lp, block, prototok, functok);
 }
 
-astree* astree::adopt_child_sym(int sym, astree* d1, astree* d2, astree* child1, astree* child2 = nullptr){
+astree* astree::adopt_child_sym(int sym, astree* d1, astree* d2, astree* child1, astree* child2 ){
     destroy(d1, d2);
     child1->symbol = sym;
     return adopt(child1, child2);
 }
 
-astree* astree::destroy_adopt(astree* dest, astree* a1, astree* a2 = nullptr) {
+astree* astree::destroy_adopt(astree* dest, astree* a1, astree* a2) {
     destroy(dest);
     return adopt(a1, a2);
 }
