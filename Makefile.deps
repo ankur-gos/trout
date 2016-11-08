@@ -1,3 +1,8 @@
-oc.o: oc.cpp
-stringset.o: stringset.cpp
-auxlib.o: auxlib.cpp
+# Makefile.deps created Mon Nov  7 20:11:49 PST 2016 by make
+astree.o: astree.cpp astree.h auxlib.h stringset.h lyutils.h yyparse.h
+lyutils.o: lyutils.cpp auxlib.h lyutils.h astree.h yyparse.h
+stringset.o: stringset.cpp stringset.h
+auxlib.o: auxlib.cpp auxlib.h
+oc.o: oc.cpp stringset.h auxlib.h astree.h lyutils.h yyparse.h
+yylex.o: yylex.cpp lyutils.h astree.h auxlib.h yyparse.h
+yyparse.o: yyparse.cpp lyutils.h astree.h auxlib.h yyparse.h

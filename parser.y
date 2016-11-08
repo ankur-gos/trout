@@ -78,7 +78,7 @@ function       : identdecl '(' ')' block            { $$ = $1->fn_empty($2, $3, 
 identdeclarray : '(' identdecl ',' identdecl { $$ = $1->destroy_adopt($3, $2, $4); }
                | identdeclarray ',' identdecl { $$ = $1->destroy_adopt($2, $3); }
 
-indentdecl     : basetype TOK_IDENT                 { $$ = $1->adopt($2) }
+identdecl     : basetype TOK_IDENT                 { $$ = $1->adopt($2) }
                | basetype TOK_ARRAY TOK_IDENT       { $$ = $2->adopt($1, $3)}
                ;
 
@@ -100,7 +100,7 @@ statementarray : statementarray statement { $$ = $1->adopt($2) }
                | '{' statement statement  { $$ = $1->adopt($2, $3) }
                ;
 
-vardecl        : indentdecl '=' expr ';' { $$ = $2->destroy_sym_adopt($4, TOK_VARDECL, $1, $3); }
+vardecl        : identdecl '=' expr ';' { $$ = $2->destroy_sym_adopt($4, TOK_VARDECL, $1, $3); }
                ;
 
 while          : TOK_WHILE '(' expr ')' statement { $$ = $1.destroy_2_adopt($2, $4, $3, $5); }
