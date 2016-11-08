@@ -64,16 +64,16 @@ astree* astree::generate_root (){
     return new astree(TOK_ROOT, {0, 0, 0}, "");
 }
 
-astree* astree::generate_function_tree (astree* identdecl, astree* paramlist, astree* block) {
+astree* astree::generate_function_tree (astree* identdecl, astree* paramlist, astree* block, int prototok, int functok) {
     astree* func;
     // Check if it's a function prototype
     if (block->symbol == ';') {
-         func = new astree(TOK_PROTOTYPE, identdecl->lloc, "");
-         return func.adopt(identdecl, paramlist);
+         func = new astree(prototok, identdecl->lloc, "");
+         return func->adopt(identdecl, paramlist);
     } else {
-         func = new astree(TOK_FUNCTION, identdecl->lloc, "");
-         func.adopt(identdecl, paramlist);
-         return func.adopt(block);
+         func = new astree(functok, identdecl->lloc, "");
+         func->adopt(identdecl, paramlist);
+         return func->adopt(block);
     }
 }
 
@@ -83,7 +83,7 @@ astree* astree::struct_empty_arg (astree* ident, astree* lb, astree* rb, int sym
     return adopt(ident);
 }
 
-astree* astree::struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc; astree* rb, int sym){
+astree* astree::struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc, astree* rb, int sym){
     destroy(lb, sc);
     destroy(rb);
     ident->symbol = sym;
@@ -99,16 +99,10 @@ astree* astree::struct_mult_args(astree* ident, astree* lb, astree* fdeclarray, 
     return this;
 }
 
-astree* astree::fn_empty(astree* lp, astree* rp, astree* block, int sym){
+astree* astree::fn(astree* lp, astree* rp, astree* block, int sym, int prototok, int functok){
     destroy(rp);
     lp->symbol = sym;
-    return astree::generate_function_tree(this, lp, block);
-}
-
-astree* astree::fn_arg(astree* lp, astree* param, astree* rp, astree* block, int sym){
-    destroy(rp);
-    lp->symbol = sym;
-    return astree
+    return astree::generate_function_tree(this, lp, block, prototok, functok);
 }
 
 astree* astree::adopt_child_sym(int sym, astree* d1, astree* d2, astree* child1, astree* child2 = nullptr){
@@ -117,13 +111,13 @@ astree* astree::adopt_child_sym(int sym, astree* d1, astree* d2, astree* child1,
     return adopt(child1, child2);
 }
 
-astree* astree::destroy_adopt(astree* destroy, astree* a1, astree a2 = nullptr) {
+astree* astree::destroy_adopt(astree* destroy, astree* a1, astree* a2 = nullptr) {
     destroy(destroy);
     return adopt(a1, a2);
 }
 
-astree* astree::destroy_sym_adopt(astree* destroy, int sym, astree* child1, astree* child2) {
-    destroy(destroy);
+astree* astree::destroy_sym_adopt(astree* dest, int sym, astree* child1, astree* child2) {
+    destroy(dest);
     symbol = sym;
     return adopt(child1, child2);
 }
@@ -141,7 +135,7 @@ astree* astree::destroy_3_sym_adopt_3(astree* d1, astree* d2, astree* d3, int sy
     return adopt(child3);
 }
 
-astree* adopt_child_2_sym(int sym, astree* child1, astree* child2){
+astree* astree::adopt_child_2_sym(int sym, astree* child1, astree* child2){
     child2->symbol = sym;
     return adopt(child1, child2);
 }

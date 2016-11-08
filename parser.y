@@ -24,7 +24,7 @@
 %token TOK_POS TOK_NEG TOK_NEWARRAY TOK_TYPEID TOK_FIELD
 %token TOK_ORD TOK_CHR TOK_ROOT
 %token TOK_RETURNVOID
-%token TOK_FUNCTION TOK_PARAMLIST
+%token TOK_FUNCTION TOK_PROTOTYPE TOK_PARAMLIST
 
 %initial-action {
    parser::root = astree::generate_root();
@@ -70,9 +70,9 @@ basetype       : TOK_VOID   { $$ = $1 }
                | TOK_IDENT  { $$ = $1 }
                ;
 
-function       : identdecl '(' ')' block            { $$ = $1->fn_empty($2, $3, $4, TOK_PARAMLIST); }
-               | identdecl '(' identdecl ')' block  { $$ = $1->fn_empty($2.adopt($3), $4, $5, TOK_PARAMLIST); }
-               | identdecl identdeclarray ')' block { $$ = $1->fn_empty($2, $3, $4, TOK_PARAMLIST); }
+function       : identdecl '(' ')' block            { $$ = $1->fn($2, $3, $4, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
+               | identdecl '(' identdecl ')' block  { $$ = $1->fn($2.adopt($3), $4, $5, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
+               | identdecl identdeclarray ')' block { $$ = $1->fn($2, $3, $4, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
                ;
               
 identdeclarray : '(' identdecl ',' identdecl { $$ = $1->destroy_adopt($3, $2, $4); }
