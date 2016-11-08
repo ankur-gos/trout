@@ -25,6 +25,7 @@
 %token TOK_ORD TOK_CHR TOK_ROOT
 %token TOK_RETURNVOID
 %token TOK_FUNCTION TOK_PARAMLIST
+%token TOK_INDEX
 
 %initial-action {
    parser::root = astree::generate_root();
@@ -74,10 +75,10 @@ indentdecl     : basetype TOK_IDENT                 { $$ = $1->adopt($2) }
                | basetype TOK_ARRAY TOK_IDENT       { $$ = $2->adopt($1, $3)}
                ;
 
-block          : '{' '}'                { $$ = $1->adopt_sym(nullptr, TOK_BLOCK) }
-               | ';'                    { $$ = $1 }
-               | '{' statement '}'      { $$ = $1->adopt_sym($2, TOK_BLOCK) }
-               | statementarray '}'     { $$ = $1 }
+block          : '{' '}'                { $$ = $1->destroy_sym_adopt($2, TOK_BLOCK, nullptr); }
+               | ';'                    { $$ = $1; }
+               | '{' statement '}'      { $$ = $1->destroy_sym_adopt($3, TOK_BLOCK, $2); }
+               | statementarray '}'     { $$ = $1->destroy_paren($2, nullptr); }
                ;
 
 statement      : block { $$ = $1 }
@@ -85,21 +86,21 @@ statement      : block { $$ = $1 }
                | while { $$ = $1 }
                | ifelse { $$ = $1 }
                | return { $$ = $1 }
-               | expr ';' { $$ = $1 }
+               | expr ';' { $$ = $1->destroy_adopt($2, nullptr); }
                ;
 
 statementarray : statementarray statement { $$ = $1->adopt($2) }
                | '{' statement statement  { $$ = $1->adopt($2, $3) }
                ;
 
-vardecl        : indentdecl '=' expr ';' { $2->symbol = TOK_VARDECL; $$ = $2.adopt($1, $3); }
+vardecl        : indentdecl '=' expr ';' { $$ = $2->destroy_sym_adopt($4, TOK_VARDECL, $1, $3); }
                ;
 
-while          : TOK_WHILE '(' expr ')' statement { $$ = $1.adopt($3, $5); }
+while          : TOK_WHILE '(' expr ')' statement { $$ = $1.destroy_2_adopt($2, $4, $3, $5); }
                ;
 
-ifelse         : TOK_IF '(' expr ')' statement { $$ = $1.adopt($3, $5); }
-               | TOK_IF '(' expr ')' statement TOK_ELSE statement { $1->symbol = TOK_IFELSE; $1.adopt($3, $5); $$ = $1.adopt($7); }
+ifelse         : TOK_IF '(' expr ')' statement { $$ = $1.destroy_2_adopt($2, $4, $3, $5); }
+               | TOK_IF '(' expr ')' statement TOK_ELSE statement { $$ = $1->destroy_3_sym_adopt_3($2, $4, TOK_IFElSE, $3, $5, $7); }
                ;
 
 return         : TOK_RETURN ';' { $$ = $1.adopt_sym(nullptr, TOK_RETURNVOID); }
@@ -123,7 +124,7 @@ expr           : expr '=' expr          { $$ = $2.adopt($1, $3); }
                | '-' expr               { $$ = $1.adopt_sym($2, TOK_NEG); }
                | allocator              { $$ = $1; }
                | call                   { $$ = $1; }
-               | '(' expr ')'           { $$ = $2; }
+               | '(' expr ')'           { $$ = $2.destroy_paren($1, $3); }
                | variable               { $$ = $1; }
                | constant               { $$ = $1; }
                ;
@@ -134,23 +135,23 @@ allocator      : TOK_NEW TOK_IDENT '(' ')'      { $$ = $1.adopt_child_sym(TOK_TY
                ;
               
 call           : TOK_IDENT '(' ')'      { $$ = $2.adopt_sym($1, TOK_CALL); }
-               | TOK_IDENT '(' expr ')' { $2.adopt_sym($1, TOK_CALL); $$ = $2.adopt($3); }
+               | TOK_IDENT '(' expr ')' { $$ = $2.adopt_2_sym($1, $3, TOK_CALL); }
                | TOK_IDENT arglist ')'  { $$ = $2->adopt_front($1, $3); }
                ;
 
-arglist        : arglist ',' expr       { $$ = $1.adopt($3); }
-               | '(' expr ',' expr      { $1->symbol = TOK_CALL; $$ = $1.adopt($2, $4);}
+arglist        : arglist ',' expr       { $$ = $1.destroy_adopt($2, $3); }
+               | '(' expr ',' expr      { $$ = $1.adopt_2_sym($2, $4, TOK_CALL);}
                ;
 
-variable       : TOK_IDENT
-               | expr '[' expr ']'
-               | expr '.' TOK_IDENT
+variable       : TOK_IDENT              { $$ = $1; }
+               | expr '[' expr ']'      { $$ = $2.destroy_sym_adopt($4, TOK_INDEX, $1, $2); }
+               | expr '.' TOK_IDENT     { $$ = $2.adopt_child_2_sym($1, $3, TOK_FIELD);}
                ;
 
-constant       : TOK_INTCON
-               | TOK_CHARCON
-               | TOK_STRINGCON
-               | TOK_NULL
+constant       : TOK_INTCON     { $$ = $1; }
+               | TOK_CHARCON    { $$ = $1; }
+               | TOK_STRINGCON  { $$ = $1; }
+               | TOK_NULL       { $$ = $1; }
                ;
 
 
