@@ -42,7 +42,7 @@ struct astree {
    astree* destroy_paren(astree* lp, astree* rp);
    astree* destroy_2_adopt(astree* d1, astree* d2, astree* child1, astree* child2);
    astree* destroy_3_sym_adopt_3(astree* d1, astree* d2, astree* d3, int sym, astree* child1, astree* child2, astree* child3);
-   static astree* generate_root();
+   static astree* generate_root(int sym);
    static astree* generate_function_tree(astree* identdecl, astree* paramlist, astree* block, int prototok, int functok);
    void dump_node (FILE*);
    void dump_tree (FILE*, int depth = 0);
