@@ -37,7 +37,7 @@ struct astree {
    astree* destroy_adopt(astree* destroy, astree* a1, astree* a2 = nullptr);
    astree* destroy_sym_adopt(astree* destroy, int sym, astree* child1, astree* child2 = nullptr);
    astree* fn(astree* lp, astree* rp, astree* block, int sym, int prototok, int functok);
-   astree* adopt_child_sym(astree* d1, astree* d2, int sym, astree* child1, astree* child2 = nullptr);
+   astree* adopt_child_sym(int sym, astree* d1, astree* d2, astree* child1, astree* child2 = nullptr);
    astree* adopt_child_2_sym(int sym, astree* child1, astree* child2);
    astree* destroy_paren(astree* lp, astree* rp);
    astree* destroy_2_adopt(astree* d1, astree* d2, astree* child1, astree* child2);
