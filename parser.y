@@ -25,6 +25,7 @@
 %token TOK_ORD TOK_CHR TOK_ROOT
 %token TOK_RETURNVOID
 %token TOK_FUNCTION TOK_PROTOTYPE TOK_PARAMLIST
+%token TOK_VARDECL TOK_NEWSTRING
 
 %initial-action {
    parser::root = astree::generate_root();
@@ -48,7 +49,7 @@ start          : program               { $$ = parser::root->adopt($1); }
 program        : program structdef     { $$ = $1->adopt($2); }
                | program function      { $$ = $1->adopt($2); }
                | program statement     { $$ = $1->adopt($2); }
-               |                       { $$ = astree::dump(stderr, parser::root); }
+               |                       
                ;
 
 structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $$ = $1->struct_empty_arg($2, $3, $4, TOK_TYPEID); }
@@ -107,7 +108,7 @@ while          : TOK_WHILE '(' expr ')' statement { $$ = $1->destroy_2_adopt($2,
                ;
 
 ifelse         : TOK_IF '(' expr ')' statement { $$ = $1->destroy_2_adopt($2, $4, $3, $5); }
-               | TOK_IF '(' expr ')' statement TOK_ELSE statement { $$ = $1->destroy_3_sym_adopt_3($2, $4, TOK_IFElSE, $3, $5, $7); }
+               | TOK_IF '(' expr ')' statement TOK_ELSE statement { $$ = $1->destroy_3_sym_adopt_3($2, $4, TOK_IFELSE, $3, $5, $7); }
                ;
 
 return         : TOK_RETURN ';' { $$ = $1->adopt_sym(nullptr, TOK_RETURNVOID); }
@@ -153,7 +154,7 @@ arglist        : arglist ',' expr       { $$ = $1->destroy_adopt($2, $3); }
 
 variable       : TOK_IDENT              { $$ = $1; }
                | expr '[' expr ']'      { $$ = $2->destroy_sym_adopt($4, TOK_INDEX, $1, $2); }
-               | expr '.' TOK_IDENT     { $$ = $2->adopt_child_2_sym($1, $3, TOK_FIELD);}
+               | expr '.' TOK_IDENT     { $$ = $2->adopt_child_2_sym(TOK_FIELD, $1, $3);}
                ;
 
 constant       : TOK_INTCON     { $$ = $1; }
