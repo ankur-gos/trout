@@ -26,6 +26,7 @@
 %token TOK_RETURNVOID
 %token TOK_FUNCTION TOK_PROTOTYPE TOK_PARAMLIST
 %token TOK_VARDECL TOK_NEWSTRING
+%token TOK_DECLID
 
 %initial-action {
    parser::root = astree::generate_root(TOK_ROOT);
@@ -79,7 +80,7 @@ function       : identdecl '(' ')' block            { $$ = $1->fn($2, $3, $4, TO
 identdeclarray : '(' identdecl ',' identdecl { $$ = $1->destroy_adopt($3, $2, $4); }
                | identdeclarray ',' identdecl { $$ = $1->destroy_adopt($2, $3); }
 
-identdecl     : basetype TOK_IDENT                 { $$ = $1->adopt($2); }
+identdecl      : basetype TOK_IDENT                 { $$ = $1->adopt_child_sym(TOK_DECLID, nullptr, nullptr, $2); }
                | basetype TOK_ARRAY TOK_IDENT       { $$ = $2->adopt($1, $3); }
                ;
 
@@ -153,7 +154,7 @@ arglist        : arglist ',' expr       { $$ = $1->destroy_adopt($2, $3); }
                ;
 
 variable       : TOK_IDENT              { $$ = $1; }
-               | expr '[' expr ']'      { $$ = $2->destroy_sym_adopt($4, TOK_INDEX, $1, $2); }
+               | expr '[' expr ']'      { $$ = $2->destroy_sym_adopt($4, TOK_INDEX, $1, $3); }
                | expr '.' TOK_IDENT     { $$ = $2->adopt_child_2_sym(TOK_FIELD, $1, $3);}
                ;
 
