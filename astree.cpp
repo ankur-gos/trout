@@ -49,7 +49,8 @@ astree* astree::adopt_children (astree* node) {
     return this;
 }
 
-astree* astree::adopt_front (astree* node) {
+astree* astree::adopt_front (astree* node, astree* dest) {
+    destroy(dest);
     children.insert(children.begin(), node);
     return this;
 }
@@ -71,26 +72,49 @@ astree* astree::generate_function_tree (astree* identdecl, astree* paramlist, as
     }
 }
 
-astree* astree::struct_empty_arg (astree* ident, astree* lb, astree* rb){
+astree* astree::struct_empty_arg (astree* ident, astree* lb, astree* rb, int sym){
     destroy(lb, rb);
-    ident->symbol = TOK_TYPEID;
+    ident->symbol = sym;
     return this->adopt(ident);
 }
 
-astree* astree::struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc; astree* rb){
+astree* astree::struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc; astree* rb, int sym){
     destroy(lb, sc);
     destroy(rb);
-    ident->symbol = TOK_TYPEID;
+    ident->symbol = sym;
     return this->adopt(ident, stmt);
 }
 
-astree* astree::struct_mult_args(astree* ident, astree* lb, astree* fdeclarray, astree* rb){
+astree* astree::struct_mult_args(astree* ident, astree* lb, astree* fdeclarray, astree* rb, int sym){
     destroy(lb, rb);
-    ident->symbol = TOK_TYPEID;
+    ident->symbol = sym; 
     this->adopt(ident);
     this->adopt_children(fdeclarray);
     destroy(fdeclarray);
     return this;
+}
+
+astree* astree::fn_empty(astree* lp, astree* rp, astree* block, int sym){
+    destroy(rp);
+    lp->symbol = sym;
+    return astree::generate_function_tree(this, lp, block);
+}
+
+astree* astree::fn_arg(astree* lp, astree* param, astree* rp, astree* block, int sym){
+    destroy(rp);
+    lp->symbol = sym;
+    return astree
+}
+
+astree* astree::adopt_child_sym(int sym, astree* d1, astree* d2, astree* child1, astree* child2 = nullptr){
+    destroy(d1, d2);
+    child1->symbol = sym;
+    return this.adopt(child1, child2);
+}
+
+astree* destroy_adopt(astree* destroy, astree* a1, astree a2 = nullptr) {
+    destroy(destroy);
+    return this->adopt(a1, a2);
 }
 
 

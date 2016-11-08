@@ -29,11 +29,14 @@ struct astree {
    astree* adopt (astree* child1, astree* child2 = nullptr);
    astree* adopt_sym (astree* child, int symbol);
    astree* adopt_children (astree* node);
-   astree* adopt_front(astree* child);
+   astree* adopt_front(astree* child, astree* dest);
    astree* struct_empty_arg(astree* ident, astree* lb, astree* rb);
    astree* struct_arg(astree* ident, astree* lb, astree* stmt, astree* sc; astree* rb);
    astree* struct_mult_args(astree* ident, astree* argarray, astree* rb);
    astree* destroy_adopt(astree* destroy, astree* a1, astree a2 = nullptr);
+   astree* fn_empty(astree* lp, astree* rp, astree* block, int sym);
+   astree* fn_arg(astree* lp, astree* param, astree* rp, astree* block, int sym);
+   astree* adopt_child_sym(int sym, astree* child1, astree* child2);
    static astree* generate_root();
    static astree* generate_function_tree(astree* identdecl, astree* paramlist, astree* block);
    void dump_node (FILE*);

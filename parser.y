@@ -27,7 +27,7 @@
 %token TOK_FUNCTION TOK_PARAMLIST
 
 %initial-action {
-   parser::root = astree::generate_function_tree();
+   parser::root = astree::generate_root();
 }
 
 %start start
@@ -43,13 +43,13 @@ program        : program structdef     { $$ = $1->adopt($2) }
                |                       { $$ = astree::dump(stderr, parser::root) }
                ;
 
-structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $$ = $1->struct_empty_arg($2, $3, $4); }
-               | TOK_STRUCT TOK_IDENT '{' fielddecl ';' '}'  { $$ = $1->struct_arg($2, $3, $4, $5, $6); }
-               | TOK_STRUCT TOK_IDENT '{' fielddeclarray '}' { $$ = $1->struct_mult_args($2, $3, $4, $5); }
+structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $$ = $1->struct_empty_arg($2, $3, $4, TOK_TYPEID); }
+               | TOK_STRUCT TOK_IDENT '{' fielddecl ';' '}'  { $$ = $1->struct_arg($2, $3, $4, $5, $6, TOK_TYPEID); }
+               | TOK_STRUCT TOK_IDENT '{' fielddeclarray '}' { $$ = $1->struct_mult_args($2, $3, $4, $5, TOK_TYPEID); }
                ;
 
-fielddeclarray : fielddeclarray fielddecl ';' { destroy($3); $$ = $1->adopt($2) }
-               | fielddecl ';' fielddecl ';'  { destroy($4); $$ = $2->adopt($1, $3) }
+fielddeclarray : fielddeclarray fielddecl ';' { $$ = $1->destroy_adopt($3, $2); }
+               | fielddecl ';' fielddecl ';'  { $$ = $2->destroy_adopt($4, $1, $3); }
                ;
 
 fielddecl      : basetype TOK_FIELD           { $$ = $1->adopt($2) }
@@ -62,8 +62,13 @@ basetype       : TOK_VOID   { $$ = $1 }
                | TOK_IDENT  { $$ = $1 }
                ;
 
-function       : identdecl '(' ')' block            { destroy($3); $2->symbol = TOK_PARAMLIST; $$ = astree::generate_function_tree($1, $2, $4)}
-               | identdecl '(' identdecl ')' block  { destroy($4); $2->symbol = TOK_PARAMLIST; $$ = astree::generate_function_tree($1, $2.adopt($3), $5)}
+function       : identdecl '(' ')' block            { $$ = $1->fn_empty($2, $3, $4, TOK_PARAMLIST); }
+               | identdecl '(' identdecl ')' block  { $$ = $1->fn_empty($2.adopt($3), $4, $5, TOK_PARAMLIST); }
+               | identdecl identdeclarray ')' block { $$ = $1->fn_empty($2, $3, $4, TOK_PARAMLIST); }
+               ;
+              
+identdeclarray : '(' identdecl ',' identdecl { $$ = $1->destroy_adopt($3, $2, $4); }
+               | identdeclarray ',' identdecl { $$ = $1->destroy_adopt($2, $3); }
 
 indentdecl     : basetype TOK_IDENT                 { $$ = $1->adopt($2) }
                | basetype TOK_ARRAY TOK_IDENT       { $$ = $2->adopt($1, $3)}
@@ -123,14 +128,14 @@ expr           : expr '=' expr          { $$ = $2.adopt($1, $3); }
                | constant               { $$ = $1; }
                ;
              
-allocator      : TOK_NEW TOK_IDENT '(' ')'      { $2->symbol = TOK_TYPEID; $$ = $1.adopt($2); }
-               | TOK_NEW TOK_STRING '(' ')'     { $2->symbol = TOK_NEWSTRING; $$ = $1.adopt($2); }
-               | TOK_NEW basetype   '[' expr ']'{ $2->symbol = TOK_NEWARRAY; $$ = $1.adopt($2, $4); }
+allocator      : TOK_NEW TOK_IDENT '(' ')'      { $$ = $1.adopt_child_sym(TOK_TYPEID, $3, $4, $2); }
+               | TOK_NEW TOK_STRING '(' ')'     { $$ = $1.adopt_child_sym(TOK_NEWSTRING, $3, $4, $2); }
+               | TOK_NEW basetype   '[' expr ']'{ $$ = $1.adopt_child_sym(TOK_NEWARRAY, $3, $5, $2, $4); }
                ;
               
 call           : TOK_IDENT '(' ')'      { $$ = $2.adopt_sym($1, TOK_CALL); }
                | TOK_IDENT '(' expr ')' { $2.adopt_sym($1, TOK_CALL); $$ = $2.adopt($3); }
-               | TOK_IDENT arglist ')'  { $$ = $2->adopt_front($1); }
+               | TOK_IDENT arglist ')'  { $$ = $2->adopt_front($1, $3); }
                ;
 
 arglist        : arglist ',' expr       { $$ = $1.adopt($3); }
