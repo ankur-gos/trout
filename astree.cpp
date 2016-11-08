@@ -111,8 +111,8 @@ astree* astree::adopt_child_sym(int sym, astree* d1, astree* d2, astree* child1,
     return adopt(child1, child2);
 }
 
-astree* astree::destroy_adopt(astree* destroy, astree* a1, astree* a2 = nullptr) {
-    destroy(destroy);
+astree* astree::destroy_adopt(astree* dest, astree* a1, astree* a2 = nullptr) {
+    destroy(dest);
     return adopt(a1, a2);
 }
 

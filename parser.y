@@ -45,10 +45,10 @@
 start          : program               { $$ = parser::root.adopt($1); }
                ;
 
-program        : program structdef     { $$ = $1->adopt($2) }
-               | program function      { $$ = $1->adopt($2) }
-               | program statement     { $$ = $1->adopt($2) }
-               |                       { $$ = astree::dump(stderr, parser::root) }
+program        : program structdef     { $$ = $1->adopt($2); }
+               | program function      { $$ = $1->adopt($2); }
+               | program statement     { $$ = $1->adopt($2); }
+               |                       { $$ = astree::dump(stderr, parser::root); }
                ;
 
 structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $$ = $1->struct_empty_arg($2, $3, $4, TOK_TYPEID); }
@@ -60,14 +60,14 @@ fielddeclarray : fielddeclarray fielddecl ';' { $$ = $1->destroy_adopt($3, $2); 
                | fielddecl ';' fielddecl ';'  { $$ = $2->destroy_adopt($4, $1, $3); }
                ;
 
-fielddecl      : basetype TOK_FIELD           { $$ = $1->adopt($2) }
-               | basetype TOK_ARRAY TOK_FIELD { $$ = $2->adopt($1, $3) }
+fielddecl      : basetype TOK_FIELD           { $$ = $1->adopt($2); }
+               | basetype TOK_ARRAY TOK_FIELD { $$ = $2->adopt($1, $3); }
                ;
 
-basetype       : TOK_VOID   { $$ = $1 }
-               | TOK_INT    { $$ = $1 }
-               | TOK_STRING { $$ = $1 }
-               | TOK_IDENT  { $$ = $1 }
+basetype       : TOK_VOID   { $$ = $1; }
+               | TOK_INT    { $$ = $1; }
+               | TOK_STRING { $$ = $1; }
+               | TOK_IDENT  { $$ = $1; }
                ;
 
 function       : identdecl '(' ')' block            { $$ = $1->fn($2, $3, $4, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
@@ -78,8 +78,8 @@ function       : identdecl '(' ')' block            { $$ = $1->fn($2, $3, $4, TO
 identdeclarray : '(' identdecl ',' identdecl { $$ = $1->destroy_adopt($3, $2, $4); }
                | identdeclarray ',' identdecl { $$ = $1->destroy_adopt($2, $3); }
 
-identdecl     : basetype TOK_IDENT                 { $$ = $1->adopt($2) }
-               | basetype TOK_ARRAY TOK_IDENT       { $$ = $2->adopt($1, $3)}
+identdecl     : basetype TOK_IDENT                 { $$ = $1->adopt($2); }
+               | basetype TOK_ARRAY TOK_IDENT       { $$ = $2->adopt($1, $3); }
                ;
 
 block          : '{' '}'                { $$ = $1->destroy_sym_adopt($2, TOK_BLOCK, nullptr); }
@@ -88,16 +88,16 @@ block          : '{' '}'                { $$ = $1->destroy_sym_adopt($2, TOK_BLO
                | statementarray '}'     { $$ = $1->destroy_paren($2, nullptr); }
                ;
 
-statement      : block { $$ = $1 }
-               | vardecl { $$ = $1 }
-               | while { $$ = $1 }
-               | ifelse { $$ = $1 }
-               | return { $$ = $1 }
+statement      : block { $$ = $1; }
+               | vardecl { $$ = $1; }
+               | while { $$ = $1; }
+               | ifelse { $$ = $1; }
+               | return { $$ = $1; }
                | expr ';' { $$ = $1->destroy_adopt($2, nullptr); }
                ;
 
-statementarray : statementarray statement { $$ = $1->adopt($2) }
-               | '{' statement statement  { $$ = $1->adopt($2, $3) }
+statementarray : statementarray statement { $$ = $1->adopt($2); }
+               | '{' statement statement  { $$ = $1->adopt($2, $3); }
                ;
 
 vardecl        : identdecl '=' expr ';' { $$ = $2->destroy_sym_adopt($4, TOK_VARDECL, $1, $3); }
