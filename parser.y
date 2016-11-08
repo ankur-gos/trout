@@ -15,21 +15,28 @@
 %verbose
 
 %token TOK_VOID TOK_CHAR TOK_INT TOK_STRING
-%token TOK_IF TOK_ELSE TOK_WHILE TOK_RETURN TOK_STRUCT
+%token TOK_WHILE TOK_RETURN TOK_STRUCT
 %token TOK_NULL TOK_NEW TOK_ARRAY
 %token TOK_EQ TOK_NE TOK_LT TOK_LE TOK_GT TOK_GE
 %token TOK_IDENT TOK_INTCON TOK_CHARCON TOK_STRINGCON
 
-%token TOK_BLOCK TOK_CALL TOK_IFELSE TOK_INITDECL
+%token TOK_BLOCK TOK_IFELSE TOK_INITDECL
 %token TOK_POS TOK_NEG TOK_NEWARRAY TOK_TYPEID TOK_FIELD
 %token TOK_ORD TOK_CHR TOK_ROOT
 %token TOK_RETURNVOID
 %token TOK_FUNCTION TOK_PARAMLIST
-%token TOK_INDEX
 
 %initial-action {
    parser::root = astree::generate_root();
 }
+
+%right TOK_IF TOK_ELSE
+%right '='
+%left  TOK_EQ TOK_NE TOK_LT TOK_LE TOK_GT TOK_GE
+%left  '+' '-'
+%left  '*' '/' '%'
+%right TOK_POS TOK_NEG '!' TOK_NEW
+%left TOK_INDEX '.' TOK_CALL
 
 %start start
 
@@ -120,6 +127,7 @@ expr           : expr '=' expr          { $$ = $2.adopt($1, $3); }
                | expr '/' expr          { $$ = $2.adopt($1, $3); }
                | expr '%' expr          { $$ = $2.adopt($1, $3); }
                | expr '^' expr          { $$ = $2.adopt($1, $3); }
+               | '!' expr               { $$ = $1.adopt($2); }
                | '+' expr               { $$ = $1.adopt_sym($2, TOK_POS); }
                | '-' expr               { $$ = $1.adopt_sym($2, TOK_NEG); }
                | allocator              { $$ = $1; }
