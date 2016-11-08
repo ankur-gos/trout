@@ -71,9 +71,7 @@ void scan_tok_to_file (string filename, string command) {
    string fout_name = filename + ".tok";
    tok_out = fopen(fout_name.c_str(), "w");
    lexer::newfilename (command);
-   while (yylex() != YYEOF) {
-      yylval->dump_node(tok_out);
-   }
+   yyparse();
 }
 
 int main(int argc, char** argv){
