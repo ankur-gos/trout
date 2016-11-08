@@ -108,7 +108,7 @@ while          : TOK_WHILE '(' expr ')' statement { $$ = $1->destroy_2_adopt($2,
                ;
 
 ifelse         : TOK_IF '(' expr ')' statement { $$ = $1->destroy_2_adopt($2, $4, $3, $5); }
-               | TOK_IF '(' expr ')' statement TOK_ELSE statement { $$ = $1->destroy_3_sym_adopt_3($2, $4, TOK_IFELSE, $3, $5, $7); }
+               | TOK_IF '(' expr ')' statement TOK_ELSE statement { $$ = $1->destroy_3_sym_adopt_3($2, $4, $6, TOK_IFELSE, $3, $5, $7); }
                ;
 
 return         : TOK_RETURN ';' { $$ = $1->adopt_sym(nullptr, TOK_RETURNVOID); }
