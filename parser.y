@@ -42,7 +42,7 @@
 
 %%
 
-start          : program               { $$ = parser::root.adopt($1); }
+start          : program               { $$ = parser::root->adopt($1); }
                ;
 
 program        : program structdef     { $$ = $1->adopt($2); }
@@ -71,7 +71,7 @@ basetype       : TOK_VOID   { $$ = $1; }
                ;
 
 function       : identdecl '(' ')' block            { $$ = $1->fn($2, $3, $4, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
-               | identdecl '(' identdecl ')' block  { $$ = $1->fn($2.adopt($3), $4, $5, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
+               | identdecl '(' identdecl ')' block  { $$ = $1->fn($2->adopt($3), $4, $5, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
                | identdecl identdeclarray ')' block { $$ = $1->fn($2, $3, $4, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
                ;
               
@@ -103,57 +103,57 @@ statementarray : statementarray statement { $$ = $1->adopt($2); }
 vardecl        : identdecl '=' expr ';' { $$ = $2->destroy_sym_adopt($4, TOK_VARDECL, $1, $3); }
                ;
 
-while          : TOK_WHILE '(' expr ')' statement { $$ = $1.destroy_2_adopt($2, $4, $3, $5); }
+while          : TOK_WHILE '(' expr ')' statement { $$ = $1->destroy_2_adopt($2, $4, $3, $5); }
                ;
 
-ifelse         : TOK_IF '(' expr ')' statement { $$ = $1.destroy_2_adopt($2, $4, $3, $5); }
+ifelse         : TOK_IF '(' expr ')' statement { $$ = $1->destroy_2_adopt($2, $4, $3, $5); }
                | TOK_IF '(' expr ')' statement TOK_ELSE statement { $$ = $1->destroy_3_sym_adopt_3($2, $4, TOK_IFElSE, $3, $5, $7); }
                ;
 
-return         : TOK_RETURN ';' { $$ = $1.adopt_sym(nullptr, TOK_RETURNVOID); }
-               | TOK_RETURN expr ';' { $$ = $1.adopt($2); }
+return         : TOK_RETURN ';' { $$ = $1->adopt_sym(nullptr, TOK_RETURNVOID); }
+               | TOK_RETURN expr ';' { $$ = $1->adopt($2); }
                ;
 
-expr           : expr '=' expr          { $$ = $2.adopt($1, $3); }
-               | expr TOK_EQ expr       { $$ = $2.adopt($1, $3); }
-               | expr TOK_GT expr       { $$ = $2.adopt($1, $3); }
-               | expr TOK_GE expr       { $$ = $2.adopt($1, $3); }
-               | expr TOK_LT expr       { $$ = $2.adopt($1, $3); }
-               | expr TOK_LE expr       { $$ = $2.adopt($1, $3); }
-               | expr TOK_NE expr       { $$ = $2.adopt($1, $3); }
-               | expr '+' expr          { $$ = $2.adopt($1, $3); }
-               | expr '-' expr          { $$ = $2.adopt($1, $3); }
-               | expr '*' expr          { $$ = $2.adopt($1, $3); }
-               | expr '/' expr          { $$ = $2.adopt($1, $3); }
-               | expr '%' expr          { $$ = $2.adopt($1, $3); }
-               | expr '^' expr          { $$ = $2.adopt($1, $3); }
-               | '!' expr               { $$ = $1.adopt($2); }
-               | '+' expr               { $$ = $1.adopt_sym($2, TOK_POS); }
-               | '-' expr               { $$ = $1.adopt_sym($2, TOK_NEG); }
+expr           : expr '=' expr          { $$ = $2->adopt($1, $3); }
+               | expr TOK_EQ expr       { $$ = $2->adopt($1, $3); }
+               | expr TOK_GT expr       { $$ = $2->adopt($1, $3); }
+               | expr TOK_GE expr       { $$ = $2->adopt($1, $3); }
+               | expr TOK_LT expr       { $$ = $2->adopt($1, $3); }
+               | expr TOK_LE expr       { $$ = $2->adopt($1, $3); }
+               | expr TOK_NE expr       { $$ = $2->adopt($1, $3); }
+               | expr '+' expr          { $$ = $2->adopt($1, $3); }
+               | expr '-' expr          { $$ = $2->adopt($1, $3); }
+               | expr '*' expr          { $$ = $2->adopt($1, $3); }
+               | expr '/' expr          { $$ = $2->adopt($1, $3); }
+               | expr '%' expr          { $$ = $2->adopt($1, $3); }
+               | expr '^' expr          { $$ = $2->adopt($1, $3); }
+               | '!' expr               { $$ = $1->adopt($2); }
+               | '+' expr               { $$ = $1->adopt_sym($2, TOK_POS); }
+               | '-' expr               { $$ = $1->adopt_sym($2, TOK_NEG); }
                | allocator              { $$ = $1; }
                | call                   { $$ = $1; }
-               | '(' expr ')'           { $$ = $2.destroy_paren($1, $3); }
+               | '(' expr ')'           { $$ = $2->destroy_paren($1, $3); }
                | variable               { $$ = $1; }
                | constant               { $$ = $1; }
                ;
              
-allocator      : TOK_NEW TOK_IDENT '(' ')'      { $$ = $1.adopt_child_sym(TOK_TYPEID, $3, $4, $2); }
-               | TOK_NEW TOK_STRING '(' ')'     { $$ = $1.adopt_child_sym(TOK_NEWSTRING, $3, $4, $2); }
-               | TOK_NEW basetype   '[' expr ']'{ $$ = $1.adopt_child_sym(TOK_NEWARRAY, $3, $5, $2, $4); }
+allocator      : TOK_NEW TOK_IDENT '(' ')'      { $$ = $1->adopt_child_sym(TOK_TYPEID, $3, $4, $2); }
+               | TOK_NEW TOK_STRING '(' ')'     { $$ = $1->adopt_child_sym(TOK_NEWSTRING, $3, $4, $2); }
+               | TOK_NEW basetype   '[' expr ']'{ $$ = $1->adopt_child_sym(TOK_NEWARRAY, $3, $5, $2, $4); }
                ;
               
-call           : TOK_IDENT '(' ')'      { $$ = $2.adopt_sym($1, TOK_CALL); }
-               | TOK_IDENT '(' expr ')' { $$ = $2.adopt_2_sym($1, $3, TOK_CALL); }
+call           : TOK_IDENT '(' ')'      { $$ = $2->adopt_sym($1, TOK_CALL); }
+               | TOK_IDENT '(' expr ')' { $$ = $2->adopt_2_sym($1, $3, TOK_CALL); }
                | TOK_IDENT arglist ')'  { $$ = $2->adopt_front($1, $3); }
                ;
 
-arglist        : arglist ',' expr       { $$ = $1.destroy_adopt($2, $3); }
-               | '(' expr ',' expr      { $$ = $1.adopt_2_sym($2, $4, TOK_CALL);}
+arglist        : arglist ',' expr       { $$ = $1->destroy_adopt($2, $3); }
+               | '(' expr ',' expr      { $$ = $1->adopt_2_sym($2, $4, TOK_CALL);}
                ;
 
 variable       : TOK_IDENT              { $$ = $1; }
-               | expr '[' expr ']'      { $$ = $2.destroy_sym_adopt($4, TOK_INDEX, $1, $2); }
-               | expr '.' TOK_IDENT     { $$ = $2.adopt_child_2_sym($1, $3, TOK_FIELD);}
+               | expr '[' expr ']'      { $$ = $2->destroy_sym_adopt($4, TOK_INDEX, $1, $2); }
+               | expr '.' TOK_IDENT     { $$ = $2->adopt_child_2_sym($1, $3, TOK_FIELD);}
                ;
 
 constant       : TOK_INTCON     { $$ = $1; }
