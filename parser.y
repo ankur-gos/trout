@@ -175,7 +175,7 @@ const char *parser::get_tname (int symbol) {
 }
 
 void yyerror(char *s){
-    fprintf(stderr, "%s\n");
+    fprintf(stderr, "%s\n", s);
 }
 
 
