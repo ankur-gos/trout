@@ -62,8 +62,8 @@ fielddeclarray : fielddeclarray fielddecl ';' { $$ = $1->destroy_adopt($3, $2); 
                | fielddecl ';' fielddecl ';'  { $$ = $2->destroy_adopt($4, $1, $3); }
                ;
 
-fielddecl      : basetype TOK_FIELD           { $$ = $1->adopt($2); }
-               | basetype TOK_ARRAY TOK_FIELD { $$ = $2->adopt($1, $3); }
+fielddecl      : basetype TOK_IDENT          { $$ = $1->adopt_child_2_sym(TOK_FIELD, nullptr, $2); }
+               | basetype TOK_ARRAY TOK_IDENT { $$ = $2->adopt_child_2_sym(TOK_FIELD, $1, $3); }
                ;
 
 basetype       : TOK_VOID   { $$ = $1; }
