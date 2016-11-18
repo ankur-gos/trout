@@ -174,6 +174,10 @@ const char *parser::get_tname (int symbol) {
    return yytname [YYTRANSLATE (symbol)];
 }
 
+void yyerror(char *s){
+    fprintf(stderr, "%s\n");
+}
+
 
 bool is_defined_token (int symbol) {
    return YYTRANSLATE (symbol) > YYUNDEFTOK;
