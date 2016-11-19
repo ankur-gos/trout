@@ -12,6 +12,7 @@
 #include <vector>
 #include "astree.h"
 
+// ATTR_bitset_size unused, signifies # of attributes for bitset
 enum { ATTR_void, ATTR_int, ATTR_null, ATTR_string,
        ATTR_struct, ATTR_array, ATTR_function, ATTR_variable,
        ATTR_field, ATTR_typeid, ATTR_param, ATTR_lval, ATTR_const,
@@ -29,4 +30,6 @@ struct symbol{
     location lloc;
     size_t block_nr;
     vector<symbol*> parameters;
+
+    static void parse_astree(symbol_table &st, astree *at);
 }
