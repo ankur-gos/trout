@@ -1,4 +1,4 @@
-/*
+/**
  * symtable.h
  * symbol table struct and functions
  * Ankur Goswami (agoswam3@ucsc.edu)
