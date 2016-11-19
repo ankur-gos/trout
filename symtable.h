@@ -31,5 +31,5 @@ struct symbol{
     size_t block_nr;
     vector<symbol*> parameters;
 
-    static void parse_astree(symbol_table &st, astree *at);
+    static void parse_astree(symbol_table &st, symbol_table &struct_st, astree *at);
 }
