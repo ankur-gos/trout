@@ -60,7 +60,7 @@ static void insert_struct(symbol_table &struct_st, astree* at)
                     field_sym->struct_name = type_child->children[0]->lexinfo;
                     break;
                 case TOK_STRING:
-                    field_sym->attribtutes[ATTR_string] = true;
+                    field_sym->attributes[ATTR_string] = true;
                     break;
                 case TOK_INT:
                     field_sym->attributes[ATTR_int] = true;
@@ -100,8 +100,6 @@ void symbol::parse_astree(symbol_table &st, symbol_table &struct_st, astree *at)
       case TOK_STRUCT:
          insert_struct(struct_st, at);
          break;
-      case          
-         break;
    }
 }
 
@@ -123,7 +121,7 @@ string get_attributes(symbol *sym){
         build = build + "\"";
     }
     if(abit[ATTR_array]){
-        vuild = build + "[] ";
+        build = build + "[] ";
     }
     return build;
 }
