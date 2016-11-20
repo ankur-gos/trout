@@ -89,7 +89,7 @@ string get_attributes(symbol *sym){
         build = build + "string ";
     if(abit[ATTR_struct]){
         build = build + "struct \"";
-        string cpy = sym->struct_name;
+        string *cpy = sym->struct_name;
         build = build + cpy;
         build = build + "\"";
     }
