@@ -32,4 +32,5 @@ struct symbol{
     vector<symbol*> parameters;
 
     static void parse_astree(symbol_table &st, symbol_table &struct_st, astree *at);
+    static void insert_struct(symbol_table &struct_st, location lloc);
 }
