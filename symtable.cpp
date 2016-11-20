@@ -105,8 +105,8 @@ void symbol::print_structtable(FILE* file, symbol_table st){
         for(auto field: fields){
             fprintf(file, "   ");
             auto field_sym = field.second;
-            fprintf(file, "%s (%zd.%zd.%zd)", field.first.c_str(), field_sym->lloc.filenr, field_sym->lloc.linenr, field_sym->lloc.offset);
-            fprintf(file, " field {%s} %s\n", val.first.c_str(), get_attributes(field_sym));
+            fprintf(file, "%s (%zd.%zd.%zd)", field.first->c_str(), field_sym->lloc.filenr, field_sym->lloc.linenr, field_sym->lloc.offset);
+            fprintf(file, " field {%s} %s\n", val.first->c_str(), get_attributes(field_sym));
         }
     }
 }
