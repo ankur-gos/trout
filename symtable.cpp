@@ -76,7 +76,7 @@ void symbol::parse_astree(symbol_table &st, symbol_table &struct_st, astree *at)
    }
 }
 
-string get_attributes(symbol sym){
+string get_attributes(symbol *sym){
     auto abit = sym->attributes;
     string build = "";
     if(abit[ATTR_void])
@@ -86,7 +86,7 @@ string get_attributes(symbol sym){
     if(abit[ATTR_null])
         build += "null ";
     if(abit[ATTR_string])
-        build += "string "
+        build += "string ";
     if(abit[ATTR_struct]){
         build += "struct \"";
         build += sym->struct_name;

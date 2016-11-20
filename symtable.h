@@ -35,5 +35,5 @@ struct symbol{
     const string *struct_name;
 
     static void parse_astree(symbol_table &st, symbol_table &struct_st, astree *at);
-    static void print_structtable(FILE *file, symbol_table st, int depth = 0);
+    static void print_structtable(FILE *file, symbol_table st);
 };
