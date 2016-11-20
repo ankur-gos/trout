@@ -80,30 +80,32 @@ string get_attributes(symbol *sym){
     auto abit = sym->attributes;
     string build = "";
     if(abit[ATTR_void])
-        build += "void ";
+        build = build + "void ";
     if(abit[ATTR_int])
-        build += "int ";
+        build = build + "int ";
     if(abit[ATTR_null])
-        build += "null ";
+        build = build + "null ";
     if(abit[ATTR_string])
-        build += "string ";
+        build = build + "string ";
     if(abit[ATTR_struct]){
-        build += "struct \"";
-        build += sym->struct_name;
-        build += "\""
+        build = build + "struct \"";
+        build = build + sym->struct_name;
+        build = build + "\"";
     }
+    return build;
 }
 
 void symbol::print_structtable(FILE* file, symbol_table st){
     for (auto val: st){
         auto sym = val.second;
-        fprintf(file, "%s (%zd.%zd.%zd)", val->first, sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
-        fprintf(file, "{%zd} struct \"%s\"", sym->block_nr, val.first);
-        for(auto field: sym->fields){
+        fprintf(file, "%s (%zd.%zd.%zd)", val.first.c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
+        fprintf(file, "{%zd} struct \"%s\"", sym->block_nr, val.first.c_str());
+        auto fields = *sym->fields;
+        for(auto field: fields){
             fprintf(file, "   ");
             auto field_sym = field->second;
             fprintf(file, "%s (%zd.%zd.%zd)", field->first, field_sym->lloc.filenr, field_sym->lloc.linenr, field_sym->lloc.offset);
-            fprintf(file, " field {%s} %s\n", val.first, get_attributes(field_sym));
+            fprintf(file, " field {%s} %s\n", val.first.c_str(), get_attributes(field_sym));
         }
     }
 }
