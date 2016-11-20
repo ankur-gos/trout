@@ -9,13 +9,13 @@
 #include "lyutils.h"
 #include "assert.h"
 
-void insert_struct(symbol_table &struct_st, atree* at)
+static void insert_struct(symbol_table &struct_st, astree* at)
 {
     if (next_block != 1)
     {
         // TODO: Handle error
     }
-    string ident;
+    const string* ident;
     bool flag = true;
     for (auto child : at->children)
     {
@@ -26,9 +26,9 @@ void insert_struct(symbol_table &struct_st, atree* at)
             auto struct_sym = new symbol();
             struct_sym->attributes[ATTR_struct] = true;
             struct_sym->block_nr = 0;
-            struct_sym->location = at->location;
+            struct_sym->lloc = at->lloc;
             struct_sym->fields = nullptr;
-            struct_st[ident.c_str()] = struct_sym;
+            struct_st[ident] = struct_sym;
             continue;
         }
         // If the child token is a field, add it to the field table
@@ -45,24 +45,25 @@ void insert_struct(symbol_table &struct_st, atree* at)
             field_sym->attributes[ATTR_vaddr] = true;
         }
         field_sym->block_nr = 0;
-        field_sym->lloc = child->location;
+        field_sym->lloc = child->lloc;
 
         astree *child_child_node = child->children[0];
         assert(child_child_node);
-        string child_name = child_child_node->lexinfo;
+        const string* child_name = child_child_node->lexinfo;
         symbol *str = struct_st[ident];
-        str->fields[child_name] = field_sym;
+        symbol_table fields_deref = *str->fields;
+        fields_deref[child_name] = field_sym;
     }
 }
 
-static void symbol::parse_astree(symbol_table &st, symbol_table &struct_st, astree *at)
+void symbol::parse_astree(symbol_table &st, symbol_table &struct_st, astree *at)
 {
     // Post-order traversal, left node is first in vector
     if (!at->children.empty())
     {
         for (auto child : at->children)
         {
-            parse_astree(symbol_table, child);
+            parse_astree(st, struct_st, child);
         }
     }
 
