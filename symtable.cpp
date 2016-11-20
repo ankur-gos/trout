@@ -51,7 +51,7 @@ static void insert_struct(symbol_table &struct_st, astree* at)
         astree *child_child_node = child->children[0];
         assert(child_child_node);
         const string* child_name = child_child_node->lexinfo;
-        //struct_st[ident] = new symbol_table();
+        struct_st[ident] = new symbol_table();
         symbol *str = struct_st[ident];
         symbol_table fields_deref = *str->fields;
         fields_deref[child_name] = field_sym;
