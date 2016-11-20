@@ -32,6 +32,8 @@ struct symbol{
     location lloc;
     size_t block_nr;
     vector<symbol*> parameters;
+    const string *struct_name;
 
     static void parse_astree(symbol_table &st, symbol_table &struct_st, astree *at);
+    static void print_structtable(FILE *file, symbol_table st);
 };
