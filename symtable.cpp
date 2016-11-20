@@ -40,16 +40,41 @@ static void insert_struct(symbol_table &struct_st, astree* at)
         // Integer is the only primitive type
         if (child->symbol == TOK_INT)
         {
+            field_sym->attributes[ATTR_int] = true;
             field_sym->attributes[ATTR_vreg] = true;
         }
         else
         {
             field_sym->attributes[ATTR_vaddr] = true;
+            if (child->symbol == TOK_STRUCT)
+                field_sym->attributes[ATTR_struct] = true;
+            if (child->symbol == TOK_STRING)
+                field_sym->attributes[ATTR_string] = true;
+            if(child->symbol == TOK_ARRAY){
+                field_sym->attributes[ATTR_array] = true;
+                astree *type_child = child->children[0];
+                assert(type_child);
+                switch(type_child->symbol){
+                case TOK_STRUCT:
+                    field_sym->attributes[ATTR_struct] = true;
+                    field_sym->struct_name = type_child->children[0]->lexinfo;
+                    break;
+                case TOK_STRING:
+                    field_sym->attribtutes[ATTR_string] = true;
+                    break;
+                case TOK_INT:
+                    field_sym->attributes[ATTR_int] = true;
+                }
+            }
         }
         field_sym->block_nr = 0;
         field_sym->lloc = child->lloc;
         field_sym->struct_name = child->lexinfo;
-        astree *child_child_node = child->children[0];
+        astree *child_child_node;
+        if(child->symbol == TOK_ARRAY)
+            child_child_node = child->children[1];
+        else
+            child_child_node = child->children[0];
         assert(child_child_node);
         const string* child_name = child_child_node->lexinfo;
         symbol *str = struct_st[ident];
@@ -75,8 +100,7 @@ void symbol::parse_astree(symbol_table &st, symbol_table &struct_st, astree *at)
       case TOK_STRUCT:
          insert_struct(struct_st, at);
          break;
-      case TOK_FIELD:
-         
+      case          
          break;
    }
 }
@@ -97,6 +121,9 @@ string get_attributes(symbol *sym){
         string cpy = *sym->struct_name;
         build = build + cpy;
         build = build + "\"";
+    }
+    if(abit[ATTR_array]){
+        vuild = build + "[] ";
     }
     return build;
 }
