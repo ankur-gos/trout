@@ -17,11 +17,15 @@
 #include "auxlib.h"
 #include "astree.h"
 #include "lyutils.h"
+#include "symtable.h"
 
 using namespace std;
 
 const string CPP = "/usr/bin/cpp";
 constexpr size_t LINESIZE = 1024;
+
+int next_block = 1;
+
 
 void handle_debug(const char *flags){
    set_debugflags(flags);
@@ -72,6 +76,13 @@ void scan_tok_to_file (string filename, string command) {
    tok_out = fopen(fout_name.c_str(), "w");
    lexer::newfilename (command);
    yyparse();
+}
+
+void create_symbol_table(string filename){
+      string fout_name = filename + ".sym";
+      symbol_table symbols, structs;
+      symbol::parse_astree(symbols, structs, parser::root);
+      symbol::print_structtable((fopen(fout_name.c_str(), "w")), structs);
 }
 
 void dump_ast(string filename) {
