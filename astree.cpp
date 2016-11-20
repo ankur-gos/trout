@@ -189,6 +189,6 @@ void errllocprintf (const location& lloc, const char* format,
    assert (sizeof buffer > strlen (format) + strlen (arg));
    snprintf (buffer, sizeof buffer, format, arg);
    errprintf ("%s:%zd.%zd: %s", 
-              lexer::filename (lloc.filenr), lloc.linenr, lloc.offset,
-              buffer);
+        (*lexer::filename (lloc.filenr)).c_str(), 
+         lloc.linenr, lloc.offset, buffer);
 }
