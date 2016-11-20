@@ -34,6 +34,7 @@ static void insert_struct(symbol_table &struct_st, astree* at)
         }
         // If the child token is a field, add it to the field table
         auto field_sym = new symbol();
+        cout << "HELLO" << endl;
         field_sym->attributes[ATTR_field] = true;
         field_sym->attributes[ATTR_lval] = true;
         // Integer is the only primitive type
@@ -72,7 +73,10 @@ void symbol::parse_astree(symbol_table &st, symbol_table &struct_st, astree *at)
    switch (at->symbol) {
       case TOK_STRUCT:
          insert_struct(struct_st, at);
-      break;
+         break;
+      case TOK_FIELD:
+         
+         break;
    }
 }
 
@@ -102,7 +106,6 @@ void symbol::print_structtable(FILE* file, symbol_table st){
         fprintf(file, "%s (%zd.%zd.%zd)", val.first->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
         fprintf(file, "{%zd} struct \"%s\"\n", sym->block_nr, val.first->c_str());
         auto fields = *sym->fields;
-        cout << fields.size() << endl;
         for(auto field: fields){
             fprintf(file, "   ");
             auto field_sym = field.second;
