@@ -102,7 +102,7 @@ void symbol::print_structtable(FILE* file, symbol_table st){
         fprintf(file, "%s (%zd.%zd.%zd)", val.first->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
         fprintf(file, "{%zd} struct \"%s\"\n", sym->block_nr, val.first->c_str());
         auto fields = *sym->fields;
-        cout << fields.length() << endl;
+        cout << fields.size() << endl;
         for(auto field: fields){
             fprintf(file, "   ");
             auto field_sym = field.second;
