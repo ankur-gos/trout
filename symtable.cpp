@@ -6,6 +6,7 @@
  */
 
 #include "symtable.h"
+#include "lyutils.h"
 
 static void symbol::insert_struct(symbol_table &struct_st, location lloc)
 {
@@ -30,12 +31,11 @@ static void symbol::insert_struct(symbol_table &struct_st, location lloc)
             continue;
         }
         // If the child token is a field, add it to the field table
-        auto child_sym = new string(parser::get_tname(child->symbol));
         auto field_sym = new symbol();
         field_sym->attributes[ATTR_field] = true;
         field_sym->attributes[ATTR_lval] = true;
         // Integer is the only primitive type
-        if (!child_sym.compare("TOK_INT"))
+        if (child->symbol == TOK_INT)
         {
             field_sym->attributes[vreg] = true;
         }
@@ -65,10 +65,9 @@ static void symbol::parse_astree(symbol_table &st, symbol_table &struct_st, astr
         }
     }
 
-    auto sym = new symbol();
-    auto token_sym = new string(parser::get_tname(at->symbol));
-    if (!token_sym.compare("TOK_STRUCT")){
-        insert_struct(struct_st, at);
-        return;
-    }
+   switch (at->symbol) {
+      case TOK_STRUCT:
+         insert_struct(struct_st, at);
+      break;
+   }
 }
