@@ -7,8 +7,9 @@
 
 #include "symtable.h"
 #include "lyutils.h"
+#include "assert.h"
 
-static void symbol::insert_struct(symbol_table &struct_st, location lloc)
+void insert_struct(symbol_table &struct_st, atree* at)
 {
     if (next_block != 1)
     {
@@ -27,7 +28,7 @@ static void symbol::insert_struct(symbol_table &struct_st, location lloc)
             struct_sym->block_nr = 0;
             struct_sym->location = at->location;
             struct_sym->fields = nullptr;
-            struct_st[ident] = struct_sym;
+            struct_st[ident.c_str()] = struct_sym;
             continue;
         }
         // If the child token is a field, add it to the field table
@@ -37,14 +38,14 @@ static void symbol::insert_struct(symbol_table &struct_st, location lloc)
         // Integer is the only primitive type
         if (child->symbol == TOK_INT)
         {
-            field_sym->attributes[vreg] = true;
+            field_sym->attributes[ATTR_vreg] = true;
         }
         else
         {
-            field_sym->attributes[vaddr] = true;
+            field_sym->attributes[ATTR_vaddr] = true;
         }
         field_sym->block_nr = 0;
-        field_sym->location = child->location;
+        field_sym->lloc = child->location;
 
         astree *child_child_node = child->children[0];
         assert(child_child_node);
