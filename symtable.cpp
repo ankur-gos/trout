@@ -96,14 +96,14 @@ string get_attributes(symbol *sym){
 
 void symbol::print_structtable(FILE* file, symbol_table st){
     for (auto val: st){
-        auto sym = val->second;
+        auto sym = val.second;
         fprintf(file, "%s (%zd.%zd.%zd)", val->first, sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
-        fprintf(file, "{%zd} struct \"%s\"", sym->block_nr, val->first);
+        fprintf(file, "{%zd} struct \"%s\"", sym->block_nr, val.first);
         for(auto field: sym->fields){
             fprintf(file, "   ");
             auto field_sym = field->second;
             fprintf(file, "%s (%zd.%zd.%zd)", field->first, field_sym->lloc.filenr, field_sym->lloc.linenr, field_sym->lloc.offset);
-            fprintf(file, " field {%s} %s\n", val->first, get_attributes(field_sym));
+            fprintf(file, " field {%s} %s\n", val.first, get_attributes(field_sym));
         }
     }
 }
