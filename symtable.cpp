@@ -324,7 +324,7 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
     bool found = false;
     symbol_table* foundtable;
     for(auto table: st){
-        if(occurs(table, at->lexinfo)){
+        if(occurs(*table, at->lexinfo)){
             found = true;
             foundtable = table;
             break;
@@ -339,10 +339,10 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
 
 void check_struct(vector<symbol_table*> st, symbol_table struct_st, astree* structname, astree* field){
     auto table = check_st(st, structname);
-    auto sym = (*table)[structname];
+    auto sym = (*table)[structname->lexinfo];
     auto struct_sym = struct_st[sym->struct_name];
     auto fields = struct_sym->fields;
-    if(!occurs(fields, field->lexinfo)){
+    if(!occurs(*fields, field->lexinfo)){
         cerr << "Field " << *field->lexinfo << "is not a part of struct: " << *sym->struct_name << endl;
         exit(-7);
     }
