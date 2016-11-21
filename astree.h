@@ -10,12 +10,6 @@ using namespace std;
 #include "auxlib.h"
 #include "symtable.h"
 
-struct location {
-   size_t filenr;
-   size_t linenr;
-   size_t offset;
-};
-
 using symbl = symbol;
 
 struct astree {

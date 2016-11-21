@@ -14,6 +14,12 @@
 
 extern int next_block;
 
+struct location {
+   size_t filenr;
+   size_t linenr;
+   size_t offset;
+}
+
 // ATTR_bitset_size unused, signifies # of attributes for bitset
 enum { ATTR_void, ATTR_int, ATTR_null, ATTR_string,
        ATTR_struct, ATTR_array, ATTR_function, ATTR_variable,
