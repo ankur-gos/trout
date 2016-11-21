@@ -91,11 +91,11 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
             auto struct_sym = new symbol();
             struct_sym->attributes[ATTR_struct] = true;
             struct_sym->block_nr = 0;
-            struct_sym->lloc = at->lloc;
+            struct_sym->lloc = &at->lloc;
             struct_sym->fields = nullptr;
             struct_sym->struct_name = child->lexinfo;
             struct_st[ident] = struct_sym;
-            fprintf(file, "%s (%zd.%zd.%zd)", ident->c_str(), struct_sym->lloc.filenr, struct_sym->lloc.linenr, struct_sym->lloc.offset);
+            fprintf(file, "%s (%zd.%zd.%zd)", ident->c_str(), struct_sym->lloc->filenr, struct_sym->lloc->linenr, struct_sym->lloc->offset);
             fprintf(file, "{%zd} %s\n", struct_sym->block_nr, get_attributes(struct_sym).c_str());
             continue;
         }
@@ -104,7 +104,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
         field_sym->attributes[ATTR_field] = true;
         field_sym->attributes[ATTR_lval] = true;
         field_sym->block_nr = 0;
-        field_sym->lloc = child->lloc;
+        field_sym->lloc = &child->lloc;
         field_sym->struct_name = child->lexinfo;
         assign_attributes(field_sym, child, struct_st);
 
@@ -122,7 +122,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
         }
         (*str->fields)[child_name] = field_sym;
         fprintf(file, "   ");
-        fprintf(file, "%s (%zd.%zd.%zd)", child_name->c_str(), field_sym->lloc.filenr, field_sym->lloc.linenr, field_sym->lloc.offset);
+        fprintf(file, "%s (%zd.%zd.%zd)", child_name->c_str(), field_sym->lloc->filenr, field_sym->lloc->linenr, field_sym->lloc->offset);
         fprintf(file, " field {%s} %s\n", child_name->c_str(), get_attributes(field_sym).c_str());
     }
 }
@@ -138,7 +138,7 @@ void add_symtbl(vector<symbol_table *> &st)
 void dump_symbol(FILE *file, astree *val_child, symbol *sym)
 {
     fprintf(file, "%*s", (int)sym->block_nr * 3, "");
-    fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
+    fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc->filenr, sym->lloc->linenr, sym->lloc->offset);
     fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
 }
 
@@ -161,7 +161,7 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
     }
 
     sym->block_nr = next_block - 1;
-    sym->lloc = at->lloc;
+    sym->lloc = &at->lloc;
     assign_attributes(sym, type_child, struct_st);
     sym->attributes[ATTR_variable] = true;
     sym->attributes[ATTR_lval] = true;
@@ -204,7 +204,7 @@ astree *def_prototype(symbol *sym, symbol_table struct_st, astree *at)
 {
     sym->block_nr = next_block - 1;
     auto return_child = at->children[0];
-    sym->lloc = return_child->lloc;
+    sym->lloc = &return_child->lloc;
     auto func_name_node = set_function_attributes(sym, struct_st, return_child);
     auto param_child = at->children[1];
     for (auto child : param_child->children)
@@ -214,7 +214,7 @@ astree *def_prototype(symbol *sym, symbol_table struct_st, astree *at)
         child_sym->attributes[ATTR_variable] = true;
         set_function_attributes(child_sym, struct_st, child);
         child_sym->block_nr = next_block;
-        child_sym->lloc = child->lloc;
+        child_sym->lloc = &child->lloc;
         sym->parameters.push_back(child_sym);
     }
     if(next_block != 1){
@@ -425,7 +425,7 @@ void symbol::print_structtable(FILE *file, symbol_table st)
     for (auto val : st)
     {
         auto sym = val.second;
-        fprintf(file, "%s (%zd.%zd.%zd)", val.first->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
+        fprintf(file, "%s (%zd.%zd.%zd)", val.first->c_str(), sym->lloc->filenr, sym->lloc->linenr, sym->lloc->offset);
         fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
         auto fields = *sym->fields;
         cout << fields.size() << endl;
@@ -433,7 +433,7 @@ void symbol::print_structtable(FILE *file, symbol_table st)
         {
             fprintf(file, "   ");
             auto field_sym = field.second;
-            fprintf(file, "%s (%zd.%zd.%zd)", field.first->c_str(), field_sym->lloc.filenr, field_sym->lloc.linenr, field_sym->lloc.offset);
+            fprintf(file, "%s (%zd.%zd.%zd)", field.first->c_str(), field_sym->lloc->filenr, field_sym->lloc->linenr, field_sym->lloc->offset);
             fprintf(file, " field {%s} %s\n", val.first->c_str(), get_attributes(field_sym).c_str());
         }
     }
