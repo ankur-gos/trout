@@ -15,7 +15,7 @@ int next_block = 1;
 
 static bool occurs(symbol_table st, const string* key){
     auto found = st.find(key);
-    return found == st.end();
+    return !(found == st.end());
 } 
 
 static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct_st){
