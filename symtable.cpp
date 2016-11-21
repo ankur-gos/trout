@@ -11,6 +11,8 @@
 
 string get_attributes(symbol *sym);
 
+int next_block = 1;
+
 static bool occurs(symbol_table st, const string* key){
     auto found = struct_st.find(key);
     return found == st.end();
@@ -134,7 +136,22 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
 
 void symbol::parse_astree(vector<symbol_table*> &st, symbol_table &struct_st, astree *at)
 {
-    // Post-order traversal, left node is first in vector
+    switch (at->symbol) {
+        case TOK_STRUCT:
+            insert_struct(struct_st, at);
+            break;
+        case TOK_FUNCTION:
+            new_block(st);
+            break;
+        case TOK_VARDECL:
+            insert_variable(vector<symbol_table*> st, astree *at);
+            break;
+        case TOK_BLOCK:
+            new_block(st);
+            break;
+    }
+
+    // pre-order traversal, left node is first in vector
     if (!at->children.empty())
     {
         for (auto child : at->children)
@@ -143,14 +160,15 @@ void symbol::parse_astree(vector<symbol_table*> &st, symbol_table &struct_st, as
         }
     }
 
-   switch (at->symbol) {
-      case TOK_STRUCT:
-         insert_struct(struct_st, at);
-         break;
-      case TOK_VARDECL:
-         insert_variable(vector<symbol_table*> st, astree *at);
-         break;
-   }
+    if (at->symbol == TOK_FUNCTION || at->symbol == TOK_BLOCK) {
+        next_block--;
+        st.pop_back();
+    }
+}
+
+void new_block (vector<symbol_table*> &st) {
+   next_block++;
+   st.push_back(nullptr);
 }
 
 string get_attributes(symbol *sym){
