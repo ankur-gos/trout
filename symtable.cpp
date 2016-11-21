@@ -114,7 +114,12 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
         else
             child_child_node = child->children[0];
         assert(child_child_node);
+<<<<<<< HEAD
         const string *child_name = child_child_node->lexinfo;
+=======
+        const string* child_name = child_child_node->lexinfo;
+        cout << *child_name << endl;
+>>>>>>> f3eb927c2e73e8c97230c82ac577bb18b568e7a6
         symbol *str = struct_st[ident];
         if (!str->fields)
         {
