@@ -9,6 +9,55 @@
 #include "lyutils.h"
 #include "assert.h"
 
+static bool occurs(symbol_table st, const string* key){
+    auto found = struct_st.find(key);
+    return found == st.end();
+} 
+
+static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct_st){
+        if (type_ast->symbol == TOK_INT)
+        {
+            sym->attributes[ATTR_int] = true;
+            sym->attributes[ATTR_vreg] = true;
+        }
+        else
+        {
+            sym->attributes[ATTR_vaddr] = true;
+            if (type_ast->symbol == TOK_IDENT){
+                sym->attributes[ATTR_struct] = true;
+                sym->struct_name = child->lexinfo;
+                if (!occurs(struct_st, child->lexinfo)){
+                    // TODO: Fail here
+                    cout << "STRUCT NOT FOUND" << endl;
+                }
+            }
+            if (type_ast->symbol == TOK_STRING)
+                field_sym->attributes[ATTR_string] = true;
+            if (type_ast->symbol == TOK_ARRAY){
+                sym->attributes[ATTR_array] = true;
+                astree *type_child = type_ast->children[0];
+                assert(type_child);
+                auto occurs = struct_st.find(type_child->lexinfo);
+                switch(type_child->symbol){
+                case TOK_IDENT:
+                    // Field value is a struct, check it's in the table
+                    if (!occurs(struct_st, child->lexinfo)){
+                        // TODO: Fail here
+                        cout << "STRUCT NOT FOUND" << endl;
+                    }
+                    sym->attributes[ATTR_struct] = true;
+                    sym->struct_name = type_child->lexinfo;
+                    break;
+                case TOK_STRING:
+                    sym->attributes[ATTR_string] = true;
+                    break;
+                case TOK_INT:
+                    sym->attributes[ATTR_int] = true;
+                }
+            }
+        }
+}
+
 static void insert_struct(symbol_table &struct_st, astree* at)
 {
     if (next_block != 1)
@@ -39,44 +88,7 @@ static void insert_struct(symbol_table &struct_st, astree* at)
         field_sym->block_nr = 0;
         field_sym->lloc = child->lloc;
         field_sym->struct_name = child->lexinfo;
-        // Integer is the only primitive type
-        if (child->symbol == TOK_INT)
-        {
-            field_sym->attributes[ATTR_int] = true;
-            field_sym->attributes[ATTR_vreg] = true;
-        }
-        else
-        {
-            field_sym->attributes[ATTR_vaddr] = true;
-            if (child->symbol == TOK_IDENT){
-                field_sym->attributes[ATTR_struct] = true;
-                field_sym->struct_name = child->lexinfo;
-            }
-            if (child->symbol == TOK_STRING)
-                field_sym->attributes[ATTR_string] = true;
-            if(child->symbol == TOK_ARRAY){
-                field_sym->attributes[ATTR_array] = true;
-                astree *type_child = child->children[0];
-                assert(type_child);
-                auto occurs = struct_st.find(type_child->lexinfo);
-                switch(type_child->symbol){
-                case TOK_IDENT:
-                    // Field value is a struct, check it's in the table
-                    if (occurs == struct_st.end()){
-                        // TODO: THROW ERROR HERE AND EXIT_FAILURE
-                        cout << "STRUCT NOT FOUND" << endl;
-                    }
-                    field_sym->attributes[ATTR_struct] = true;
-                    field_sym->struct_name = type_child->lexinfo;
-                    break;
-                case TOK_STRING:
-                    field_sym->attributes[ATTR_string] = true;
-                    break;
-                case TOK_INT:
-                    field_sym->attributes[ATTR_int] = true;
-                }
-            }
-        }
+        assign_attributes(field_sym, child, struct_st);
         
         astree *child_child_node;
         if(child->symbol == TOK_ARRAY)
@@ -93,6 +105,28 @@ static void insert_struct(symbol_table &struct_st, astree* at)
     }
 }
 
+void insert_variable(vector<symbol_table*> &st, symbol_table struct_st, astree *at){
+    if(st.back() == nullptr){
+        st.pop_back();
+        st.push_back(new symbol_table());
+    }
+    auto sym = new symbol();
+    symbol_table symtbl = *st.back();
+    auto type_child = at->children[0];
+    // Check if the child is already in the symbol table
+    auto occurs = symtbl.find(type_child->lexinfo);
+    if(occurs != symtbl.end()){
+        // Found, throw an error
+        cout << "UH OH WE GOT AN ALREADY DECLARED VARIABLE";
+        exit(1);
+    }
+    sym->block_nr = next_block;
+    sym->lloc = at->lloc;
+    assign_attributes(sym, type_child, struct_st);
+    sym->attributes[ATTR_variable] = true;
+    
+}
+
 void symbol::parse_astree(vector<symbol_table*> &st, symbol_table &struct_st, astree *at)
 {
     // Post-order traversal, left node is first in vector
@@ -107,6 +141,9 @@ void symbol::parse_astree(vector<symbol_table*> &st, symbol_table &struct_st, as
    switch (at->symbol) {
       case TOK_STRUCT:
          insert_struct(struct_st, at);
+         break;
+      case TOK_VARDECL:
+         insert_variable(vector<symbol_table*> st, astree *at);
          break;
    }
 }
