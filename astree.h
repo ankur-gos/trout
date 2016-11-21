@@ -11,7 +11,11 @@ using namespace std;
 #include "symtable.h"
 
 struct symbol;
-struct location;
+struct location {
+   size_t filenr;
+   size_t linenr;
+   size_t offset;
+};
 
 using symbl = symbol;
 
