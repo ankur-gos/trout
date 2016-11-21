@@ -18,12 +18,6 @@
 
 extern int next_block;
 
-struct location {
-   size_t filenr;
-   size_t linenr;
-   size_t offset;
-};
-
 struct astree;
 
 // ATTR_bitset_size unused, signifies # of attributes for bitset
