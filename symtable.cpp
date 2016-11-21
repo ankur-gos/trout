@@ -146,7 +146,7 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
 {
     add_symtbl(st);
     auto sym = new symbol();
-    symbol_table symtbl = *st.back();
+    symbol_table &symtbl = *st.back();
     auto type_child = at->children[0];
     // Check if the child is already in the symbol table
     astree *val_child;
@@ -255,7 +255,7 @@ void insert_prototype(vector<symbol_table *> &st, symbol_table struct_st, astree
 {
     
     add_symtbl(st);
-    symbol_table symtbl = *st.back();
+    symbol_table &symtbl = *st.back();
     auto sym = new symbol();
     auto name_node = def_prototype(sym, struct_st, at);
     symtbl[name_node->lexinfo] = sym;
@@ -267,7 +267,7 @@ void add_parameters(FILE* file, vector<astree*> names, vector<symbol_table *> &s
     if (sym->parameters.size() != 0)
     {
         add_symtbl(st);
-        symbol_table newsymtbl = *st.back();
+        symbol_table &newsymtbl = *st.back();
         int index = 0;
         for (auto name : names)
         {
@@ -281,7 +281,7 @@ void add_parameters(FILE* file, vector<astree*> names, vector<symbol_table *> &s
 void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
 {
     add_symtbl(st);
-    symbol_table symtbl = *st.back();
+    symbol_table &symtbl = *st.back();
     auto sym = new symbol();
     auto name_node = def_prototype(sym, struct_st, at);
     // I need a vector of names to hash on
