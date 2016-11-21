@@ -25,6 +25,7 @@ struct astree {
 
    // Functions.
    astree (int symbol, const location&, const char* lexinfo);
+   astree (astree *at);
    ~astree();
    astree* adopt (astree* child1, astree* child2 = nullptr);
    astree* adopt_sym (astree* child, int symbol);

@@ -31,6 +31,16 @@ astree::~astree() {
    }
 }
 
+astree::astree(astree *at){
+    symbol = at->symbol;
+    location = at->location;
+    lexinfo = at->lexinfo;
+    for (auto c: at->children){
+        auto child = new astree(c);
+        children.push_back(child);
+    }
+}
+
 astree* astree::adopt (astree* child1, astree* child2) {
    if (child1 != nullptr) children.push_back (child1);
    if (child2 != nullptr) children.push_back (child2);
@@ -49,7 +59,8 @@ astree* astree::adopt_2_sym (astree* child1, astree* child2, int sym){
 
 astree* astree::adopt_children (astree* node) {
     for(auto c: node->children){
-        children.push_back (c);
+        auto child = new astree(c);
+        children.push_back (child);
     }
     return this;
 }
