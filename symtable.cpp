@@ -126,7 +126,7 @@ string get_attributes(symbol *sym){
         build = build + "struct \"";
         string cpy = *sym->struct_name;
         build = build + cpy;
-        build = build + "\"";
+        build = build + "\" ";
     }
     if(abit[ATTR_array]){
         build = build + "[] ";
