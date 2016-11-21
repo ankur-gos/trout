@@ -99,7 +99,7 @@ statement      : block { $$ = $1; }
                ;
 
 statementarray : statementarray statement { $$ = $1->adopt($2); }
-               | '{' statement statement  { $$ = $1->adopt($2, $3); }
+               | '{' statement statement  { $$ = $1->destroy_sym_adopt(nullptr, TOK_BLOCK, $2, $3); }
                ;
 
 vardecl        : identdecl '=' expr ';' { $$ = $2->destroy_sym_adopt($4, TOK_VARDECL, $1, $3); }

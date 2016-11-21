@@ -13,66 +13,74 @@ string get_attributes(symbol *sym);
 
 int next_block = 1;
 
-static bool occurs(symbol_table st, const string* key){
+static bool occurs(symbol_table st, const string *key)
+{
     auto found = st.find(key);
     return !(found == st.end());
-} 
+}
 
-static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct_st){
-        if (type_ast->symbol == TOK_INT)
+static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct_st)
+{
+    if (type_ast->symbol == TOK_INT)
+    {
+        sym->attributes[ATTR_int] = true;
+        sym->attributes[ATTR_vreg] = true;
+    }
+    else
+    {
+        sym->attributes[ATTR_vaddr] = true;
+        if (type_ast->symbol == TOK_IDENT)
         {
-            sym->attributes[ATTR_int] = true;
-            sym->attributes[ATTR_vreg] = true;
+            sym->attributes[ATTR_struct] = true;
+            sym->struct_name = type_ast->lexinfo;
+            if (!occurs(struct_st, type_child->lexinfo))
+            {
+                // TODO: Fail here
+                cout << "STRUCT " << *type_child->lexinfo << " NOT FOUND" << endl;
+            }
         }
-        else
+        if (type_ast->symbol == TOK_STRING)
+            sym->attributes[ATTR_string] = true;
+        if (type_ast->symbol == TOK_ARRAY)
         {
-            sym->attributes[ATTR_vaddr] = true;
-            if (type_ast->symbol == TOK_IDENT){
-                sym->attributes[ATTR_struct] = true;
-                sym->struct_name = type_ast->lexinfo;
-                if (!occurs(struct_st, type_child->lexinfo)){
+            sym->attributes[ATTR_array] = true;
+            astree *type_child = type_ast->children[0];
+            assert(type_child);
+            switch (type_child->symbol)
+            {
+            case TOK_IDENT:
+                // Field value is a struct, check it's in the table
+                if (!occurs(struct_st, type_child->lexinfo))
+                {
                     // TODO: Fail here
                     cout << "STRUCT " << *type_child->lexinfo << " NOT FOUND" << endl;
                 }
-            }
-            if (type_ast->symbol == TOK_STRING)
+                sym->attributes[ATTR_struct] = true;
+                sym->struct_name = type_child->lexinfo;
+                break;
+            case TOK_STRING:
                 sym->attributes[ATTR_string] = true;
-            if (type_ast->symbol == TOK_ARRAY){
-                sym->attributes[ATTR_array] = true;
-                astree* type_child = type_ast->children[0];
-                assert(type_child);
-                switch(type_child->symbol){
-                case TOK_IDENT:
-                    // Field value is a struct, check it's in the table
-                    if (!occurs(struct_st, type_child->lexinfo)){
-                        // TODO: Fail here
-                        cout << "STRUCT " << *type_child->lexinfo << " NOT FOUND" << endl;
-                    }
-                    sym->attributes[ATTR_struct] = true;
-                    sym->struct_name = type_child->lexinfo;
-                    break;
-                case TOK_STRING:
-                    sym->attributes[ATTR_string] = true;
-                    break;
-                case TOK_INT:
-                    sym->attributes[ATTR_int] = true;
-                }
+                break;
+            case TOK_INT:
+                sym->attributes[ATTR_int] = true;
             }
         }
+    }
 }
 
-void new_block (vector<symbol_table*> &st) {
-   next_block++;
-   st.push_back(nullptr);
+void new_block(vector<symbol_table *> &st)
+{
+    next_block++;
+    st.push_back(nullptr);
 }
 
-static void insert_struct(symbol_table &struct_st, astree* at)
+static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
 {
     if (next_block != 1)
     {
         // TODO: Handle error
     }
-    const string* ident;
+    const string *ident;
     bool flag = true;
     for (auto child : at->children)
     {
@@ -85,8 +93,10 @@ static void insert_struct(symbol_table &struct_st, astree* at)
             struct_sym->block_nr = 0;
             struct_sym->lloc = at->lloc;
             struct_sym->fields = nullptr;
-            struct_sym->struct_name = at->lexinfo;
+            struct_sym->struct_name = child->lexinfo;
             struct_st[ident] = struct_sym;
+            fprintf(file, "%s (%zd.%zd.%zd)", ident->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
+            fprintf(file, "{%zd} %s\n", struct_sym->block_nr, get_attributes(struct_sym).c_str())
             continue;
         }
         // If the child token is a field, add it to the field table
@@ -97,24 +107,30 @@ static void insert_struct(symbol_table &struct_st, astree* at)
         field_sym->lloc = child->lloc;
         field_sym->struct_name = child->lexinfo;
         assign_attributes(field_sym, child, struct_st);
-        
+
         astree *child_child_node;
-        if(child->symbol == TOK_ARRAY)
+        if (child->symbol == TOK_ARRAY)
             child_child_node = child->children[1];
         else
             child_child_node = child->children[0];
         assert(child_child_node);
-        const string* child_name = child_child_node->lexinfo;
+        const string *child_name = child_child_node->lexinfo;
         symbol *str = struct_st[ident];
-        if(!str->fields){
+        if (!str->fields)
+        {
             str->fields = new symbol_table();
         }
         (*str->fields)[child_name] = field_sym;
+        fprintf(file, "   ");
+        fprintf(file, "%s (%zd.%zd.%zd)", child_name->c_str(), field_sym->lloc.filenr, field_sym->lloc.linenr, field_sym->lloc.offset);
+        fprintf(file, " field {%s} %s\n", child_name->c_str(), get_attributes(field_sym).c_str())
     }
 }
 
-void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_st, astree *at){
-    if(st.back() == nullptr){
+void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
+{
+    if (st.back() == nullptr)
+    {
         st.pop_back();
         st.push_back(new symbol_table());
     }
@@ -122,13 +138,14 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
     symbol_table symtbl = *st.back();
     auto type_child = at->children[0];
     // Check if the child is already in the symbol table
-    astree* val_child;
-    if(type_child->symbol == TOK_ARRAY)
+    astree *val_child;
+    if (type_child->symbol == TOK_ARRAY)
         val_child = type_child->children[1];
     else
         val_child = type_child->children[0];
     auto val_child = type_child->children[0];
-    if(occurs(symtbl, val_child->lexinfo)){
+    if (occurs(symtbl, val_child->lexinfo))
+    {
         cout << "WOOOPS VARIABLE ALREADY DECLARED!!" << endl;
         exit(-2);
     }
@@ -144,21 +161,22 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
     fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
 }
 
-void symbol::parse_astree(FILE* file, vector<symbol_table*> &st, symbol_table &struct_st, astree *at)
+void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
 {
-    switch (at->symbol) {
-        case TOK_STRUCT:
-            insert_struct(struct_st, at);
-            break;
-        case TOK_FUNCTION:
-            new_block(st);
-            break;
-        case TOK_VARDECL:
-            insert_variable(file, st, struct_st, at);
-            break;
-        case TOK_BLOCK:
-            new_block(st);
-            break;
+    switch (at->symbol)
+    {
+    case TOK_STRUCT:
+        insert_struct(file, struct_st, at);
+        break;
+    case TOK_FUNCTION:
+        new_block(st);
+        break;
+    case TOK_VARDECL:
+        insert_variable(file, st, struct_st, at);
+        break;
+    case TOK_BLOCK:
+        new_block(st);
+        break;
     }
 
     // pre-order traversal, left node is first in vector
@@ -170,48 +188,56 @@ void symbol::parse_astree(FILE* file, vector<symbol_table*> &st, symbol_table &s
         }
     }
 
-    if (at->symbol == TOK_FUNCTION || at->symbol == TOK_BLOCK) {
+    if (at->symbol == TOK_FUNCTION || at->symbol == TOK_BLOCK)
+    {
         next_block--;
         st.pop_back();
     }
 }
 
-string get_attributes(symbol *sym){
+string get_attributes(symbol *sym)
+{
     auto abit = sym->attributes;
     string build = "";
-    if(abit[ATTR_void])
+    if (abit[ATTR_void])
         build = build + "void ";
-    if(abit[ATTR_int])
+    if (abit[ATTR_int])
         build = build + "int ";
-    if(abit[ATTR_null])
+    if (abit[ATTR_null])
         build = build + "null ";
-    if(abit[ATTR_string])
+    if (abit[ATTR_string])
         build = build + "string ";
-    if(abit[ATTR_struct]){
+    if (abit[ATTR_struct])
+    {
         build = build + "struct \"";
         string cpy = *sym->struct_name;
         build = build + cpy;
         build = build + "\" ";
     }
-    if(abit[ATTR_array]){
+    if (abit[ATTR_array])
+    {
         build = build + "[] ";
     }
-    if(abit[ATTR_variable])
+    if (abit[ATTR_variable])
         build = build + "variable ";
-    if(abit[ATTR_lval]){
+    if (abit[ATTR_lval])
+    {
         build = build + "lval ";
     }
     return build;
 }
 
-void symbol::print_structtable(FILE* file, symbol_table st){
-    for (auto val: st){
+void symbol::print_structtable(FILE *file, symbol_table st)
+{
+    for (auto val : st)
+    {
         auto sym = val.second;
         fprintf(file, "%s (%zd.%zd.%zd)", val.first->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
         fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
         auto fields = *sym->fields;
         cout << fields.size() << endl;
-        for(auto field: fields){
+        for (auto field : fields)
+        {
             fprintf(file, "   ");
             auto field_sym = field.second;
             fprintf(file, "%s (%zd.%zd.%zd)", field.first->c_str(), field_sym->lloc.filenr, field_sym->lloc.linenr, field_sym->lloc.offset);
@@ -219,4 +245,3 @@ void symbol::print_structtable(FILE* file, symbol_table st){
         }
     }
 }
-

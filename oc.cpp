@@ -82,7 +82,7 @@ void create_symbol_table(string filename){
       symbol_stack.push_back(nullptr);
       symbol_table structs;
       symbol::parse_astree(outfile, symbol_stack, structs, parser::root);
-      symbol::print_structtable(outfile, structs);
+      //symbol::print_structtable(outfile, structs);
 }
 
 void dump_ast(string filename) {
