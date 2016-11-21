@@ -213,7 +213,7 @@ void insert_prototype(FILE* file, vector<symbol_table*> &st, symbol_table struct
         child_sym->block_nr = next_block;
         child_sym->lloc = child->lloc;
         sym->parameters.push_back(child_sym);
-        dump_symbol(file, child, child_sym);
+        dump_symbol(file, child->children[0], child_sym);
     }
     dump_symbol(file, func_name_node, sym);
     symtbl[func_name_node->lexinfo] = sym;
@@ -283,9 +283,9 @@ string get_attributes(symbol *sym)
     if (abit[ATTR_variable])
         build = build + "variable ";
     if (abit[ATTR_lval])
-    {
         build = build + "lval ";
-    }
+    if (abit[ATTR_param])
+        build = build + "param ";
     return build;
 }
 
