@@ -134,6 +134,11 @@ void add_symtbl(vector<symbol_table*> &st){
         st.push_back(new symbol_table());
     }
 }
+void dump_symbol(FILE* file, astree* val_child, symbol* sym){
+    fprintf(file, "%*s", (int)sym->block_nr * 3, "");
+    fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
+    fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
+}
 
 void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_st, astree *at)
 {
@@ -159,9 +164,7 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
     sym->attributes[ATTR_variable] = true;
     sym->attributes[ATTR_lval] = true;
     symtbl[val_child->lexinfo] = sym;
-    fprintf(file, "%*s", (int)sym->block_nr * 3, "");
-    fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
-    fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
+    dump_symbol(file, val_child, sym);
 }
 
 astree* set_function_attributes(symbol* sym, symbol_table struct_st, astree* at){
@@ -192,12 +195,14 @@ astree* set_function_attributes(symbol* sym, symbol_table struct_st, astree* at)
     return at->children[0];
 }
 
-void insert_prototype(vector<symbol_table*> &st, symbol_table struct_st, astree* at)
+void insert_prototype(FILE* file, vector<symbol_table*> &st, symbol_table struct_st, astree* at)
 {
     add_symtbl(st);
     auto sym = new symbol();
+    sym->block_nr = next_block - 1;
     symbol_table symtbl = *st.back();
     auto return_child = at->children[0];
+    sym->lloc = return_child->lloc;
     sym->attributes[ATTR_function] = true;
     auto func_name_node = set_function_attributes(sym, struct_st, return_child);
     auto param_child = at->children[1];
@@ -205,8 +210,12 @@ void insert_prototype(vector<symbol_table*> &st, symbol_table struct_st, astree*
         auto child_sym = new symbol();
         child_sym->attributes[ATTR_param] = true;
         set_function_attributes(child_sym, struct_st, child);
+        child_sym->block_nr = next_block;
+        child_sym->lloc = child->lloc;
         sym->parameters.push_back(child_sym);
+        dump_symbol(file, child, child_sym);
     }
+    dump_symbol(file, func_name_node, sym);
     symtbl[func_name_node->lexinfo] = sym;
 }
 
@@ -228,7 +237,7 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         new_block(st);
         break;
     case TOK_PROTOTYPE:
-        insert_prototype(st, struct_st, at);
+        insert_prototype(file, st, struct_st, at);
         break;
     }
 
