@@ -123,7 +123,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
         (*str->fields)[child_name] = field_sym;
         fprintf(file, "   ");
         fprintf(file, "%s (%zd.%zd.%zd)", child_name->c_str(), field_sym->lloc.filenr, field_sym->lloc.linenr, field_sym->lloc.offset);
-        fprintf(file, " field {%s} %s\n", child_name->c_str(), get_attributes(field_sym).c_str())
+        fprintf(file, " field {%s} %s\n", child_name->c_str(), get_attributes(field_sym).c_str());
     }
 }
 
