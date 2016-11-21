@@ -29,7 +29,7 @@ static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct
     else
     {
         sym->attributes[ATTR_vaddr] = true;
-        if (type_ast->symbol == TOK_IDENT)
+        if (type_ast->symbol == TOK_TYPEID)
         {
             sym->attributes[ATTR_struct] = true;
             sym->struct_name = type_ast->lexinfo;
@@ -48,7 +48,7 @@ static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct
             assert(type_child);
             switch (type_child->symbol)
             {
-            case TOK_IDENT:
+            case TOK_TYPEID:
                 // Field value is a struct, check it's in the table
                 if (!occurs(struct_st, type_child->lexinfo))
                 {
@@ -182,7 +182,7 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st, astree *at)
     case TOK_STRING:
         sym->attributes[ATTR_string] = true;
         break;
-    case TOK_IDENT:
+    case TOK_TYPEID:
         if (!occurs(struct_st, at->lexinfo))
         {
             cerr << "Struct not defined: " << *at->lexinfo << endl;
@@ -320,6 +320,34 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     }
 }
 
+symbol_table* check_st(vector<symbol_table*> st, astree* at){
+    bool found = false;
+    symbol_table* foundtable;
+    for(auto table: st){
+        if(occurs(table, at->lexinfo)){
+            found = true;
+            foundtable = table;
+            break;
+        }
+    }
+    if(!found){
+        cerr << "Variable used but not previously declared: " << *at->lexinfo << endl;
+        exit(-6);
+    }
+    return foundtable;
+}
+
+void check_struct(vector<symbol_table*> st, symbol_table struct_st, astree* structname, astree* field){
+    auto table = check_st(st, structname);
+    auto sym = (*table)[structname];
+    auto struct_sym = struct_st[sym->struct_name];
+    auto fields = struct_sym->fields;
+    if(!occurs(fields, field->lexinfo)){
+        cerr << "Field " << *field->lexinfo << "is not a part of struct: " << *sym->struct_name << endl;
+        exit(-7);
+    }
+}
+
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
 {
     switch (at->symbol)
@@ -338,6 +366,9 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         break;
     case TOK_PROTOTYPE:
         insert_prototype(st, struct_st, at);
+        break;
+    case TOK_IDENT:
+        check_st(st, at);
         break;
     }
 
