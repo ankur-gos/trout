@@ -31,6 +31,7 @@ astree::~astree() {
    }
 }
 
+// Make a copy of the astree
 astree::astree(astree *at){
     symbol = at->symbol;
     lloc = at->lloc;
