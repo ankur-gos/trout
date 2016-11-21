@@ -19,6 +19,7 @@
 extern int next_block;
 
 struct astree;
+struct location;
 
 // ATTR_bitset_size unused, signifies # of attributes for bitset
 enum { ATTR_void, ATTR_int, ATTR_null, ATTR_string,
@@ -35,7 +36,7 @@ using symbol_table = unordered_map<const string*, symbol*>;
 struct symbol{
     attr_bitset attributes;
     symbol_table* fields;
-    location lloc;
+    location *lloc;
     size_t block_nr;
     vector<symbol*> parameters;
     const string *struct_name;
