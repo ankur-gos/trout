@@ -12,17 +12,11 @@ using namespace std;
 
 using symbl = symbol;
 
-struct location {
-   size_t filenr;
-   size_t linenr;
-   size_t offset;
-};
-
 struct astree {
 
    // Fields.
    int symbol;               // token code
-   symbl symblattributes;    // symbol
+   symbl *symblattributes;    // symbol
    location lloc;            // source location
    const string* lexinfo;    // pointer to lexical information
    vector<astree*> children; // children of this n-way node
