@@ -127,20 +127,22 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
     }
 }
 
-void add_symtbl(vector<symbol_table*> &st){
+void add_symtbl(vector<symbol_table *> &st)
+{
     if (st.back() == nullptr)
     {
         st.pop_back();
         st.push_back(new symbol_table());
     }
 }
-void dump_symbol(FILE* file, astree* val_child, symbol* sym){
+void dump_symbol(FILE *file, astree *val_child, symbol *sym)
+{
     fprintf(file, "%*s", (int)sym->block_nr * 3, "");
     fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
     fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
 }
 
-void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_st, astree *at)
+void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
 {
     add_symtbl(st);
     auto sym = new symbol();
@@ -167,19 +169,22 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
     dump_symbol(file, val_child, sym);
 }
 
-astree* set_function_attributes(symbol* sym, symbol_table struct_st, astree* at){
+astree *set_function_attributes(symbol *sym, symbol_table struct_st, astree *at)
+{
     sym->attributes[ATTR_vaddr] = true;
-    switch(at->symbol){
+    switch (at->symbol)
+    {
     case TOK_INT:
         sym->attributes[ATTR_int] = true;
         sym->attributes[ATTR_vreg] = true;
         sym->attributes[ATTR_vaddr] = false;
         break;
     case TOK_STRING:
-        sym->attributes[ATTR_string];
+        sym->attributes[ATTR_string] = true;
         break;
     case TOK_IDENT:
-        if(!occurs(struct_st, at->lexinfo)){
+        if (!occurs(struct_st, at->lexinfo))
+        {
             cerr << "Struct not defined: " << *at->lexinfo << endl;
             exit(-2);
         }
@@ -195,30 +200,124 @@ astree* set_function_attributes(symbol* sym, symbol_table struct_st, astree* at)
     return at->children[0];
 }
 
-void insert_prototype(FILE* file, vector<symbol_table*> &st, symbol_table struct_st, astree* at)
+astree *def_prototype(symbol *sym, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
 {
-    add_symtbl(st);
-    auto sym = new symbol();
     sym->block_nr = next_block - 1;
-    symbol_table symtbl = *st.back();
     auto return_child = at->children[0];
     sym->lloc = return_child->lloc;
-    sym->attributes[ATTR_function] = true;
     auto func_name_node = set_function_attributes(sym, struct_st, return_child);
     auto param_child = at->children[1];
-    for (auto child: param_child->children){
+    for (auto child : param_child->children)
+    {
         auto child_sym = new symbol();
         child_sym->attributes[ATTR_param] = true;
+        child_sym->attributes[ATTR_variable] = true;
         set_function_attributes(child_sym, struct_st, child);
         child_sym->block_nr = next_block;
         child_sym->lloc = child->lloc;
         sym->parameters.push_back(child_sym);
-        dump_symbol(file, child->children[0], child_sym);
     }
-    dump_symbol(file, func_name_node, sym);
-    symtbl[func_name_node->lexinfo] = sym;
+    if(next_block != 1){
+        cerr << "Function can only be defined at global scope: " << *func_name_node->lexinfo << endl;
+        exit(-5);
+    };
+    return func_name_node;
 }
 
+bool symbol::compare(symbol s)
+{
+    // attributes should be the same
+    auto attrstr = attributes.to_string();
+    if (attrstr.compare(s.attributes.to_string()) != 0)
+    {
+        return false;
+    }
+    // If the struct is set, check the structname
+    if (attributes[ATTR_struct])
+    {
+        if ((*struct_name).compare(*s.struct_name) != 0)
+            return false
+    }
+    // check that each of the parameters are the same
+    if (parameters.size() != s.parameters.size())
+        return false int index = 0;
+    for (auto param : parameters)
+    {
+        if (!param.compare(s.parameters[index]))
+            return false;
+        index++;
+    }
+    return true;
+}
+
+void insert_prototype(vector<symbol_table *> &st, symbol_table struct_st, astree *at)
+{
+    
+    add_symtbl(st);
+    symbol_table symtbl = *st.back();
+    auto sym = new symbol();
+    auto name_node = def_prototype(sym, st, struct_st, at);
+    symtbl[name_node->lexinfo] = sym;
+}
+
+void add_parameters(FILE* file, vector<const string*> names, vector<symbol_table *> &st, symbol *sym)
+{
+    new_block(st);
+    if (sym->parameters.size() != 0)
+    {
+        add_symtbl(st);
+        symbol_table newsymbtbl = *st.back();
+        int index = 0;
+        for (auto name : names)
+        {
+            newsymtbl[name] = sym->parameters[index];
+            dump_node(file, name, sym->parameters[index]);
+            index++;
+        }
+    }
+}
+
+void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
+{
+    add_symtbl(st);
+    symbol_table symtbl = *st.back();
+    auto sym = new symbol();
+    auto name_node = def_prototype(sym, st, struct_st, at);
+    // I need a vector of names to hash on
+    vector<const string *> names;
+    astree *paramtree = at->children[1];
+    for (auto child : paramtree->children)
+    {
+        names.push_back(child->children[0]);
+    }
+    if (occurs(symtbl, name_node->lexinfo))
+    {
+        // Check if the value is a function or a prototype
+        auto protosym = symtbl[name_node->lexinfo];
+        if (protosym->attributes[ATTR_function])
+        {
+            // Duplicate function, throw error
+            cerr << "Duplicate function found: " << name_node->lexinfo << endl;
+            exit(-3);
+        }
+        protosym->attributes[ATTR_function] = true;
+        // prototype exists, verify each parameter
+        if (!protosym->compare(sym))
+        {
+            cerr << "Function does not match given prototype: " << name_node->lexinfo << endl;
+            exit(-4);
+        }
+        dump_symbol(file, name_node, protosym);
+        add_parameters(file, names, st, protosym);
+    }
+    else
+    {
+        sym->attributes[ATTR_function] = true;
+        symtbl[name_node->lexinfo] = sym;
+        dump_symbol(file, name_node, sym);
+        add_parameters(file, names, st, sym);
+    }
+}
 
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
 {
@@ -228,7 +327,7 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         insert_struct(file, struct_st, at);
         break;
     case TOK_FUNCTION:
-        new_block(st);
+        insert_function(file, st, struct_st, at);
         break;
     case TOK_VARDECL:
         insert_variable(file, st, struct_st, at);
@@ -237,7 +336,7 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         new_block(st);
         break;
     case TOK_PROTOTYPE:
-        insert_prototype(file, st, struct_st, at);
+        insert_prototype(st, struct_st, at);
         break;
     }
 
