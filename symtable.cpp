@@ -93,7 +93,7 @@ static void insert_struct(symbol_table &struct_st, astree* at)
     }
 }
 
-void symbol::parse_astree(symbol_table &st, symbol_table &struct_st, astree *at)
+void symbol::parse_astree(vector<symbol_table*> &st, symbol_table &struct_st, astree *at)
 {
     // Post-order traversal, left node is first in vector
     if (!at->children.empty())
