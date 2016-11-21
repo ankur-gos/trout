@@ -127,13 +127,17 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
     }
 }
 
-void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
-{
+void add_symtbl(vector<symbol_table*> &st){
     if (st.back() == nullptr)
     {
         st.pop_back();
         st.push_back(new symbol_table());
     }
+}
+
+void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_st, astree *at)
+{
+    add_symtbl(st);
     auto sym = new symbol();
     symbol_table symtbl = *st.back();
     auto type_child = at->children[0];
@@ -155,10 +159,56 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
     sym->attributes[ATTR_variable] = true;
     sym->attributes[ATTR_lval] = true;
     symtbl[val_child->lexinfo] = sym;
-    fprintf(file, "%*s", (int)sym->block_nr, "");
+    fprintf(file, "%*s", (int)sym->block_nr * 3, "");
     fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
     fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
 }
+
+astree* set_function_attributes(symbol* sym, symbol_table struct_st, astree* at){
+    sym->attribtues[ATTR_vaddr] = true;
+    switch(at->symbol){
+    case TOK_INT:
+        sym->attributes[ATTR_int] = true;
+        sym->attributes[ATTR_vreg] = true;
+        sym->attributes[ATTR_vaddr] = false;
+        break;
+    case TOK_STRING:
+        sym->attributes[ATTR_string];
+    case TOK_IDENT:
+        if(!occurs(struct_st, at->lexinfo)){
+            cerr << "Struct not defined: " << *at->lexinfo << endl;
+            exit(-2);
+        }
+        sym->attributes[ATTR_struct] = true;
+        sym->struct_name = at->lexinfo;
+        break;
+    case TOK_ARRAY:
+        sym->attributes[ATTR_array] = true;
+        set_function_attributes(sym, at->children[0])
+        return at->children[0]->children[0];
+    }
+
+    return at->children[0];
+}
+
+void insert_prototype(vector<symbol_table*> &st, symbol_table struct_st, astree* at)
+{
+    add_symtbl(st);
+    auto sym = new symbol();
+    symbol_table symtbl = *st.back();
+    auto return_child = at->children[0];
+    sym->attributes[ATTR_function] = true;
+    auto func_name_node = set_function_attributes(sym, return_child);
+    auto param_child = at->children[1];
+    for (child: param_child->chilren){
+        auto child_sym = new symbol();
+        symbol->attributes[ATTR_param] = true;
+        set_function_attributes(child_sym, child);
+        sym->parameters.push_back(child_sym);
+    }
+    symtbl[func_name_node->lexinfo] = sym;
+}
+
 
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
 {
@@ -175,6 +225,9 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         break;
     case TOK_BLOCK:
         new_block(st);
+        break;
+    case TOK_PROTOTYPE:
+        insert_prototype(st, struct_st, at);
         break;
     }
 
