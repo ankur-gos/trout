@@ -95,8 +95,8 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
             struct_sym->fields = nullptr;
             struct_sym->struct_name = child->lexinfo;
             struct_st[ident] = struct_sym;
-            fprintf(file, "%s (%zd.%zd.%zd)", ident->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
-            fprintf(file, "{%zd} %s\n", struct_sym->block_nr, get_attributes(struct_sym).c_str())
+            fprintf(file, "%s (%zd.%zd.%zd)", ident->c_str(), struct_sym->lloc.filenr, struct_sym->lloc.linenr, struct_sym->lloc.offset);
+            fprintf(file, "{%zd} %s\n", struct_sym->block_nr, get_attributes(struct_sym).c_str());
             continue;
         }
         // If the child token is a field, add it to the field table
