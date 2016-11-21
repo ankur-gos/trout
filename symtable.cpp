@@ -53,10 +53,10 @@ static void insert_struct(symbol_table &struct_st, astree* at)
                 field_sym->attributes[ATTR_array] = true;
                 astree *type_child = child->children[0];
                 assert(type_child);
+                auto occurs = struct_st.find(type_child->lexinfo);
                 switch(type_child->symbol){
                 case TOK_IDENT:
                     // Field value is a struct, check it's in the table
-                    auto occurs = struct_st.find(type_child->lexinfo);
                     if (occurs == struct_st.end()){
                         // TODO: THROW ERROR HERE AND EXIT_FAILURE
                         cout << "STRUCT NOT FOUND" << endl;
