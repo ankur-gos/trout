@@ -9,6 +9,8 @@
 #include "lyutils.h"
 #include "assert.h"
 
+string get_attributes(symbol *sym);
+
 static bool occurs(symbol_table st, const string* key){
     auto found = struct_st.find(key);
     return found == st.end();
@@ -105,7 +107,7 @@ static void insert_struct(symbol_table &struct_st, astree* at)
     }
 }
 
-void insert_variable(vector<symbol_table*> &st, symbol_table struct_st, astree *at){
+void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_st, astree *at){
     if(st.back() == nullptr){
         st.pop_back();
         st.push_back(new symbol_table());
@@ -114,17 +116,20 @@ void insert_variable(vector<symbol_table*> &st, symbol_table struct_st, astree *
     symbol_table symtbl = *st.back();
     auto type_child = at->children[0];
     // Check if the child is already in the symbol table
-    auto occurs = symtbl.find(type_child->lexinfo);
-    if(occurs != symtbl.end()){
-        // Found, throw an error
-        cout << "UH OH WE GOT AN ALREADY DECLARED VARIABLE";
-        exit(1);
+    auto val_child = type_child->children[0];
+    if(occurs(symtbl, val_child->lexinfo)){
+        cout << "WOOOPS VARIABLE ALREADY DECLARED!!" << endl;
+        exit(-2);
     }
-    sym->block_nr = next_block;
+
+    sym->block_nr = next_block - 1;
     sym->lloc = at->lloc;
     assign_attributes(sym, type_child, struct_st);
     sym->attributes[ATTR_variable] = true;
-    
+    symtbl[val_child->lexinfo] = sym;
+    fprintf("%*s", sym->block_nr, "");
+    fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo, sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
+    fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
 }
 
 void symbol::parse_astree(vector<symbol_table*> &st, symbol_table &struct_st, astree *at)
@@ -168,6 +173,11 @@ string get_attributes(symbol *sym){
     if(abit[ATTR_array]){
         build = build + "[] ";
     }
+    if(abit[ATTR_variable])
+        build = build + "variable ";
+    if(abit[ATTR_lval]){
+        build = build + "lval ";
+    }
     return build;
 }
 
@@ -175,7 +185,7 @@ void symbol::print_structtable(FILE* file, symbol_table st){
     for (auto val: st){
         auto sym = val.second;
         fprintf(file, "%s (%zd.%zd.%zd)", val.first->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
-        fprintf(file, "{%zd} struct \"%s\"\n", sym->block_nr, val.first->c_str());
+        fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
         auto fields = *sym->fields;
         cout << fields.size() << endl;
         for(auto field: fields){
@@ -186,3 +196,4 @@ void symbol::print_structtable(FILE* file, symbol_table st){
         }
     }
 }
+
