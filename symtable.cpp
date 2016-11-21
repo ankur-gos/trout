@@ -30,9 +30,9 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
             if (type_ast->symbol == TOK_IDENT){
                 sym->attributes[ATTR_struct] = true;
                 sym->struct_name = type_ast->lexinfo;
-                if (!occurs(struct_st, type_ast->lexinfo)){
+                if (!occurs(struct_st, type_child->lexinfo)){
                     // TODO: Fail here
-                    cout << "STRUCT " << *type_ast->lexinfo << " NOT FOUND" << endl;
+                    cout << "STRUCT " << *type_child->lexinfo << " NOT FOUND" << endl;
                 }
             }
             if (type_ast->symbol == TOK_STRING)
@@ -123,6 +123,11 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
     symbol_table symtbl = *st.back();
     auto type_child = at->children[0];
     // Check if the child is already in the symbol table
+    astree* val_child;
+    if(type_child->symbol == TOK_ARRAY)
+        val_child = type_child->children[1];
+    else
+        val_child = type_child->children[0];
     auto val_child = type_child->children[0];
     if(occurs(symtbl, val_child->lexinfo)){
         cout << "WOOOPS VARIABLE ALREADY DECLARED!!" << endl;
@@ -133,6 +138,7 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
     sym->lloc = at->lloc;
     assign_attributes(sym, type_child, struct_st);
     sym->attributes[ATTR_variable] = true;
+    sym->attributes[ATTR_lval] = true;
     symtbl[val_child->lexinfo] = sym;
     fprintf(file, "%*s", (int)sym->block_nr, "");
     fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
