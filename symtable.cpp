@@ -41,7 +41,6 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
                 sym->attributes[ATTR_array] = true;
                 astree* type_child = type_ast->children[0];
                 assert(type_child);
-                auto occurs = struct_st.find(type_child->lexinfo);
                 switch(type_child->symbol){
                 case TOK_IDENT:
                     // Field value is a struct, check it's in the table
