@@ -50,7 +50,7 @@ start          : program               { $$ = $1 = nullptr; }
 program        : program structdef     { $$ = $1->adopt($2); }
                | program function      { $$ = $1->adopt($2); }
                | program statement     { $$ = $1->adopt($2); }
-               |                       { $$ = parser::root }
+               |                       { $$ = parser::root; }
                ;
 
 structdef      : TOK_STRUCT TOK_IDENT '{' '}'                { $$ = $1->struct_empty_arg($2, $3, $4, TOK_TYPEID); }
