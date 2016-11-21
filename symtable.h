@@ -5,6 +5,10 @@
  * Morgan Grant (mlgrant@ucsc.edu)
  */
 
+ #ifndef __SYMTABLE_H__
+ #define __SYMTABLE_H__
+
+
 #include <bitset>
 #include <iostream>
 #include <string>
@@ -46,3 +50,5 @@ struct symbol{
     static void print_structtable(FILE *file, symbol_table st);
     bool compare(symbol s);
 };
+
+#endif
