@@ -61,6 +61,11 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
         }
 }
 
+void new_block (vector<symbol_table*> &st) {
+   next_block++;
+   st.push_back(nullptr);
+}
+
 static void insert_struct(symbol_table &struct_st, astree* at)
 {
     if (next_block != 1)
@@ -143,7 +148,7 @@ void symbol::parse_astree(FILE* file, vector<symbol_table*> &st, symbol_table &s
             new_block(st);
             break;
         case TOK_VARDECL:
-            insert_variable(file, vector<symbol_table*> st, astree *at);
+            insert_variable(file, st, struct_st, at);
             break;
         case TOK_BLOCK:
             new_block(st);
@@ -155,7 +160,7 @@ void symbol::parse_astree(FILE* file, vector<symbol_table*> &st, symbol_table &s
     {
         for (auto child : at->children)
         {
-            parse_astree(st, struct_st, child);
+            parse_astree(file, st, struct_st, child);
         }
     }
 
@@ -163,11 +168,6 @@ void symbol::parse_astree(FILE* file, vector<symbol_table*> &st, symbol_table &s
         next_block--;
         st.pop_back();
     }
-}
-
-void new_block (vector<symbol_table*> &st) {
-   next_block++;
-   st.push_back(nullptr);
 }
 
 string get_attributes(symbol *sym){
