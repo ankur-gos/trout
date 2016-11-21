@@ -14,7 +14,7 @@ string get_attributes(symbol *sym);
 int next_block = 1;
 
 static bool occurs(symbol_table st, const string* key){
-    auto found = struct_st.find(key);
+    auto found = st.find(key);
     return found == st.end();
 } 
 
@@ -29,23 +29,23 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
             sym->attributes[ATTR_vaddr] = true;
             if (type_ast->symbol == TOK_IDENT){
                 sym->attributes[ATTR_struct] = true;
-                sym->struct_name = child->lexinfo;
-                if (!occurs(struct_st, child->lexinfo)){
+                sym->struct_name = type_ast->lexinfo;
+                if (!occurs(struct_st, type_ast->lexinfo)){
                     // TODO: Fail here
                     cout << "STRUCT NOT FOUND" << endl;
                 }
             }
             if (type_ast->symbol == TOK_STRING)
-                field_sym->attributes[ATTR_string] = true;
+                sym->attributes[ATTR_string] = true;
             if (type_ast->symbol == TOK_ARRAY){
                 sym->attributes[ATTR_array] = true;
-                astree *type_child = type_ast->children[0];
+                astree* type_child = type_ast->children[0];
                 assert(type_child);
                 auto occurs = struct_st.find(type_child->lexinfo);
                 switch(type_child->symbol){
                 case TOK_IDENT:
                     // Field value is a struct, check it's in the table
-                    if (!occurs(struct_st, child->lexinfo)){
+                    if (!occurs(struct_st, type_ast->lexinfo)){
                         // TODO: Fail here
                         cout << "STRUCT NOT FOUND" << endl;
                     }
@@ -129,12 +129,12 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
     assign_attributes(sym, type_child, struct_st);
     sym->attributes[ATTR_variable] = true;
     symtbl[val_child->lexinfo] = sym;
-    fprintf("%*s", sym->block_nr, "");
-    fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo, sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
+    fprintf(file, "%*s", (int)sym->block_nr, "");
+    fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
     fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
 }
 
-void symbol::parse_astree(vector<symbol_table*> &st, symbol_table &struct_st, astree *at)
+void symbol::parse_astree(FILE* file, vector<symbol_table*> &st, symbol_table &struct_st, astree *at)
 {
     switch (at->symbol) {
         case TOK_STRUCT:
@@ -144,7 +144,7 @@ void symbol::parse_astree(vector<symbol_table*> &st, symbol_table &struct_st, as
             new_block(st);
             break;
         case TOK_VARDECL:
-            insert_variable(vector<symbol_table*> st, astree *at);
+            insert_variable(file, vector<symbol_table*> st, astree *at);
             break;
         case TOK_BLOCK:
             new_block(st);

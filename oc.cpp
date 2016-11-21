@@ -80,11 +80,13 @@ void scan_tok_to_file (string filename, string command) {
 
 void create_symbol_table(string filename){
       string fout_name = filename + ".sym";
+      FILE* outfile = fopen(fout_name.c_str(), "w");
       vector<symbol_table*> symbol_stack;
       symbol_stack.push_back(nullptr);
       symbol_table structs;
-      symbol::parse_astree(symbol_stack, structs, parser::root);
-      symbol::print_structtable((fopen(fout_name.c_str(), "w")), structs);
+      symbol::parse_astree(outfile, symbol_stack, structs, parser::root);
+      symbol::print_structtable(outfile, structs);
+      outfile.close();
 }
 
 void dump_ast(string filename) {
