@@ -8,6 +8,7 @@
 using namespace std;
 
 #include "auxlib.h"
+#include "symtable.h"
 
 struct location {
    size_t filenr;
@@ -15,10 +16,13 @@ struct location {
    size_t offset;
 };
 
+using symbl = symbol;
+
 struct astree {
 
    // Fields.
    int symbol;               // token code
+   
    location lloc;            // source location
    const string* lexinfo;    // pointer to lexical information
    vector<astree*> children; // children of this n-way node
