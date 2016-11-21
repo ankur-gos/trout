@@ -20,6 +20,8 @@ struct location {
    size_t offset;
 };
 
+struct astree;
+
 // ATTR_bitset_size unused, signifies # of attributes for bitset
 enum { ATTR_void, ATTR_int, ATTR_null, ATTR_string,
        ATTR_struct, ATTR_array, ATTR_function, ATTR_variable,
