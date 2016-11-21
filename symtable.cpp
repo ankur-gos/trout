@@ -36,6 +36,9 @@ static void insert_struct(symbol_table &struct_st, astree* at)
         auto field_sym = new symbol();
         field_sym->attributes[ATTR_field] = true;
         field_sym->attributes[ATTR_lval] = true;
+        field_sym->block_nr = 0;
+        field_sym->lloc = child->lloc;
+        field_sym->struct_name = child->lexinfo;
         // Integer is the only primitive type
         if (child->symbol == TOK_INT)
         {
@@ -45,8 +48,10 @@ static void insert_struct(symbol_table &struct_st, astree* at)
         else
         {
             field_sym->attributes[ATTR_vaddr] = true;
-            if (child->symbol == TOK_STRUCT)
+            if (child->symbol == TOK_IDENT){
                 field_sym->attributes[ATTR_struct] = true;
+                field_sym->struct_name = child->lexinfo;
+            }
             if (child->symbol == TOK_STRING)
                 field_sym->attributes[ATTR_string] = true;
             if(child->symbol == TOK_ARRAY){
@@ -72,9 +77,7 @@ static void insert_struct(symbol_table &struct_st, astree* at)
                 }
             }
         }
-        field_sym->block_nr = 0;
-        field_sym->lloc = child->lloc;
-        field_sym->struct_name = child->lexinfo;
+        
         astree *child_child_node;
         if(child->symbol == TOK_ARRAY)
             child_child_node = child->children[1];
