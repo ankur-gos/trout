@@ -24,9 +24,6 @@ using namespace std;
 const string CPP = "/usr/bin/cpp";
 constexpr size_t LINESIZE = 1024;
 
-int next_block = 1;
-
-
 void handle_debug(const char *flags){
    set_debugflags(flags);
 }
@@ -86,7 +83,6 @@ void create_symbol_table(string filename){
       symbol_table structs;
       symbol::parse_astree(outfile, symbol_stack, structs, parser::root);
       symbol::print_structtable(outfile, structs);
-      outfile.close();
 }
 
 void dump_ast(string filename) {
