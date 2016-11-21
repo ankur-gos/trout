@@ -143,7 +143,6 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
         val_child = type_child->children[1];
     else
         val_child = type_child->children[0];
-    auto val_child = type_child->children[0];
     if (occurs(symtbl, val_child->lexinfo))
     {
         cout << "WOOOPS VARIABLE ALREADY DECLARED!!" << endl;
