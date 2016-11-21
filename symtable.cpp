@@ -122,6 +122,11 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
     symbol_table symtbl = *st.back();
     auto type_child = at->children[0];
     // Check if the child is already in the symbol table
+    astree* val_child;
+    if(type_child->symbol == TOK_ARRAY)
+        val_child = type_child->children[1];
+    else
+        val_child = type_child->children[0];
     auto val_child = type_child->children[0];
     if(occurs(symtbl, val_child->lexinfo)){
         cout << "WOOOPS VARIABLE ALREADY DECLARED!!" << endl;
@@ -132,6 +137,7 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
     sym->lloc = at->lloc;
     assign_attributes(sym, type_child, struct_st);
     sym->attributes[ATTR_variable] = true;
+    sym->attributes[ATTR_lval] = true;
     symtbl[val_child->lexinfo] = sym;
     fprintf(file, "%*s", (int)sym->block_nr, "");
     fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc.filenr, sym->lloc.linenr, sym->lloc.offset);
