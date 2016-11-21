@@ -33,7 +33,7 @@ astree::~astree() {
 
 astree::astree(astree *at){
     symbol = at->symbol;
-    location = at->location;
+    lloc = at->lloc;
     lexinfo = at->lexinfo;
     for (auto c: at->children){
         auto child = new astree(c);
