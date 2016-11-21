@@ -165,7 +165,7 @@ void insert_variable(FILE *file, vector<symbol_table*> &st, symbol_table struct_
 }
 
 astree* set_function_attributes(symbol* sym, symbol_table struct_st, astree* at){
-    sym->attribtues[ATTR_vaddr] = true;
+    sym->attributes[ATTR_vaddr] = true;
     switch(at->symbol){
     case TOK_INT:
         sym->attributes[ATTR_int] = true;
@@ -174,6 +174,7 @@ astree* set_function_attributes(symbol* sym, symbol_table struct_st, astree* at)
         break;
     case TOK_STRING:
         sym->attributes[ATTR_string];
+        break;
     case TOK_IDENT:
         if(!occurs(struct_st, at->lexinfo)){
             cerr << "Struct not defined: " << *at->lexinfo << endl;
@@ -184,7 +185,7 @@ astree* set_function_attributes(symbol* sym, symbol_table struct_st, astree* at)
         break;
     case TOK_ARRAY:
         sym->attributes[ATTR_array] = true;
-        set_function_attributes(sym, at->children[0])
+        set_function_attributes(sym, struct_st, at->children[0]);
         return at->children[0]->children[0];
     }
 
@@ -198,12 +199,12 @@ void insert_prototype(vector<symbol_table*> &st, symbol_table struct_st, astree*
     symbol_table symtbl = *st.back();
     auto return_child = at->children[0];
     sym->attributes[ATTR_function] = true;
-    auto func_name_node = set_function_attributes(sym, return_child);
+    auto func_name_node = set_function_attributes(sym, struct_st, return_child);
     auto param_child = at->children[1];
-    for (child: param_child->chilren){
+    for (auto child: param_child->children){
         auto child_sym = new symbol();
-        symbol->attributes[ATTR_param] = true;
-        set_function_attributes(child_sym, child);
+        child_sym->attributes[ATTR_param] = true;
+        set_function_attributes(child_sym, struct_st, child);
         sym->parameters.push_back(child_sym);
     }
     symtbl[func_name_node->lexinfo] = sym;

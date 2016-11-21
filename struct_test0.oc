@@ -7,7 +7,4 @@ struct a{
    a[] f;
 };
 
-int func(string fuck) {
-    int shit = 15;
-    return shit;
-}
+int func(string fuck);
