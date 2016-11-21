@@ -32,7 +32,7 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
                 sym->struct_name = type_ast->lexinfo;
                 if (!occurs(struct_st, type_ast->lexinfo)){
                     // TODO: Fail here
-                    cout << "STRUCT NOT FOUND" << endl;
+                    cout << "STRUCT " << type_ast->lexinfo << " NOT FOUND" << endl;
                 }
             }
             if (type_ast->symbol == TOK_STRING)
