@@ -62,7 +62,7 @@ static void insert_struct(symbol_table &struct_st, astree* at)
                         cout << "STRUCT NOT FOUND" << endl;
                     }
                     field_sym->attributes[ATTR_struct] = true;
-                    field_sym->struct_name = type_child->children[0]->lexinfo;
+                    field_sym->struct_name = type_child->lexinfo;
                     break;
                 case TOK_STRING:
                     field_sym->attributes[ATTR_string] = true;
