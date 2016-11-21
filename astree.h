@@ -12,6 +12,12 @@ using namespace std;
 
 using symbl = symbol;
 
+struct location {
+   size_t filenr;
+   size_t linenr;
+   size_t offset;
+};
+
 struct astree {
 
    // Fields.
