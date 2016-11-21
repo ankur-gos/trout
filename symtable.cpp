@@ -32,7 +32,7 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
                 sym->struct_name = type_ast->lexinfo;
                 if (!occurs(struct_st, type_ast->lexinfo)){
                     // TODO: Fail here
-                    cout << "STRUCT " << type_ast->lexinfo << " NOT FOUND" << endl;
+                    cout << "STRUCT " << *type_ast->lexinfo << " NOT FOUND" << endl;
                 }
             }
             if (type_ast->symbol == TOK_STRING)
@@ -44,9 +44,9 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
                 switch(type_child->symbol){
                 case TOK_IDENT:
                     // Field value is a struct, check it's in the table
-                    if (!occurs(struct_st, type_ast->lexinfo)){
+                    if (!occurs(struct_st, type_child->lexinfo)){
                         // TODO: Fail here
-                        cout << "STRUCT " << type_ast->lexinfo << " NOT FOUND" << endl;
+                        cout << "STRUCT " << *type_child->lexinfo << " NOT FOUND" << endl;
                     }
                     sym->attributes[ATTR_struct] = true;
                     sym->struct_name = type_child->lexinfo;
@@ -105,6 +105,7 @@ static void insert_struct(symbol_table &struct_st, astree* at)
             child_child_node = child->children[0];
         assert(child_child_node);
         const string* child_name = child_child_node->lexinfo;
+        cout << *child_name << endl;
         symbol *str = struct_st[ident];
         if(!str->fields){
             str->fields = new symbol_table();
