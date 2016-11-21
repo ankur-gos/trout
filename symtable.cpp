@@ -283,6 +283,7 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     add_symtbl(st);
     symbol_table &symtbl = *st.back();
     auto sym = new symbol();
+     sym->attributes[ATTR_function] = true;
     auto name_node = def_prototype(sym, struct_st, at);
     // I need a vector of names to hash on
     vector<astree*> names;
@@ -313,7 +314,6 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     }
     else
     {
-        sym->attributes[ATTR_function] = true;
         symtbl[name_node->lexinfo] = sym;
         dump_symbol(file, name_node, sym);
         add_parameters(file, names, st, sym);
