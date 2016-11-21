@@ -8,3 +8,8 @@ struct a{
 };
 
 int func(string fuck);
+
+int func(string fuck) {
+    int num = 12;
+    return num;
+}
