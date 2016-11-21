@@ -10,6 +10,9 @@ using namespace std;
 #include "auxlib.h"
 #include "symtable.h"
 
+struct symbol;
+struct location;
+
 using symbl = symbol;
 
 struct astree {
