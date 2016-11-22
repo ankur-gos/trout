@@ -320,20 +320,26 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     }
 }
 
-symbol_table* check_st(vector<symbol_table*> st, astree* at){
-    bool found = false;
-    symbol_table* foundtable;
+symbol_table* check_st_stack(vector<symbol_table*> st, astree* at, bool &found){
     for(auto table: st){
         if(occurs(*table, at->lexinfo)){
             found = true;
-            foundtable = table;
-            break;
+            return table;
         }
     }
+    found = false
+    return nullptr;
+}
+
+symbol_table* check_st(vector<symbol_table*> st, astree* at){
+    bool found;
+    symbol_table* foundtable = check_st_stack(st, at, found);
     if(!found){
         cerr << "Variable used but not previously declared: " << *at->lexinfo << endl;
         exit(-6);
     }
+    // Give the touched variable its attributes
+    at->symblattributes = foundtable[at->lexinfo];
     return foundtable;
 }
 
@@ -346,6 +352,26 @@ void check_struct(vector<symbol_table*> st, symbol_table struct_st, astree* stru
         cerr << "Field " << *field->lexinfo << "is not a part of struct: " << *sym->struct_name << endl;
         exit(-7);
     }
+}
+
+void check_struct_type(symbol_table struct_st, astree* at){
+    bool found;
+    if(!occurs(struct_st, at->struct_name)){
+        cerr << "Undeclared struct " << *at->struct_name << " defined." << endl;
+        exit(-9);
+    }
+    at->symblattributes = struct_st[at->struct_name];
+}
+
+void check_fn(vector<symbol_table*> st, astree*at){
+    bool found;
+    check_st_stack(st, at, found);
+    if(!found){
+        cerr << "Function used but not previously declared: " << *at->lexinfo << endl;
+        exit(-8);
+    }
+    // Give the touched variable its attributes
+    at->symblattributes = foundtable[at->lexinfo];
 }
 
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
@@ -369,6 +395,12 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         break;
     case TOK_IDENT:
         check_st(st, at);
+        break;
+    case TOK_CALL:
+        check_fn(st, at);
+        break;
+    case TOK_TYPEID:
+        check_struct_type(symbol_table struct_st, astree *at);
         break;
     }
 
