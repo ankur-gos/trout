@@ -525,7 +525,7 @@ string symbol::get_attributes()
     string build = "";
     if (abit[ATTR_field]){
         build = build + "field {";
-        string cpy = *field_struct;
+        string cpy = *struct_name;
         build = build + cpy;
         build = build + "} ";
     } else{
