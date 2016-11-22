@@ -420,6 +420,7 @@ void set_string(astree* at){
     sym->lloc = &at->lloc;
     sym->block_nr = next_block - 1;
     sym->attributes[ATTR_typeid] = true;
+    sym->attributes[ATTR_string] = true;
     at->symblattributes = sym;
 }
 
@@ -525,6 +526,8 @@ string symbol::get_attributes()
         build = build + "const ";
     if (abit[ATTR_param])
         build = build + "param ";
+    if (abit[ATTR_typeid])
+        build = build + "typeid ";
     return build;
 }
 
