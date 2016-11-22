@@ -320,6 +320,11 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     // I need a vector of names to hash on
     vector<astree*> names;
     astree *paramtree = at->children[1];
+    for (auto parameter: paramtree->children){
+        auto psym = new symbol();
+        set_function_attributes(psym, struct_st, parameter);
+        parameter->symblattributes = psym;
+    }
     if (symbol::occurs(symtbl, name_node->lexinfo))
     {
         // Check if the value is a function or a prototype
