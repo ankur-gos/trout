@@ -229,17 +229,22 @@ void handle_call(astree* at){
     if(!fnname->symblattributes->attributes[ATTR_function])
         type_err(-27, fnname->lloc, "a function");
     
-    if((at->children.size()-1) != fnname->parameters.size())
+    if((at->children.size()-1) != fnname->symblattributes->parameters.size())
         type_err(-27, fnname->lloc, 
             fnname->lexinfo + " called with correct parameters.");
     int index = 0;
     for(auto child: at->children){
         if(!index)
             continue;
-        auto sym = fnname->parameters[index-1];
+        auto sym = fnname->symblattributes->parameters[index-1];
         check_attributes(sym, child->symblattributes);
         index++;
     }
+
+    auto sym = new symbol(fnname->symblattributes);
+    sym->attributes[ATTR_vreg] = true;
+    sym->attributes[ATTR_vaddr] = false;
+    at->symblattributes = sym;
 }
 
 void check_types (astree* at) {
