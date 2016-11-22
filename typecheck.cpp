@@ -101,21 +101,21 @@ void handle_index(astree* at){
     if(!intsym->attributes[ATTR_int])
         type_err(-23, intchild->lloc, "index operator with type int");
     auto typesym = typechild->symblattributes;
-    if(!typesym->attributes[ATTR_array] || !typesym->attributes[ATTR_string])
+    if(!typesym->attributes[ATTR_array] && !typesym->attributes[ATTR_string])
         type_err(-23, typechild->lloc, "index operator to be used on variable of type array or string");
     
     if(typesym->attributes[ATTR_array]){
         symbol newsym = *typesym;
-        newsym->attributes[ATTR_lval] = true;
-        newsym->attributes[ATTR_array] = false;
+        newsym.attributes[ATTR_lval] = true;
+        newsym.attributes[ATTR_array] = false;
         at->symblattributes = &newsym;
         return;
     }
 
     symbol newsym = *typesym;
-    newsym->attributes[ATTR_lval] = true;
-    newsym->attributes[ATTR_string] = false;
-    newsym->attributes[ATTR_int] = true;
+    newsym.attributes[ATTR_lval] = true;
+    newsym.attributes[ATTR_string] = false;
+    newsym.attributes[ATTR_int] = true;
     at->symblattributes = &newsym;
 }
 
