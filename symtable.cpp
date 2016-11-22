@@ -14,11 +14,13 @@ void dump_symbol(FILE* file, astree* at, symbol* sym);
 
 int next_block = 1;
 
+symbol::symbol(){}
+
 symbol::symbol(symbol* sym){
     attributes = sym->attributes;
     fields = sym->fields;
     lloc = sym->lloc;
-    block_new = sym->block_nr;
+    block_nr = sym->block_nr;
     parameters = sym->parameters;
     struct_name = sym->struct_name;
     field_struct = sym->field_struct;
