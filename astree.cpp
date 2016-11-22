@@ -189,7 +189,7 @@ void astree::print (FILE* outfile, astree* tree, int depth) {
    fprintf (outfile, "%s \"%s\" (%zd.%zd.%zd) %s\n",
             parser::get_tname (tree->symbol), tree->lexinfo->c_str(),
             tree->lloc.filenr, tree->lloc.linenr, tree->lloc.offset,
-            tree->symblattributes->get_attributes().c_str());
+            str);
    for (astree* child: tree->children) {
       astree::print (outfile, child, depth + 1);
    }
