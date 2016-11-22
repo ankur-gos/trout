@@ -26,7 +26,7 @@ symbol::symbol(symbol* sym){
     field_struct = sym->field_struct;
 }
 
-static bool occurs(symbol_table st, const string* key)
+bool symbol::occurs(symbol_table st, const string* key)
 {
     auto found = st.find(key);
     return !(found == st.end());
@@ -50,7 +50,7 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
         {
             sym->attributes[ATTR_struct] = true;
             sym->struct_name = type_ast->lexinfo;
-            if (!occurs(struct_st, type_ast->lexinfo))
+            if (!symbol::occurs(struct_st, type_ast->lexinfo))
             {
                 // TODO: Fail here
                 cout << "Struct " << *type_ast->lexinfo << " not found." << endl;
@@ -69,7 +69,7 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
             {
             case TOK_TYPEID:
                 // Field value is a struct, check it's in the table
-                if (!occurs(struct_st, type_child->lexinfo))
+                if (!symbol::occurs(struct_st, type_child->lexinfo))
                 {
                     // TODO: Fail here
                     cout << "Struct " << *type_child->lexinfo << " not found." << endl;
@@ -175,7 +175,7 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
         val_child = type_child->children[1];
     else
         val_child = type_child->children[0];
-    if (occurs(symtbl, val_child->lexinfo))
+    if (symbol::occurs(symtbl, val_child->lexinfo))
     {
         cout << "Variable " << *val_child->lexinfo << " is already declared." << endl;
         exit(-2);
@@ -206,7 +206,7 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st, astree *at)
         sym->attributes[ATTR_string] = true;
         break;
     case TOK_TYPEID:
-        if (!occurs(struct_st, at->lexinfo))
+        if (!symbol::occurs(struct_st, at->lexinfo))
         {
             cerr << "Struct not defined: " << *at->lexinfo << endl;
             exit(-2);
@@ -320,7 +320,7 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     {
         names.push_back(child->children[0]);
     }
-    if (occurs(symtbl, name_node->lexinfo))
+    if (symbol::occurs(symtbl, name_node->lexinfo))
     {
         // Check if the value is a function or a prototype
         auto protosym = symtbl[name_node->lexinfo];
@@ -352,7 +352,7 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
 
 symbol_table* check_st_stack(vector<symbol_table*> st, astree* at, bool &found){
     for(auto table: st){
-        if(occurs(*table, at->lexinfo)){
+        if(symbol::occurs(*table, at->lexinfo)){
             found = true;
             return table;
         }
@@ -378,14 +378,14 @@ void check_struct(vector<symbol_table*> st, symbol_table struct_st, astree* stru
     auto sym = (*table)[structname->lexinfo];
     auto struct_sym = struct_st[sym->struct_name];
     auto fields = struct_sym->fields;
-    if(!occurs(*fields, field->lexinfo)){
+    if(!symbol::occurs(*fields, field->lexinfo)){
         cerr << "Field " << *field->lexinfo << "is not a part of struct: " << *sym->struct_name << endl;
         exit(-7);
     }
 }
 
 void check_struct_type(symbol_table &struct_st, astree* at){
-    if(!occurs(struct_st, at->lexinfo)){
+    if(!symbol::occurs(struct_st, at->lexinfo)){
         cerr << "Undeclared struct " << *at->lexinfo << " defined." << endl;
         exit(-9);
     }
