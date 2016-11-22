@@ -56,6 +56,7 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
                 cout << "Struct " << *type_ast->lexinfo << " not found." << endl;
                 exit(-10);
             }
+            sym->fields = struct_st[type_ast->lexinfo]->fields;
             type_ast->symblattributes = new symbol(sym);
         }
         if (type_ast->symbol == TOK_STRING)
@@ -77,6 +78,7 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
                 }
                 sym->attributes[ATTR_struct] = true;
                 sym->struct_name = type_child->lexinfo;
+                sym->fields = struct_st[type_child->lexinfo]->fields;
                 type_child->symblattributes = new symbol(sym);
                 break;
             case TOK_STRING:
