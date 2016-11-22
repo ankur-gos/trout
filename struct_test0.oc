@@ -1,2 +1,3 @@
-string a = "asd";
-a[1];
+struct a{}
+
+a b = new a();

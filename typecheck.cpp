@@ -126,8 +126,10 @@ void handle_index(astree* at){
     if(!intsym->attributes[ATTR_int] || intsym->attributes[ATTR_array])
         type_err(-23, intchild->lloc, "index operator with type int");
     auto typesym = typechild->symblattributes;
-    if(!typesym->attributes[ATTR_array] && !typesym->attributes[ATTR_string])
-        type_err(-23, typechild->lloc, "index operator to be used on variable of type array or string");
+    if(!typesym->attributes[ATTR_array]
+         && !typesym->attributes[ATTR_string])
+        type_err(-23, typechild->lloc, 
+       "index operator to be used on variable of type array or string");
     
     if(typesym->attributes[ATTR_array]){
         symbol *newsym = new symbol(typesym);
@@ -156,7 +158,8 @@ void handle_vardecl(astree* at){
 void handle_new_array(astree* at){
     auto basetype = at->children[0];
     if(!basetype->symblattributes->attributes[ATTR_array])
-        type_err(-24, basetype->lloc, "array allocation to be performed on array type");
+        type_err(-24, basetype->lloc, 
+        "array allocation to be performed on array type");
     auto index = at->children[1];
     if(!index->symblattributes->attributes[ATTR_int] 
         || index->symblattributes->attributes[ATTR_array])
@@ -180,7 +183,8 @@ void handle_new_arg(astree* at){
     auto arg = at->children[1];
     if(!arg->symblattributes->attributes[ATTR_int] 
         || arg->symblattributes->attributes[ATTR_array])
-        type_err(-24, index->lloc, "string construct argument to be of type int");
+        type_err(-24, arg->lloc, 
+        "string construct argument to be of type int");
     auto sym = new symbol(arg->symblattributes);
     sym->attributes[ATTR_vaddr] = false;
     sym->attributes[ATTR_vreg] = true;
@@ -191,7 +195,7 @@ void handle_new(astree* at){
     auto typechild = at->children[0];
     switch(typechild->symbol){
         case TOK_NEWARRAY:
-            handle_new_array(astree* at);
+            handle_new_array(at);
             break;
         case TOK_NEWSTRING:
             if(at->children.size() == 2){
