@@ -192,8 +192,11 @@ void astree::print (FILE* outfile, astree* tree, int depth) {
             str.c_str());
    if(tree->symbol == TOK_IDENT || tree->symbol == TOK_FUNCTION
        || tree->symbol == TOK_TYPEID || tree->symbol == TOK_FIELD){
-       fprintf(outfile, "(%zd.%zd.%zd)\n", tree->symblattributes->lloc->filenr,
-            tree->symblattributes->lloc->linenr, tree->symblattributes->lloc->offset);
+       if(tree->symblattributes)
+            fprintf(outfile, "(%zd.%zd.%zd)\n",
+                tree->symblattributes->lloc->filenr,
+                tree->symblattributes->lloc->linenr,
+                tree->symblattributes->lloc->offset);
    } else{
        fprintf(outfile, "\n");
    }
