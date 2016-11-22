@@ -383,12 +383,12 @@ void check_struct(vector<symbol_table*> st, symbol_table struct_st, astree* stru
     }
 }
 
-void check_struct_type(symbol_table struct_st, astree* at){
+void check_struct_type(symbol_table &struct_st, astree* at){
     if(!occurs(struct_st, at->lexinfo)){
         cerr << "Undeclared struct " << *at->lexinfo << " defined." << endl;
         exit(-9);
     }
-    at->symblattributes = struct_st[at->lexinfo];
+    at->symblattributes = new symbol(struct_st[at->lexinfo]);
 }
 
 void set_con(astree* at, int contype){
