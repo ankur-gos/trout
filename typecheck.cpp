@@ -78,7 +78,18 @@ void handle_function (astree* at) {
 }
 
 void handle_assignment (astree* at) {
+    astree* left = at->children[0];
+    astree* right = at->children[1];
 
+    if (left->symblattributes->attributes[ATTR_int] && !right->symblattributes->attributes[ATTR_int]) {
+        type_err(-22, right->lloc, "expresstion of type int");
+    }
+    if (left->symblattributes->attributes[ATTR_string] && !right->symblattributes->attributes[ATTR_string]) {
+        type_err(-22, right->lloc, "expresstion of type string");
+    }
+    if (left->symblattributes->attributes[ATTR_array] && !right->symblattributes->attributes[ATTR_array]) {
+        type_err(-22, right->lloc, "expresstion with array type");
+    }
 }
 
 void check_types (astree* at) {
@@ -123,6 +134,9 @@ void check_types (astree* at) {
     break;
     case TOK_FUNCTION:
         handle_function (at);
+    break;
+    case '=':
+        handle_assignment (at);
     break;
     }
 }
