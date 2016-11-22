@@ -82,16 +82,41 @@ void handle_assignment (astree* at) {
     astree* right = at->children[1];
 
     if (left->symblattributes->attributes[ATTR_int] && !right->symblattributes->attributes[ATTR_int]) {
-        type_err(-22, right->lloc, "expresstion of type int");
+        type_err(-22, right->lloc, "expression of type int");
     }
     if (left->symblattributes->attributes[ATTR_string] && !right->symblattributes->attributes[ATTR_string]) {
-        type_err(-22, right->lloc, "expresstion of type string");
+        type_err(-22, right->lloc, "expression of type string");
     }
     if (left->symblattributes->attributes[ATTR_array] && !right->symblattributes->attributes[ATTR_array]) {
-        type_err(-22, right->lloc, "expresstion with array type");
+        type_err(-22, right->lloc, "expression with type array");
     }
 
     at->symblattributes = right->symblattributes;
+}
+
+void handle_index(astree* at){
+    auto typechild = at->children[0];
+    auto intchild = at->children[1];
+    auto intsym = intchild->symblattributes;
+    if(!intsym->attributes[ATTR_int])
+        type_err(-23, intchild->lloc, "index operator with type int");
+    auto typesym = typechild->symblattributes;
+    if(!typesym->attributes[ATTR_array] || !typesym->attributes[ATTR_string])
+        type_err(-23, typechild->lloc, "index operator to be used on variable of type array or string");
+    
+    if(typesym->attributes[ATTR_array]){
+        symbol newsym = *typesym;
+        newsym->attributes[ATTR_lval] = true;
+        newsym->attributes[ATTR_array] = false;
+        at->symblattributes = &newsym;
+        return;
+    }
+
+    symbol newsym = *typesym;
+    newsym->attributes[ATTR_lval] = true;
+    newsym->attributes[ATTR_string] = false;
+    newsym->attributes[ATTR_int] = true;
+    at->symblattributes = &newsym;
 }
 
 void check_types (astree* at) {
@@ -103,42 +128,45 @@ void check_types (astree* at) {
     switch (at->symbol) {
     case '+':
         handle_int_binop (at);
-    break;
+        break;
     case '-':
         handle_int_binop (at);
-    break;
+        break;
     case '*':
         handle_int_binop (at);
-    break;
+        break;
     case '/':
         handle_int_binop (at);
-    break;
+        break;
     case '%':
         handle_int_binop (at);
-    break;
+        break;
     case TOK_EQ:
         handle_int_binop (at);
-    break;
+        break;
     case TOK_NE:
         handle_int_binop (at);
-    break;
+        break;
     case TOK_POS:
         handle_int_unop (at);
-    break;
+        break;
     case TOK_NEG:
         handle_int_unop (at);
-    break;
+        break;
     case '!':
         handle_int_unop (at);
-    break;
+        break;
     case TOK_RETURN:
         handle_return (at);
-    break;
+        break;
     case TOK_FUNCTION:
         handle_function (at);
-    break;
+        break;
     case '=':
         handle_assignment (at);
-    break;
+        break;
+    case TOK_INDEX:
+        handle_index(at);
+        break;
     }
 }
