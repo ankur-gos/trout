@@ -185,7 +185,7 @@ void astree::print (FILE* outfile, astree* tree, int depth) {
     if(tree->symblattributes){
         str = tree->symblattributes->get_attributes();
     } else{
-        cout << tree->symbol << " has no symblattributes on it!" << endl;
+        cout << parser::get_tname(tree->symbol) << " has no symblattributes on it!" << endl;
     }
    fprintf (outfile, "; %*s", depth * 3, "");
    fprintf (outfile, "%s \"%s\" (%zd.%zd.%zd) %s\n",

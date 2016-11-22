@@ -416,9 +416,9 @@ void set_id(astree* at){
 }
 
 void set_string(astree* at){
-    suto sym = new symbol();
+    auto sym = new symbol();
     sym->lloc = &at->lloc;
-    sym-block_nr = next_block - 1;
+    sym->block_nr = next_block - 1;
     sym->attributes[ATTR_typeid] = true;
     at->symblattributes = sym;
 }

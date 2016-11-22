@@ -1,5 +1,2 @@
-string str = "hello";
-
-int func() {
-    return 12;
-}
+string a = "asd";
+a[1];

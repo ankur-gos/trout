@@ -79,24 +79,24 @@ void handle_function (astree* at) {
 
 void check_attributes(symbol *a, symbol *b){
     if(!a->attributes[ATTR_vaddr] && b->attributes[ATTR_null])
-        type_err(-22, left->lloc, "non null value.")
+        type_err(-22, *a->lloc, "non null value.");
 
     if (a->attributes[ATTR_int] && !b->attributes[ATTR_int]) 
-        type_err(-22, right->lloc, "expression of type int or int array");
+        type_err(-22, *b->lloc, "expression of type int or int array");
 
     if (a->attributes[ATTR_string] && !b->attributes[ATTR_string])
-        type_err(-22, right->lloc, "expression of type string or string array");
+        type_err(-22, *b->lloc, "expression of type string or string array");
     
     if (a->attributes[ATTR_array] && !b->attributes[ATTR_array]) {
-        type_err(-22, right->lloc, "expression with type array");
+        type_err(-22, *b->lloc, "expression with type array");
     }
 
     if (a->attributes[ATTR_struct] && !b->attributes[ATTR_struct])
-        type_err(-22, right->lloc, "expression with type struct");
+        type_err(-22, *b->lloc, "expression with type struct");
 
     if (a->attributes[ATTR_struct]){
-        if(*a->struct_name).compare(*b->struct_name) != 0){
-            type_err(-22, right->lloc, "expression with type struct " + *a->struct_name);
+        if((*a->struct_name).compare(*b->struct_name) != 0){
+            type_err(-22, *b->lloc, "expression with type struct " + *a->struct_name);
         }
     }
 
@@ -107,8 +107,8 @@ void handle_assignment (astree* at) {
     astree* left = at->children[0];
     astree* right = at->children[1];
 
-    check_attributes(left->symblattributes->attributes,
-                        right->symblattributes->attributes);
+    check_attributes(left->symblattributes,
+                        right->symblattributes);
 
     if (!left->symblattributes->attributes[ATTR_lval])
         type_err(-22, left->lloc, "value to have attribute lval");
@@ -145,11 +145,11 @@ void handle_index(astree* at){
 }
 
 void handle_vardecl(astree* at){
-    auto declattr = at->children[0]->symblattributes->attributes;
-    auto exprattr = at->children[1]->symblattributes->attributes;
+    auto declattr = at->children[0]->symblattributes;
+    auto exprattr = at->children[1]->symblattributes;
 
     check_attributes(declattr, exprattr);
-    at->symblattributes = at->children[0]->symblattributes;
+    at->symblattributes = declattr;
 
 }
 
