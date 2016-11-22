@@ -197,6 +197,7 @@ void astree::print (FILE* outfile, astree* tree, int depth) {
                 tree->symblattributes->lloc->filenr,
                 tree->symblattributes->lloc->linenr,
                 tree->symblattributes->lloc->offset);
+       else fprintf(outfile, "\n");
    } else{
        fprintf(outfile, "\n");
    }
