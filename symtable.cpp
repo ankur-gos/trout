@@ -334,7 +334,7 @@ symbol_table* check_st_stack(vector<symbol_table*> st, astree* at, bool &found){
             return table;
         }
     }
-    found = false
+    found = false;
     return nullptr;
 }
 
@@ -346,7 +346,7 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
         exit(-6);
     }
     // Give the touched variable its attributes
-    at->symblattributes = foundtable[at->lexinfo];
+    at->symblattributes = (*foundtable)[at->lexinfo];
     return foundtable;
 }
 
@@ -362,17 +362,16 @@ void check_struct(vector<symbol_table*> st, symbol_table struct_st, astree* stru
 }
 
 void check_struct_type(symbol_table struct_st, astree* at){
-    bool found;
-    if(!occurs(struct_st, at->struct_name)){
-        cerr << "Undeclared struct " << *at->struct_name << " defined." << endl;
+    if(!occurs(struct_st, at->lexinfo)){
+        cerr << "Undeclared struct " << *at->lexinfo << " defined." << endl;
         exit(-9);
     }
-    at->symblattributes = struct_st[at->struct_name];
+    at->symblattributes = struct_st[at->lexinfo];
 }
 
 void check_fn(vector<symbol_table*> st, astree*at){
     bool found;
-    check_st_stack(st, at, found);
+    auto foundtable = check_st_stack(st, at, found);
     if(!found){
         cerr << "Function used but not previously declared: " << *at->lexinfo << endl;
         exit(-8);
@@ -407,7 +406,7 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         check_fn(st, at);
         break;
     case TOK_TYPEID:
-        check_struct_type(symbol_table struct_st, astree *at);
+        check_struct_type(struct_st, at);
         break;
     }
 
