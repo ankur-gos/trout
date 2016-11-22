@@ -101,15 +101,14 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
             struct_sym->fields = nullptr;
             struct_sym->struct_name = child->lexinfo;
             struct_st[ident] = struct_sym;
-            fprintf(file, "%s (%zd.%zd.%zd)", ident->c_str(), struct_sym->lloc->filenr, struct_sym->lloc->linenr, struct_sym->lloc->offset);
-            fprintf(file, "{%zd} %s\n", struct_sym->block_nr, get_attributes(struct_sym).c_str());
+            dump_symbol(file, child, struct_sym);
             continue;
         }
         // If the child token is a field, add it to the field table
         auto field_sym = new symbol();
         field_sym->attributes[ATTR_field] = true;
         field_sym->attributes[ATTR_lval] = true;
-        field_sym->block_nr = 0;
+        field_sym->block_nr = 1;
         field_sym->lloc = &child->lloc;
         field_sym->struct_name = child->lexinfo;
         assign_attributes(field_sym, child, struct_st);
@@ -128,9 +127,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
         }
         field_sym->field_struct = child_name;
         (*str->fields)[child_name] = field_sym;
-        fprintf(file, "   ");
-        fprintf(file, "%s (%zd.%zd.%zd)", child_name->c_str(), field_sym->lloc->filenr, field_sym->lloc->linenr, field_sym->lloc->offset);
-        fprintf(file, " field {%s} %s\n", child_name->c_str(), get_attributes(field_sym).c_str());
+        dump_symbol(file, child_child_node, field_sym);
     }
 }
 
@@ -146,7 +143,7 @@ void dump_symbol(FILE *file, astree *val_child, symbol *sym)
 {
     fprintf(file, "%*s", (int)sym->block_nr * 3, "");
     fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc->filenr, sym->lloc->linenr, sym->lloc->offset);
-    fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
+    fprintf(file, "%s\n", sym->block_nr, get_attributes(sym).c_str());
 }
 
 void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
@@ -464,7 +461,7 @@ string get_attributes(symbol *sym)
         build = build + "} ";
     } else{
         build = build + "{";
-        build = build + new string(sym->block_nr);
+        build = build + new string((int)sym->block_nr);
         build = build + "} ";
     }
     if (abit[ATTR_void])
