@@ -232,6 +232,8 @@ void handle_selector(astree* at){
          fieldarg->lexinfo))
         type_err(-26, fieldarg->lloc,
             *fieldarg->lexinfo + " is be a part of struct's fields");
+    auto syms = *structarg->symblattributes->fields;
+    fieldarg->symblattributes = syms[fieldarg->lexinfo];
     
     auto sym = 
     new symbol((*structarg->symblattributes->fields)[fieldarg->lexinfo]);
