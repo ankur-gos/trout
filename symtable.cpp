@@ -126,6 +126,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
         {
             str->fields = new symbol_table();
         }
+        field_sym->field_struct = child_name;
         (*str->fields)[child_name] = field_sym;
         fprintf(file, "   ");
         fprintf(file, "%s (%zd.%zd.%zd)", child_name->c_str(), field_sym->lloc->filenr, field_sym->lloc->linenr, field_sym->lloc->offset);
@@ -268,6 +269,7 @@ void insert_prototype(vector<symbol_table *> &st, symbol_table struct_st, astree
     symbol_table &symtbl = *st.back();
     auto sym = new symbol();
     auto name_node = def_prototype(sym, struct_st, at);
+    at->symblattributes = sym;
     symtbl[name_node->lexinfo] = sym;
 }
 
@@ -319,11 +321,13 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
             cerr << "Function does not match given prototype: " << name_node->lexinfo << endl;
             exit(-4);
         }
+        at->symblattributes = sym;
         dump_symbol(file, name_node, protosym);
         add_parameters(file, names, st, protosym);
     }
     else
     {
+        at->symblattributes = sym;
         symtbl[name_node->lexinfo] = sym;
         dump_symbol(file, name_node, sym);
         add_parameters(file, names, st, sym);
@@ -386,6 +390,14 @@ void set_con(astree* at, int contype){
     at->symblattributes = sym;
 }
 
+void set_void(astree* at){
+    auto sym = new symbol();
+    sym->lloc = &at->lloc;
+    sym->block_nr = next_block - 1;
+    sym->attributes[ATTR_void] = true;
+    at->symblattributes = sym;
+}
+
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
 {
     switch (at->symbol)
@@ -420,6 +432,9 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
     case TOK_NULL:
         set_con(at, ATTR_null);
         break;
+    case TOK_RETURNVOID:
+        set_void(at);
+        break;
     }
 
     // pre-order traversal, left node is first in vector
@@ -442,6 +457,16 @@ string get_attributes(symbol *sym)
 {
     auto abit = sym->attributes;
     string build = "";
+    if (abit[ATTR_field]){
+        build = build + "field {";
+        string cpy = *sym->field_struct;
+        build = build + cpy;
+        build = build + "} ";
+    } else{
+        build = build + "{";
+        build = build + new string(sym->block_nr);
+        build = build + "} ";
+    }
     if (abit[ATTR_void])
         build = build + "void ";
     if (abit[ATTR_int])
@@ -458,13 +483,15 @@ string get_attributes(symbol *sym)
         build = build + "\" ";
     }
     if (abit[ATTR_array])
-    {
         build = build + "[] ";
-    }
+    if (abit[ATTR_function])
+        build = build + "function "
     if (abit[ATTR_variable])
         build = build + "variable ";
     if (abit[ATTR_lval])
         build = build + "lval ";
+    if (abit[ATTR_const])
+        build = build + "const ";
     if (abit[ATTR_param])
         build = build + "param ";
     return build;
