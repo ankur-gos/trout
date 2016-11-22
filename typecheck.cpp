@@ -77,21 +77,46 @@ void handle_function (astree* at) {
     returnptr = nullptr;
 }
 
+void check_attributes(symbol *a, symbol *b){
+    if(!a->attributes[ATTR_vaddr] && b->attributes[ATTR_null])
+        type_err(-22, left->lloc, "non null value.")
+
+    if (a->attributes[ATTR_int] && !b->attributes[ATTR_int]) 
+        type_err(-22, right->lloc, "expression of type int or int array");
+
+    if (a->attributes[ATTR_string] && !b->attributes[ATTR_string])
+        type_err(-22, right->lloc, "expression of type string or string array");
+    
+    if (a->attributes[ATTR_array] && !b->attributes[ATTR_array]) {
+        type_err(-22, right->lloc, "expression with type array");
+    }
+
+    if (a->attributes[ATTR_struct] && !b->attributes[ATTR_struct])
+        type_err(-22, right->lloc, "expression with type struct");
+
+    if (a->attributes[ATTR_struct]){
+        if(*a->struct_name).compare(*b->struct_name) != 0){
+            type_err(-22, right->lloc, "expression with type struct " + *a->struct_name);
+        }
+    }
+
+    
+}
+
 void handle_assignment (astree* at) {
     astree* left = at->children[0];
     astree* right = at->children[1];
 
-    if (left->symblattributes->attributes[ATTR_int] && !right->symblattributes->attributes[ATTR_int]) {
-        type_err(-22, right->lloc, "expression of type int");
-    }
-    if (left->symblattributes->attributes[ATTR_string] && !right->symblattributes->attributes[ATTR_string]) {
-        type_err(-22, right->lloc, "expression of type string");
-    }
-    if (left->symblattributes->attributes[ATTR_array] && !right->symblattributes->attributes[ATTR_array]) {
-        type_err(-22, right->lloc, "expression with type array");
-    }
+    check_attributes(left->symblattributes->attributes,
+                        right->symblattributes->attributes);
 
-    at->symblattributes = right->symblattributes;
+    if (!left->symblattributes->attributes[ATTR_lval])
+        type_err(-22, left->lloc, "value to have attribute lval");
+
+    auto sym = new symbol(left->symblattributes);
+    sym->attributes[ATTR_vaddr] = false;
+    sym->attributes[ATTR_vreg] = true;
+    at->symblattributes = sym;
 }
 
 void handle_index(astree* at){
@@ -117,6 +142,15 @@ void handle_index(astree* at){
     newsym->attributes[ATTR_string] = false;
     newsym->attributes[ATTR_int] = true;
     at->symblattributes = newsym;
+}
+
+void handle_vardecl(astree* at){
+    auto declattr = at->children[0]->symblattributes->attributes;
+    auto exprattr = at->children[1]->symblattributes->attributes;
+
+    check_attributes(declattr, exprattr);
+    at->symblattributes = at->children[0]->symblattributes;
+
 }
 
 void check_types (astree* at) {
@@ -167,6 +201,9 @@ void check_types (astree* at) {
         break;
     case TOK_INDEX:
         handle_index(at);
+        break;
+    case TOK_VARDECL:
+        handle_vardecl(at);
         break;
     }
 }

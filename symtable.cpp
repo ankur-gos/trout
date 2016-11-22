@@ -408,6 +408,21 @@ void set_void(astree* at){
     at->symblattributes = sym;
 }
 
+void set_id(astree* at){
+    auto sym = new symbol();
+    sym->lloc = &at->lloc;
+    sym->block_nr = next_block - 1;
+    at->symblattributes = sym;
+}
+
+void set_string(astree* at){
+    suto sym = new symbol();
+    sym->lloc = &at->lloc;
+    sym-block_nr = next_block - 1;
+    sym->attributes[ATTR_typeid] = true;
+    at->symblattributes = sym;
+}
+
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
 {
     switch (at->symbol)
@@ -444,6 +459,12 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         break;
     case TOK_RETURNVOID:
         set_void(at);
+        break;
+    case TOK_DECLID:
+        set_id(at);
+        break;
+    case TOK_STRING:
+        set_string(at);
         break;
     }
 
