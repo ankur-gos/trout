@@ -186,10 +186,16 @@ void astree::print (FILE* outfile, astree* tree, int depth) {
         str = tree->symblattributes->get_attributes();
     } 
    fprintf (outfile, "; %*s", depth * 3, "");
-   fprintf (outfile, "%s \"%s\" (%zd.%zd.%zd) %s\n",
+   fprintf (outfile, "%s \"%s\" (%zd.%zd.%zd) %s",
             parser::get_tname (tree->symbol), tree->lexinfo->c_str(),
             tree->lloc.filenr, tree->lloc.linenr, tree->lloc.offset,
             str.c_str());
+   if(tree->symbol == TOK_IDENT){
+       fprintf(outfile, "(%zd.%zd.%zd)\n", tree->symblattributes->lloc.filenr,
+            tree->symblattributes->lloc.linenr, tree->symblattributes->lloc.offset);
+   } else{
+       fprintf(outfile, "\n");
+   }
    for (astree* child: tree->children) {
       astree::print (outfile, child, depth + 1);
    }
