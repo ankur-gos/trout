@@ -2,8 +2,8 @@ struct a{
    int i;
 }
 
-void i(int i){
+void i(string j, int k){
 
 }
 
-i(1);
+i(null, "");

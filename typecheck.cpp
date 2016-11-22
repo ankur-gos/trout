@@ -82,7 +82,7 @@ void check_attributes(symbol *a, symbol *b){
         type_err(-22, *a->lloc, "non null value.");
 
     if(a->attributes[ATTR_vaddr] && b->attributes[ATTR_null])
-        return
+        return;
 
     if (a->attributes[ATTR_int] && !b->attributes[ATTR_int]) 
         type_err(-22, *b->lloc, "expression of type int or int array");
