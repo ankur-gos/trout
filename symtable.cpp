@@ -301,8 +301,6 @@ void add_parameters(FILE* file, vector<astree*> parameters, vector<symbol_table 
         int index = 0;
         for (auto parameter : parameters)
         {
-            auto parametersym = parameter->symblattributes;
-            sym->parameters.push_back(parametersym);
             newsymtbl[parameter->children[0]->lexinfo] = sym->parameters[index];
             dump_symbol(file, parameter->children[0], sym->parameters[index]);
             index++;
@@ -318,13 +316,7 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
      sym->attributes[ATTR_function] = true;
     auto name_node = def_prototype(sym, struct_st, at);
     // I need a vector of names to hash on
-    vector<astree*> names;
     astree *paramtree = at->children[1];
-    for (auto parameter: paramtree->children){
-        auto psym = new symbol();
-        set_function_attributes(psym, struct_st, parameter);
-        parameter->symblattributes = psym;
-    }
     if (symbol::occurs(symtbl, name_node->lexinfo))
     {
         // Check if the value is a function or a prototype
@@ -344,7 +336,7 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
         }
         at->symblattributes = sym;
         dump_symbol(file, name_node, protosym);
-        add_parameters(file, paramtree->children, st, protosym);
+        add_parameters(file, paramtree->children, st, sym);
     }
     else
     {
