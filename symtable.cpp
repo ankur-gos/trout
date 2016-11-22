@@ -424,6 +424,16 @@ void set_string(astree* at){
     at->symblattributes = sym;
 }
 
+void set_int(astree* at){
+    auto sym = new symbol();
+    sym->lloc = &at->lloc;
+    sym->block_nr = next_block - 1;
+    sym->attributes[ATTR_typeid] = true;
+    sym->attributes[ATTR_int] = true;
+    at->symblattributes = sym;
+}
+
+
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
 {
     switch (at->symbol)
@@ -467,6 +477,9 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
     case TOK_STRING:
         set_string(at);
         break;
+    case TOK_INT:
+        set_int(at);
+        break;
     }
 
     // pre-order traversal, left node is first in vector
@@ -499,6 +512,8 @@ string symbol::get_attributes()
         build = build + to_string((int)block_nr);
         build = build + "} ";
     }
+    if (abit[ATTR_typeid])
+        build = build + "typeid ";
     if (abit[ATTR_void])
         build = build + "void ";
     if (abit[ATTR_int])
@@ -526,9 +541,7 @@ string symbol::get_attributes()
         build = build + "const ";
     if (abit[ATTR_param])
         build = build + "param ";
-    if (abit[ATTR_typeid])
-        build = build + "typeid ";
-    return build;
+        return build;
 }
 
 void symbol::print_structtable(FILE *file, symbol_table st)

@@ -123,7 +123,7 @@ void handle_index(astree* at){
     auto typechild = at->children[0];
     auto intchild = at->children[1];
     auto intsym = intchild->symblattributes;
-    if(!intsym->attributes[ATTR_int])
+    if(!intsym->attributes[ATTR_int] || intsym->attributes[ATTR_array])
         type_err(-23, intchild->lloc, "index operator with type int");
     auto typesym = typechild->symblattributes;
     if(!typesym->attributes[ATTR_array] && !typesym->attributes[ATTR_string])
@@ -151,6 +151,54 @@ void handle_vardecl(astree* at){
     check_attributes(declattr, exprattr);
     at->symblattributes = declattr;
 
+}
+
+void handle_new_array(astree* at){
+    auto basetype = at->children[0];
+    if(!basetype->symblattributes->attributes[ATTR_array])
+        type_err(-24, basetype->lloc, "array allocation to be performed on array type");
+    auto index = at->children[1];
+    if(!index->attributes[ATTR_int] || index->attributes[ATTR_array])
+        type_err(-24, index->lloc, "array index to be of type int");
+
+    auto sym = new symbol(basetype->symblattributes);
+    sym->attributes[ATTR_vaddr] = false;
+    sym->attributes[ATTR_vreg] = true;
+    at->symblattributes = sym;
+}
+
+void handle_new_empty_arg(astree* at){
+    auto basetype = at->children[0];
+    auto sym = new symbol(basetype->symblattributes);
+    sym->attributes[ATTR_vaddr] = false;
+    sym->attributes[ATTR_vreg] = true;
+    at->symblattributes = sym;
+}
+
+void handle_new_arg(astree* at){
+    auto arg = at->children[1];
+    if(!arg->attributes[ATTR_int] || index->attributes[ATTR_array])
+        type_err(-24, index->lloc, "string construct argument to be of type int");
+    auto sym = new symbol(arg->symblattributes);
+    sym->attributes[ATTR_vaddr] = false;
+    sym->attributes[ATTR_vreg] = true;
+    at->symblattributes = sym;
+}
+
+void handle_new(astree* at){
+    auto typechild = at->children[0];
+    switch(typechild->symbol){
+        case TOK_NEWARRAY:
+            handle_new_array(astree*at);
+            break;
+        case TOK_NEWSTRING:
+            if(at->children.size() == 2){
+                handle_new_arg(at);
+                break;
+            }
+        case TOK_IDENT:
+            handle_new_empty_arg(at);
+    }
 }
 
 void check_types (astree* at) {
@@ -204,6 +252,9 @@ void check_types (astree* at) {
         break;
     case TOK_VARDECL:
         handle_vardecl(at);
+        break;
+    case TOK_NEW:
+        handle_new(at);
         break;
     }
 }
