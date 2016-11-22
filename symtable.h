@@ -45,7 +45,8 @@ struct symbol{
     const string* struct_name;
     const string* field_struct;
 
-    static void parse_astree(FILE* file, vector<symbol_table*> &st, symbol_table &struct_st, astree *at);
+    static void parse_astree(FILE* file, vector<symbol_table*> &st,
+                             symbol_table &struct_st, astree *at);
     static void print_structtable(FILE *file, symbol_table st);
     string get_attributes();
     bool compare(symbol s);
