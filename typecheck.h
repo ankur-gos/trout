@@ -9,6 +9,7 @@
 #define __TYPECHECK_H__
 
 #include "astree.h"
+#include "symtable.h"
 
 void check_types (astree* at);
 
