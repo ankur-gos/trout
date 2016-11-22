@@ -158,7 +158,8 @@ void handle_new_array(astree* at){
     if(!basetype->symblattributes->attributes[ATTR_array])
         type_err(-24, basetype->lloc, "array allocation to be performed on array type");
     auto index = at->children[1];
-    if(!index->attributes[ATTR_int] || index->attributes[ATTR_array])
+    if(!index->symblattributes->attributes[ATTR_int] 
+        || index->symblattributes->attributes[ATTR_array])
         type_err(-24, index->lloc, "array index to be of type int");
 
     auto sym = new symbol(basetype->symblattributes);
@@ -177,7 +178,8 @@ void handle_new_empty_arg(astree* at){
 
 void handle_new_arg(astree* at){
     auto arg = at->children[1];
-    if(!arg->attributes[ATTR_int] || index->attributes[ATTR_array])
+    if(!arg->symblattributes->attributes[ATTR_int] 
+        || arg->symblattributes->attributes[ATTR_array])
         type_err(-24, index->lloc, "string construct argument to be of type int");
     auto sym = new symbol(arg->symblattributes);
     sym->attributes[ATTR_vaddr] = false;
@@ -189,7 +191,7 @@ void handle_new(astree* at){
     auto typechild = at->children[0];
     switch(typechild->symbol){
         case TOK_NEWARRAY:
-            handle_new_array(astree*at);
+            handle_new_array(astree* at);
             break;
         case TOK_NEWSTRING:
             if(at->children.size() == 2){
