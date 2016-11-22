@@ -10,6 +10,7 @@
 #include "assert.h"
 
 string get_attributes(symbol *sym);
+void dump_symbol(FILE* file, astree* at, symbol* sym);
 
 int next_block = 1;
 
@@ -143,7 +144,7 @@ void dump_symbol(FILE *file, astree *val_child, symbol *sym)
 {
     fprintf(file, "%*s", (int)sym->block_nr * 3, "");
     fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc->filenr, sym->lloc->linenr, sym->lloc->offset);
-    fprintf(file, "%s\n", sym->block_nr, get_attributes(sym).c_str());
+    fprintf(file, "%s\n", get_attributes(sym).c_str());
 }
 
 void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
@@ -461,7 +462,7 @@ string get_attributes(symbol *sym)
         build = build + "} ";
     } else{
         build = build + "{";
-        build = build + new string((int)sym->block_nr);
+        build = build + to_string((int)sym->block_nr);
         build = build + "} ";
     }
     if (abit[ATTR_void])
@@ -482,7 +483,7 @@ string get_attributes(symbol *sym)
     if (abit[ATTR_array])
         build = build + "[] ";
     if (abit[ATTR_function])
-        build = build + "function "
+        build = build + "function ";
     if (abit[ATTR_variable])
         build = build + "variable ";
     if (abit[ATTR_lval])

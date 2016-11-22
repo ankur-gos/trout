@@ -77,6 +77,10 @@ void handle_function (astree* at) {
     returnptr = nullptr;
 }
 
+void handle_assignment (astree* at) {
+
+}
+
 void check_types (astree* at) {
     // postorder traversal
     for (auto child: at->children) {
@@ -97,6 +101,12 @@ void check_types (astree* at) {
         handle_int_binop (at);
     break;
     case '%':
+        handle_int_binop (at);
+    break;
+    case TOK_EQ:
+        handle_int_binop (at);
+    break;
+    case TOK_NE:
         handle_int_binop (at);
     break;
     case TOK_POS:

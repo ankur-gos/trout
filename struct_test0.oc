@@ -1,5 +1,5 @@
 string str = "hello";
 
 int func() {
-    return str;
+    return 12;
 }
