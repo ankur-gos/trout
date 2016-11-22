@@ -105,7 +105,7 @@ void handle_index(astree* at){
         type_err(-23, typechild->lloc, "index operator to be used on variable of type array or string");
     
     if(typesym->attributes[ATTR_array]){
-        symbol newsym = new symbol(typesym);
+        symbol *newsym = new symbol(typesym);
         newsym->attributes[ATTR_lval] = true;
         newsym->attributes[ATTR_array] = false;
         at->symblattributes = &newsym;
