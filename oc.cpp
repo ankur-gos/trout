@@ -143,8 +143,8 @@ int main(int argc, char** argv){
 
    scan_tok_to_file (no_ext, command);
    dump_stringset_file (no_ext);
-   dump_ast(no_ext);
    create_symbol_table(no_ext);
+   dump_ast(no_ext);
    check_types(parser::root);
    if(pclose(yyin) != 0){
       cerr << "Pipe close failed." << endl;
