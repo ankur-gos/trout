@@ -148,7 +148,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st,
         {
             str->fields = new symbol_table();
         }
-        field_sym->field_struct = child_name;
+        field_sym->field_struct = ident;
         (*str->fields)[child_name] = field_sym;
         dump_symbol(file, child_child_node, field_sym);
     }
@@ -524,7 +524,7 @@ string symbol::get_attributes()
     string build = "";
     if (abit[ATTR_field]){
         build = build + "field {";
-        string cpy = *struct_name;
+        string cpy = *field_struct;
         build = build + cpy;
         build = build + "} ";
     } else{
