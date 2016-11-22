@@ -345,7 +345,7 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
     bool found;
     symbol_table* foundtable = check_st_stack(st, at, found);
     if(!found){
-        cerr << "Identifier not found: " << *at->lexinfo << endl;
+        cerr << "Identifier not defined: " << *at->lexinfo << endl;
         exit(-6);
     }
     // Give the touched variable its attributes
@@ -372,6 +372,20 @@ void check_struct_type(symbol_table struct_st, astree* at){
     at->symblattributes = struct_st[at->lexinfo];
 }
 
+void set_con(astree* at, int contype){
+    auto sym = new symbol();
+    sym->lloc = &at->lloc;
+    sym->block_nr = next_block - 1;
+    sym->attributes[contype] = true;
+    if(contype == ATTR_int){
+        sym->attributes[ATTR_vreg] = true;
+    } else{
+        sym->attributes[ATTR_vaddr] = true;
+    }
+    sym->attributes[ATTR_const] = true;
+    at->symblattributes = sym;
+}
+
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
 {
     switch (at->symbol)
@@ -396,6 +410,15 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         break;
     case TOK_TYPEID:
         check_struct_type(struct_st, at);
+        break;
+    case TOK_INTCON:
+        set_con(at, ATTR_int);
+        break;
+    case TOK_STRINGCON:
+        set_con(at, ATTR_string);
+        break;
+    case TOK_NULL:
+        set_con(at, ATTR_null);
         break;
     }
 
