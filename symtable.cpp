@@ -32,11 +32,16 @@ bool symbol::occurs(symbol_table st, const string* key)
     return !(found == st.end());
 }
 
-static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct_st)
+void identerror(int status, location lloc, string expected){
+    errllocprintf (lloc, "Identifier error - %s\n", expected.c_str());
+    exit(status);
+}
+
+static void assign_attributes(symbol* sym, astree* type_ast,
+                              symbol_table struct_st)
 {
     if (type_ast->symbol == TOK_VOID){
-        cout << "Invalid variable type void." << endl;
-        exit(-12);
+        identerror(-12, type_ast->lloc, "Invalid variable type void.");
     }
     if (type_ast->symbol == TOK_INT)
     {
@@ -52,9 +57,8 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
             sym->struct_name = type_ast->lexinfo;
             if (!symbol::occurs(struct_st, type_ast->lexinfo))
             {
-                // TODO: Fail here
-                cout << "Struct " << *type_ast->lexinfo << " not found." << endl;
-                exit(-10);
+                identerror(-10, type_ast->lloc, 
+                "Struct " + *type_ast->lexinfo + " not found.");
             }
             sym->fields = struct_st[type_ast->lexinfo]->fields;
             type_ast->symblattributes = new symbol(sym);
@@ -72,9 +76,8 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
                 // Field value is a struct, check it's in the table
                 if (!symbol::occurs(struct_st, type_child->lexinfo))
                 {
-                    // TODO: Fail here
-                    cout << "Struct " << *type_child->lexinfo << " not found." << endl;
-                    exit(-11);
+                    identerror(-11, type_child->lloc,
+                    "Struct " + *type_child->lexinfo + " not found.");
                 }
                 sym->attributes[ATTR_struct] = true;
                 sym->struct_name = type_child->lexinfo;
@@ -99,7 +102,8 @@ void new_block(vector<symbol_table *> &st)
     st.push_back(nullptr);
 }
 
-static void insert_struct(FILE *file, symbol_table &struct_st, astree *at)
+static void insert_struct(FILE *file, symbol_table &struct_st,
+                             astree *at)
 {
     if (next_block != 1)
     {
@@ -161,11 +165,15 @@ void add_symtbl(vector<symbol_table *> &st)
 void dump_symbol(FILE *file, astree *val_child, symbol *sym)
 {
     fprintf(file, "%*s", (int)sym->block_nr * 3, "");
-    fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc->filenr, sym->lloc->linenr, sym->lloc->offset);
+    fprintf(file, "%s (%zd.%zd.%zd)",
+         val_child->lexinfo->c_str(),
+         sym->lloc->filenr, sym->lloc->linenr,
+         sym->lloc->offset);
     fprintf(file, "%s\n", sym->get_attributes().c_str());
 }
 
-void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
+void insert_variable(FILE *file, vector<symbol_table *> &st,
+                     symbol_table struct_st, astree *at)
 {
     add_symtbl(st);
     auto sym = new symbol();
@@ -179,8 +187,8 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
         val_child = type_child->children[0];
     if (symbol::occurs(symtbl, val_child->lexinfo))
     {
-        cout << "Variable " << *val_child->lexinfo << " is already declared." << endl;
-        exit(-2);
+        identerror(-2, val_child->lloc,
+        "Variable " + *val_child->lexinfo + " is already declared.");
     }
 
     sym->block_nr = next_block - 1;
@@ -194,7 +202,8 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
     dump_symbol(file, val_child, sym);
 }
 
-astree *set_function_attributes(symbol *sym, symbol_table struct_st, astree *at)
+astree *set_function_attributes(symbol *sym, symbol_table struct_st,
+                                 astree *at)
 {
     sym->attributes[ATTR_vaddr] = true;
     switch (at->symbol)
@@ -210,8 +219,8 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st, astree *at)
     case TOK_TYPEID:
         if (!symbol::occurs(struct_st, at->lexinfo))
         {
-            cerr << "Struct not defined: " << *at->lexinfo << endl;
-            exit(-2);
+            identerror(-2, at->lloc,
+            "Struct not defined: " + *at->lexinfo);
         }
         sym->attributes[ATTR_struct] = true;
         sym->struct_name = at->lexinfo;
@@ -234,7 +243,8 @@ astree *def_prototype(symbol *sym, symbol_table struct_st, astree *at)
     sym->block_nr = next_block - 1;
     auto return_child = at->children[0];
     sym->lloc = &return_child->lloc;
-    auto func_name_node = set_function_attributes(sym, struct_st, return_child);
+    auto func_name_node = set_function_attributes(sym, struct_st,
+                                                  return_child);
     auto param_child = at->children[1];
     for (auto child : param_child->children)
     {
@@ -247,8 +257,8 @@ astree *def_prototype(symbol *sym, symbol_table struct_st, astree *at)
         sym->parameters.push_back(child_sym);
     }
     if(next_block != 1){
-        cerr << "Function can only be defined at global scope: " << *func_name_node->lexinfo << endl;
-        exit(-5);
+        identerror(-5, at->lloc,
+"Function can only be defined at global scope: " + *func_name_node->lexinfo);
     };
     return func_name_node;
 }
@@ -280,7 +290,8 @@ bool symbol::compare(symbol s)
     return true;
 }
 
-void insert_prototype(vector<symbol_table *> &st, symbol_table struct_st, astree *at)
+void insert_prototype(vector<symbol_table *> &st,
+                     symbol_table struct_st, astree *at)
 {
     
     add_symtbl(st);
@@ -291,7 +302,8 @@ void insert_prototype(vector<symbol_table *> &st, symbol_table struct_st, astree
     symtbl[name_node->lexinfo] = sym;
 }
 
-void add_parameters(FILE* file, vector<astree*> parameters, vector<symbol_table *> &st, symbol *sym)
+void add_parameters(FILE* file, vector<astree*> parameters,
+                     vector<symbol_table *> &st, symbol *sym)
 {
     new_block(st);
     if (sym->parameters.size() != 0)
@@ -324,15 +336,15 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
         if (protosym->attributes[ATTR_function])
         {
             // Duplicate function, throw error
-            cerr << "Duplicate function found: " << name_node->lexinfo << endl;
-            exit(-3);
+            identerror(-3, at->lloc,
+"Duplicate function found: " + *name_node->lexinfo);
         }
         protosym->attributes[ATTR_function] = true;
         // prototype exists, verify each parameter
         if (!protosym->compare(*sym))
         {
-            cerr << "Function does not match given prototype: " << name_node->lexinfo << endl;
-            exit(-4);
+            identerror(-4, at->lloc,
+"Function does not match given prototype: " + *name_node->lexinfo);
         }
         at->symblattributes = sym;
         dump_symbol(file, name_node, protosym);
@@ -347,7 +359,8 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     }
 }
 
-symbol_table* check_st_stack(vector<symbol_table*> st, astree* at, bool &found){
+symbol_table* check_st_stack(vector<symbol_table*> st, astree* at,
+                             bool &found){
     for(auto table: st){
         if(symbol::occurs(*table, at->lexinfo)){
             found = true;
@@ -370,21 +383,22 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
     return foundtable;
 }
 
-void check_struct(vector<symbol_table*> st, symbol_table struct_st, astree* structname, astree* field){
+void check_struct(vector<symbol_table*> st, symbol_table struct_st,
+                 astree* structname, astree* field){
     auto table = check_st(st, structname);
     auto sym = (*table)[structname->lexinfo];
     auto struct_sym = struct_st[sym->struct_name];
     auto fields = struct_sym->fields;
     if(!symbol::occurs(*fields, field->lexinfo)){
-        cerr << "Field " << *field->lexinfo << "is not a part of struct: " << *sym->struct_name << endl;
-        exit(-7);
+        identerror(-7, at->lloc,
+"Field " + *field->lexinfo + " is not a part of struct: " + *sym->struct_name);
     }
 }
 
 void check_struct_type(symbol_table &struct_st, astree* at){
     if(!symbol::occurs(struct_st, at->lexinfo)){
-        cerr << "Undeclared struct " << *at->lexinfo << " defined." << endl;
-        exit(-9);
+        identerror(-9, at->lloc,
+"Undeclared struct " + *at->lexinfo + " defined.");
     }
     auto sym = new symbol(struct_st[at->lexinfo]);
     sym->attributes[ATTR_typeid] = true;
@@ -439,7 +453,8 @@ void set_int(astree* at){
 }
 
 
-void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
+void symbol::parse_astree(FILE *file, vector<symbol_table *> &st,
+                         symbol_table &struct_st, astree *at)
 {
     switch (at->symbol)
     {
@@ -554,16 +569,21 @@ void symbol::print_structtable(FILE *file, symbol_table st)
     for (auto val : st)
     {
         auto sym = val.second;
-        fprintf(file, "%s (%zd.%zd.%zd)", val.first->c_str(), sym->lloc->filenr, sym->lloc->linenr, sym->lloc->offset);
-        fprintf(file, "{%zd} %s\n", sym->block_nr, sym->get_attributes().c_str());
+        fprintf(file, "%s (%zd.%zd.%zd)", val.first->c_str(),
+         sym->lloc->filenr, sym->lloc->linenr, sym->lloc->offset);
+        fprintf(file, "{%zd} %s\n", sym->block_nr,
+         sym->get_attributes().c_str());
         auto fields = *sym->fields;
         cout << fields.size() << endl;
         for (auto field : fields)
         {
             fprintf(file, "   ");
             auto field_sym = field.second;
-            fprintf(file, "%s (%zd.%zd.%zd)", field.first->c_str(), field_sym->lloc->filenr, field_sym->lloc->linenr, field_sym->lloc->offset);
-            fprintf(file, " field {%s} %s\n", val.first->c_str(), field_sym->get_attributes().c_str());
+            fprintf(file, "%s (%zd.%zd.%zd)", field.first->c_str(),
+             field_sym->lloc->filenr, field_sym->lloc->linenr,
+                 field_sym->lloc->offset);
+            fprintf(file, " field {%s} %s\n", val.first->c_str(),
+             field_sym->get_attributes().c_str());
         }
     }
 }

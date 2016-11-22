@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <vector>
 #include "astree.h"
+#include "typecheck.h"
 
 extern int next_block;
 
