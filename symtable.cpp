@@ -369,7 +369,7 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
         exit(-6);
     }
     // Give the touched variable its attributes
-    at->symblattributes = new symbol((*foundtable)[at->lexinfo]);
+    at->symblattributes = (*foundtable)[at->lexinfo];
     return foundtable;
 }
 
