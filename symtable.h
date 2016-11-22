@@ -35,6 +35,7 @@ using symbol_table = unordered_map<const string*, symbol*>;
 
 struct symbol{
     symbol(symbol *);
+    symbol();
 
     attr_bitset attributes;
     symbol_table* fields;
