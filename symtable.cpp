@@ -144,7 +144,7 @@ void dump_symbol(FILE *file, astree *val_child, symbol *sym)
 {
     fprintf(file, "%*s", (int)sym->block_nr * 3, "");
     fprintf(file, "%s (%zd.%zd.%zd)", val_child->lexinfo->c_str(), sym->lloc->filenr, sym->lloc->linenr, sym->lloc->offset);
-    fprintf(file, "%s\n", get_attributes(sym).c_str());
+    fprintf(file, "%s\n", sym->get_attributes().c_str());
 }
 
 void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
@@ -451,18 +451,18 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
     }
 }
 
-string get_attributes(symbol *sym)
+string symbol::get_attributes()
 {
-    auto abit = sym->attributes;
+    auto abit = attributes;
     string build = "";
     if (abit[ATTR_field]){
         build = build + "field {";
-        string cpy = *sym->field_struct;
+        string cpy = *field_struct;
         build = build + cpy;
         build = build + "} ";
     } else{
         build = build + "{";
-        build = build + to_string((int)sym->block_nr);
+        build = build + to_string((int)block_nr);
         build = build + "} ";
     }
     if (abit[ATTR_void])
@@ -476,7 +476,7 @@ string get_attributes(symbol *sym)
     if (abit[ATTR_struct])
     {
         build = build + "struct \"";
-        string cpy = *sym->struct_name;
+        string cpy = *struct_name;
         build = build + cpy;
         build = build + "\" ";
     }
@@ -501,7 +501,7 @@ void symbol::print_structtable(FILE *file, symbol_table st)
     {
         auto sym = val.second;
         fprintf(file, "%s (%zd.%zd.%zd)", val.first->c_str(), sym->lloc->filenr, sym->lloc->linenr, sym->lloc->offset);
-        fprintf(file, "{%zd} %s\n", sym->block_nr, get_attributes(sym).c_str());
+        fprintf(file, "{%zd} %s\n", sym->block_nr, sym->get_attributes().c_str());
         auto fields = *sym->fields;
         cout << fields.size() << endl;
         for (auto field : fields)
@@ -509,7 +509,7 @@ void symbol::print_structtable(FILE *file, symbol_table st)
             fprintf(file, "   ");
             auto field_sym = field.second;
             fprintf(file, "%s (%zd.%zd.%zd)", field.first->c_str(), field_sym->lloc->filenr, field_sym->lloc->linenr, field_sym->lloc->offset);
-            fprintf(file, " field {%s} %s\n", val.first->c_str(), get_attributes(field_sym).c_str());
+            fprintf(file, " field {%s} %s\n", val.first->c_str(), field_sym->get_attributes().c_str());
         }
     }
 }
