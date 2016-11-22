@@ -390,8 +390,9 @@ void check_struct(vector<symbol_table*> st, symbol_table struct_st,
     auto struct_sym = struct_st[sym->struct_name];
     auto fields = struct_sym->fields;
     if(!symbol::occurs(*fields, field->lexinfo)){
-        identerror(-7, at->lloc,
-"Field " + *field->lexinfo + " is not a part of struct: " + *sym->struct_name);
+        identerror(-7, structname->lloc,
+"Field " + *field->lexinfo + " is not a part of struct: " +
+*sym->struct_name);
     }
 }
 
