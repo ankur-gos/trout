@@ -202,7 +202,7 @@ void handle_new(astree* at){
                 handle_new_arg(at);
                 break;
             }
-        case TOK_IDENT:
+        case TOK_TYPEID:
             handle_new_empty_arg(at);
     }
 }
