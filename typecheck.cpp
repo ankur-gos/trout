@@ -207,6 +207,24 @@ void handle_new(astree* at){
     }
 }
 
+void handle_selector(astree* at){
+    auto structarg = at->children[0];
+    auto fieldarg = at->children[1];
+    if(!structarg->symblattributes->attributes[ATTR_struct])
+        type_err(-25, structarg->lloc,
+            "field selector must be used on struct");
+    
+    if(!occurs(*struct_arg->fields, fieldarg->lexinfo))
+        type_err(-26, fieldarg->lloc,
+            *fieldarg->lexinfo + " is not a part of struct's fields'");
+    
+    auto sym = new symbol((*struct_arg->fields)[fieldarg->lexinfo]);
+    sym->attributes[ATTR_lval] = true;
+    sym->attributes[ATTR_vaddr] = true;
+    sym->attributes[ATTR_vreg] = false;
+    at->symblattributes = sym;
+}
+
 void check_types (astree* at) {
     // postorder traversal
     for (auto child: at->children) {
@@ -262,5 +280,10 @@ void check_types (astree* at) {
     case TOK_NEW:
         handle_new(at);
         break;
+    case '.':
+        handle_selector(at);
+        break;
+    case TOK_CALL:
+        handle_call(at);
     }
 }

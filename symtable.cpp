@@ -186,6 +186,7 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
     assign_attributes(sym, type_child, struct_st);
     sym->attributes[ATTR_variable] = true;
     sym->attributes[ATTR_lval] = true;
+    type_child->children[1]->symblattributes = sym;
     symtbl[val_child->lexinfo] = sym;
 
     dump_symbol(file, val_child, sym);
@@ -388,7 +389,9 @@ void check_struct_type(symbol_table &struct_st, astree* at){
         cerr << "Undeclared struct " << *at->lexinfo << " defined." << endl;
         exit(-9);
     }
-    at->symblattributes = new symbol(struct_st[at->lexinfo]);
+    auto sym = new symbol(struct_st[at->lexinfo]);
+    sym->attributes[ATTR_typeid] = true;
+    at->symblattributes = sym;
 }
 
 void set_con(astree* at, int contype){
