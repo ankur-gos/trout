@@ -9,18 +9,28 @@
 #include "lyutils.h"
 #include "assert.h"
 
-string get_attributes(symbol *sym);
+string get_attributes(symbol* sym);
 void dump_symbol(FILE* file, astree* at, symbol* sym);
 
 int next_block = 1;
 
-static bool occurs(symbol_table st, const string *key)
+symbol::symbol(symbol* sym){
+    attributes = sym->attributes;
+    fields = sym->fields;
+    lloc = sym->lloc;
+    block_new = sym->block_nr;
+    parameters = sym->parameters;
+    struct_name = sym->struct_name;
+    field_struct = sym->field_struct;
+}
+
+static bool occurs(symbol_table st, const string* key)
 {
     auto found = st.find(key);
     return !(found == st.end());
 }
 
-static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct_st)
+static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct_st)
 {
     if (type_ast->symbol == TOK_VOID){
         cout << "Invalid variable type void." << endl;
