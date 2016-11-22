@@ -21,6 +21,10 @@ static bool occurs(symbol_table st, const string *key)
 
 static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct_st)
 {
+    if (type_ast->symbol == TOK_VOID){
+        cout << "Invalid variable type void." << endl;
+        exit(-12);
+    }
     if (type_ast->symbol == TOK_INT)
     {
         sym->attributes[ATTR_int] = true;
@@ -36,7 +40,8 @@ static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct
             if (!occurs(struct_st, type_ast->lexinfo))
             {
                 // TODO: Fail here
-                cout << "STRUCT " << *type_ast->lexinfo << " NOT FOUND" << endl;
+                cout << "Struct " << *type_ast->lexinfo << " not found." << endl;
+                exit(-10);
             }
         }
         if (type_ast->symbol == TOK_STRING)
@@ -53,7 +58,8 @@ static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct
                 if (!occurs(struct_st, type_child->lexinfo))
                 {
                     // TODO: Fail here
-                    cout << "STRUCT " << *type_child->lexinfo << " NOT FOUND" << endl;
+                    cout << "Struct " << *type_child->lexinfo << " not found." << endl;
+                    exit(-11);
                 }
                 sym->attributes[ATTR_struct] = true;
                 sym->struct_name = type_child->lexinfo;
@@ -156,7 +162,7 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
         val_child = type_child->children[0];
     if (occurs(symtbl, val_child->lexinfo))
     {
-        cout << "WOOOPS VARIABLE ALREADY DECLARED!!" << endl;
+        cout << "Variable " << *val_child->lexinfo << " is already declared." << endl;
         exit(-2);
     }
 
@@ -191,6 +197,7 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st, astree *at)
         sym->attributes[ATTR_struct] = true;
         sym->struct_name = at->lexinfo;
         break;
+    case TOK_VOID
     case TOK_ARRAY:
         sym->attributes[ATTR_array] = true;
         set_function_attributes(sym, struct_st, at->children[0]);
