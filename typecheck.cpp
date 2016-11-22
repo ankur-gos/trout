@@ -56,21 +56,26 @@ void handle_function (astree* at) {
         if (returnptr == nullptr) {
             type_err(-21, at->lloc, "non-void return type");
         }
-        if (at->symblattributes->attributes[ATTR_int] && !returnptr->attributes[ATTR_int]) {
+        if (at->symblattributes->attributes[ATTR_int] 
+            && !returnptr->attributes[ATTR_int]) {
             type_err(-21, at->lloc, "int return type");
         }
-        else if (at->symblattributes->attributes[ATTR_string] && !returnptr->attributes[ATTR_string]) {
+        else if (at->symblattributes->attributes[ATTR_string] 
+            && !returnptr->attributes[ATTR_string]) {
             type_err(-21, at->lloc, "string return type");
         }
-        else if (at->symblattributes->attributes[ATTR_struct] && !returnptr->attributes[ATTR_struct]) {
+        else if (at->symblattributes->attributes[ATTR_struct] 
+            && !returnptr->attributes[ATTR_struct]) {
             type_err(-21, at->lloc, "struct return type");
         }
-        else if (at->symblattributes->attributes[ATTR_struct] && returnptr->attributes[ATTR_struct]) {
-            if (at->symblattributes->struct_name->compare(*returnptr->struct_name) != 0) {
+        else if (at->symblattributes->attributes[ATTR_struct] 
+            && returnptr->attributes[ATTR_struct]) {
+if (at->symblattributes->struct_name->compare(*returnptr->struct_name) != 0) {
                 type_err(-21, at->lloc, "matching struct name");
             }
         }
-        else if (at->symblattributes->attributes[ATTR_array] && returnptr->attributes[ATTR_array]) {
+        else if (at->symblattributes->attributes[ATTR_array] 
+            && returnptr->attributes[ATTR_array]) {
             type_err (-21, at->lloc, "array return type");
         }
     }
@@ -78,28 +83,35 @@ void handle_function (astree* at) {
 }
 
 void check_attributes(symbol *a, symbol *b){
-    if(!a->attributes[ATTR_vaddr] && b->attributes[ATTR_null])
+    if(!a->attributes[ATTR_vaddr] 
+        && b->attributes[ATTR_null])
         type_err(-22, *a->lloc, "non null value.");
 
-    if(a->attributes[ATTR_vaddr] && b->attributes[ATTR_null])
+    if(a->attributes[ATTR_vaddr]
+         && b->attributes[ATTR_null])
         return;
 
-    if (a->attributes[ATTR_int] && !b->attributes[ATTR_int]) 
+    if (a->attributes[ATTR_int] 
+        && !b->attributes[ATTR_int]) 
         type_err(-22, *b->lloc, "expression of type int or int array");
 
-    if (a->attributes[ATTR_string] && !b->attributes[ATTR_string])
+    if (a->attributes[ATTR_string] 
+        && !b->attributes[ATTR_string])
         type_err(-22, *b->lloc, "expression of type string or string array");
     
-    if (a->attributes[ATTR_array] && !b->attributes[ATTR_array]) {
+    if (a->attributes[ATTR_array] 
+        && !b->attributes[ATTR_array]) {
         type_err(-22, *b->lloc, "expression with type array");
     }
 
-    if (a->attributes[ATTR_struct] && !b->attributes[ATTR_struct])
+    if (a->attributes[ATTR_struct] 
+        && !b->attributes[ATTR_struct])
         type_err(-22, *b->lloc, "expression with type struct");
 
     if (a->attributes[ATTR_struct]){
         if((*a->struct_name).compare(*b->struct_name) != 0){
-            type_err(-22, *b->lloc, "expression with type struct " + *a->struct_name);
+            type_err(-22, *b->lloc, 
+                "expression with type struct " + *a->struct_name);
         }
     }
 
@@ -216,11 +228,13 @@ void handle_selector(astree* at){
     if(!structarg->symblattributes->attributes[ATTR_struct])
         type_err(-25, structarg->lloc,
             "field selector must be used on struct");
-    if(!symbol::occurs(*structarg->symblattributes->fields, fieldarg->lexinfo))
+    if(!symbol::occurs(*structarg->symblattributes->fields,
+         fieldarg->lexinfo))
         type_err(-26, fieldarg->lloc,
             *fieldarg->lexinfo + " is be a part of struct's fields");
     
-    auto sym = new symbol((*structarg->symblattributes->fields)[fieldarg->lexinfo]);
+    auto sym = 
+    new symbol((*structarg->symblattributes->fields)[fieldarg->lexinfo]);
     sym->attributes[ATTR_lval] = true;
     sym->attributes[ATTR_vaddr] = true;
     sym->attributes[ATTR_vreg] = false;
@@ -232,7 +246,8 @@ void handle_call(astree* at){
     if(!fnname->symblattributes->attributes[ATTR_function])
         type_err(-27, fnname->lloc, "a function");
     
-    if((at->children.size()-1) != fnname->symblattributes->parameters.size())
+    if((at->children.size()-1) 
+        != fnname->symblattributes->parameters.size())
         type_err(-27, fnname->lloc, 
             *fnname->lexinfo + " called with correct parameters.");
     int index = 0;
