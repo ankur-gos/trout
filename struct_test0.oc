@@ -1,3 +1,6 @@
-struct a{}
+struct a{
+   int i;
+}
 
 a b = new a();
+b.i = 2;

@@ -186,7 +186,7 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
     assign_attributes(sym, type_child, struct_st);
     sym->attributes[ATTR_variable] = true;
     sym->attributes[ATTR_lval] = true;
-    type_child->children[1]->symblattributes = sym;
+    val_child->symblattributes = sym;
     symtbl[val_child->lexinfo] = sym;
 
     dump_symbol(file, val_child, sym);
