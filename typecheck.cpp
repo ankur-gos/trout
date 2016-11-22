@@ -234,8 +234,10 @@ void handle_call(astree* at){
             *fnname->lexinfo + " called with correct parameters.");
     int index = 0;
     for(auto child: at->children){
-        if(!index)
+        if(!index){
+            index++;
             continue;
+        }
         auto sym = fnname->symblattributes->parameters[index-1];
         check_attributes(sym, child->symblattributes);
         index++;
