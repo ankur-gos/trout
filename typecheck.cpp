@@ -215,7 +215,7 @@ void handle_selector(astree* at){
             "field selector must be used on struct");
     if(!symbol::occurs(*structarg->symblattributes->fields, fieldarg->lexinfo))
         type_err(-26, fieldarg->lloc,
-            *fieldarg->lexinfo + " is not a part of struct's fields'");
+            *fieldarg->lexinfo + " is be a part of struct's fields");
     
     auto sym = new symbol((*structarg->symblattributes->fields)[fieldarg->lexinfo]);
     sym->attributes[ATTR_lval] = true;
@@ -225,7 +225,21 @@ void handle_selector(astree* at){
 }
 
 void handle_call(astree* at){
-
+    auto fnname = at->children[0];
+    if(!fnname->symblattributes->attributes[ATTR_function])
+        type_err(-27, fnname->lloc, "a function");
+    
+    if((at->children.size()-1) != fnname->parameters.size())
+        type_err(-27, fnname->lloc, 
+            fnname->lexinfo + " called with correct parameters.");
+    int index = 0;
+    for(auto child: at->children){
+        if(!index)
+            continue;
+        auto sym = fnname->parameters[index-1];
+        check_attributes(sym, child->symblattributes);
+        index++;
+    }
 }
 
 void check_types (astree* at) {

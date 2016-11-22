@@ -291,7 +291,7 @@ void insert_prototype(vector<symbol_table *> &st, symbol_table struct_st, astree
     symtbl[name_node->lexinfo] = sym;
 }
 
-void add_parameters(FILE* file, vector<astree*> names, vector<symbol_table *> &st, symbol *sym)
+void add_parameters(FILE* file, vector<astree*> parameters, vector<symbol_table *> &st, symbol *sym)
 {
     new_block(st);
     if (sym->parameters.size() != 0)
@@ -299,9 +299,11 @@ void add_parameters(FILE* file, vector<astree*> names, vector<symbol_table *> &s
         add_symtbl(st);
         symbol_table &newsymtbl = *st.back();
         int index = 0;
-        for (auto name : names)
+        for (auto parameter : parameters)
         {
-            newsymtbl[name->lexinfo] = sym->parameters[index];
+            auto parametersym = parameter->symblattributes;
+            sym->parameters[index] = parametersym;
+            newsymtbl[parameter->children[0]->lexinfo] = sym->parameters[index];
             dump_symbol(file, name, sym->parameters[index]);
             index++;
         }
@@ -318,10 +320,6 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     // I need a vector of names to hash on
     vector<astree*> names;
     astree *paramtree = at->children[1];
-    for (auto child : paramtree->children)
-    {
-        names.push_back(child->children[0]);
-    }
     if (symbol::occurs(symtbl, name_node->lexinfo))
     {
         // Check if the value is a function or a prototype
@@ -341,14 +339,14 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
         }
         at->symblattributes = sym;
         dump_symbol(file, name_node, protosym);
-        add_parameters(file, names, st, protosym);
+        add_parameters(file, paramtree->children, st, protosym);
     }
     else
     {
         at->symblattributes = sym;
         symtbl[name_node->lexinfo] = sym;
         dump_symbol(file, name_node, sym);
-        add_parameters(file, names, st, sym);
+        add_parameters(file, paramtree->children, st, sym);
     }
 }
 
