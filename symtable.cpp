@@ -107,7 +107,8 @@ static void insert_struct(FILE *file, symbol_table &struct_st,
 {
     if (next_block != 1)
     {
-        // TODO: Handle error
+        identerror(-19, at->lloc, 
+            "structs can only be define in the global scope");
     }
     const string *ident;
     bool flag = true;
@@ -124,6 +125,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st,
             struct_sym->fields = nullptr;
             struct_sym->struct_name = child->lexinfo;
             struct_st[ident] = struct_sym;
+            at->symblattributes = struct_sym;
             dump_symbol(file, child, struct_sym);
             continue;
         }
@@ -131,7 +133,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st,
         auto field_sym = new symbol();
         field_sym->attributes[ATTR_field] = true;
         field_sym->attributes[ATTR_lval] = true;
-        field_sym->block_nr = 1;
+        field_sym->block_nr = 0;
         field_sym->lloc = &child->lloc;
         field_sym->struct_name = child->lexinfo;
         assign_attributes(field_sym, child, struct_st);
@@ -150,6 +152,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st,
         }
         field_sym->field_struct = ident;
         (*str->fields)[child_name] = field_sym;
+        child_child_node->symblattributes = field_sym;
         dump_symbol(file, child_child_node, field_sym);
     }
 }
