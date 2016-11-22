@@ -213,7 +213,9 @@ void handle_selector(astree* at){
     if(!structarg->symblattributes->attributes[ATTR_struct])
         type_err(-25, structarg->lloc,
             "field selector must be used on struct");
-    
+    if(!structarg->symblattributes){
+        cout << "WOOOOOPSIES" << endl;
+    } 
     if(!symbol::occurs(*structarg->symblattributes->fields, fieldarg->lexinfo))
         type_err(-26, fieldarg->lloc,
             *fieldarg->lexinfo + " is not a part of struct's fields'");
