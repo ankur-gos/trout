@@ -214,11 +214,11 @@ void handle_selector(astree* at){
         type_err(-25, structarg->lloc,
             "field selector must be used on struct");
     
-    if(!occurs(*structarg->fields, fieldarg->lexinfo))
+    if(!symbol::occurs(*structarg->symblattributes->fields, fieldarg->lexinfo))
         type_err(-26, fieldarg->lloc,
             *fieldarg->lexinfo + " is not a part of struct's fields'");
     
-    auto sym = new symbol((*structarg->fields)[fieldarg->lexinfo]);
+    auto sym = new symbol((*structarg->symblattributes->fields)[fieldarg->lexinfo]);
     sym->attributes[ATTR_lval] = true;
     sym->attributes[ATTR_vaddr] = true;
     sym->attributes[ATTR_vreg] = false;

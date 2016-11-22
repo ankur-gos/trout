@@ -49,6 +49,7 @@ struct symbol{
     static void print_structtable(FILE *file, symbol_table st);
     string get_attributes();
     bool compare(symbol s);
+    static bool occurs(symbol_table st, const string* key);
 };
 
 #endif
