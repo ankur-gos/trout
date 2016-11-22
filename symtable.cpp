@@ -56,12 +56,13 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
                 cout << "Struct " << *type_ast->lexinfo << " not found." << endl;
                 exit(-10);
             }
+            type_ast->symblattributes = new symbol(sym);
         }
         if (type_ast->symbol == TOK_STRING)
             sym->attributes[ATTR_string] = true;
         if (type_ast->symbol == TOK_ARRAY)
         {
-            sym->attributes[ATTR_array] = true;
+            
             astree *type_child = type_ast->children[0];
             assert(type_child);
             switch (type_child->symbol)
@@ -76,6 +77,7 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
                 }
                 sym->attributes[ATTR_struct] = true;
                 sym->struct_name = type_child->lexinfo;
+                type_child->symblattributes = new symbol(sym);
                 break;
             case TOK_STRING:
                 sym->attributes[ATTR_string] = true;
@@ -83,6 +85,8 @@ static void assign_attributes(symbol* sym, astree* type_ast, symbol_table struct
             case TOK_INT:
                 sym->attributes[ATTR_int] = true;
             }
+            sym->attributes[ATTR_array] = true;
+            type_ast->symblattributes = new symbol(sym);
         }
     }
 }
@@ -183,6 +187,7 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
     sym->attributes[ATTR_variable] = true;
     sym->attributes[ATTR_lval] = true;
     symtbl[val_child->lexinfo] = sym;
+
     dump_symbol(file, val_child, sym);
 }
 
