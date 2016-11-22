@@ -90,6 +90,8 @@ void handle_assignment (astree* at) {
     if (left->symblattributes->attributes[ATTR_array] && !right->symblattributes->attributes[ATTR_array]) {
         type_err(-22, right->lloc, "expresstion with array type");
     }
+
+    at->symblattributes = right->symblattributes;
 }
 
 void check_types (astree* at) {
