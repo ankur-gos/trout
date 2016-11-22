@@ -1,6 +1,5 @@
-int a = 15;
-void print(int a) {
-    return;
-}
+string str = "hello";
 
-print(b);
+int func() {
+    return str;
+}

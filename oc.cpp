@@ -18,6 +18,7 @@
 #include "astree.h"
 #include "lyutils.h"
 #include "symtable.h"
+#include "typecheck.h"
 
 using namespace std;
 
@@ -144,6 +145,7 @@ int main(int argc, char** argv){
    dump_stringset_file (no_ext);
    dump_ast(no_ext);
    create_symbol_table(no_ext);
+   check_types(parser::root);
    if(pclose(yyin) != 0){
       cerr << "Pipe close failed." << endl;
       exit(EXIT_FAILURE);
