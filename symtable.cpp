@@ -372,17 +372,6 @@ void check_struct_type(symbol_table struct_st, astree* at){
     at->symblattributes = struct_st[at->lexinfo];
 }
 
-void check_fn(vector<symbol_table*> st, astree*at){
-    bool found;
-    auto foundtable = check_st_stack(st, at, found);
-    if(!found){
-        cerr << "Function used but not previously declared: " << *at->lexinfo << endl;
-        exit(-8);
-    }
-    // Give the touched variable its attributes
-    at->symblattributes = (*foundtable)[at->lexinfo];
-}
-
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
 {
     switch (at->symbol)
@@ -404,9 +393,6 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         break;
     case TOK_IDENT:
         check_st(st, at);
-        break;
-    case TOK_CALL:
-        check_fn(st, at);
         break;
     case TOK_TYPEID:
         check_struct_type(struct_st, at);
