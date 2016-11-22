@@ -81,7 +81,7 @@ identdeclarray : '(' identdecl ',' identdecl { $$ = $1->destroy_adopt($3, $2, $4
                | identdeclarray ',' identdecl { $$ = $1->destroy_adopt($2, $3); }
 
 identdecl      : basetype TOK_IDENT                 { $$ = $1->adopt_child_sym(TOK_DECLID, nullptr, nullptr, $2); }
-               | basetype TOK_ARRAY TOK_IDENT       { $$ = $2->adopt($1, $3); }
+               | basetype TOK_ARRAY TOK_IDENT       { $$ = $2->adopt_child_2_sym(TOK_DECLID, $1, $3); }
                ;
 
 block          : '{' '}'                { $$ = $1->destroy_sym_adopt($2, TOK_BLOCK, nullptr); }

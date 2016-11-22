@@ -21,6 +21,10 @@ static bool occurs(symbol_table st, const string *key)
 
 static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct_st)
 {
+    if (type_ast->symbol == TOK_VOID){
+        cout << "Invalid variable type void." << endl;
+        exit(-12);
+    }
     if (type_ast->symbol == TOK_INT)
     {
         sym->attributes[ATTR_int] = true;
@@ -36,7 +40,8 @@ static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct
             if (!occurs(struct_st, type_ast->lexinfo))
             {
                 // TODO: Fail here
-                cout << "STRUCT " << *type_ast->lexinfo << " NOT FOUND" << endl;
+                cout << "Struct " << *type_ast->lexinfo << " not found." << endl;
+                exit(-10);
             }
         }
         if (type_ast->symbol == TOK_STRING)
@@ -53,7 +58,8 @@ static void assign_attributes(symbol *sym, astree *type_ast, symbol_table struct
                 if (!occurs(struct_st, type_child->lexinfo))
                 {
                     // TODO: Fail here
-                    cout << "STRUCT " << *type_child->lexinfo << " NOT FOUND" << endl;
+                    cout << "Struct " << *type_child->lexinfo << " not found." << endl;
+                    exit(-11);
                 }
                 sym->attributes[ATTR_struct] = true;
                 sym->struct_name = type_child->lexinfo;
@@ -156,7 +162,7 @@ void insert_variable(FILE *file, vector<symbol_table *> &st, symbol_table struct
         val_child = type_child->children[0];
     if (occurs(symtbl, val_child->lexinfo))
     {
-        cout << "WOOOPS VARIABLE ALREADY DECLARED!!" << endl;
+        cout << "Variable " << *val_child->lexinfo << " is already declared." << endl;
         exit(-2);
     }
 
@@ -190,6 +196,10 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st, astree *at)
         }
         sym->attributes[ATTR_struct] = true;
         sym->struct_name = at->lexinfo;
+        break;
+    case TOK_VOID:
+        sym->attributes[ATTR_void] = true;
+        sym->attributes[ATTR_vaddr] = false;
         break;
     case TOK_ARRAY:
         sym->attributes[ATTR_array] = true;
@@ -320,20 +330,26 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     }
 }
 
-symbol_table* check_st(vector<symbol_table*> st, astree* at){
-    bool found = false;
-    symbol_table* foundtable;
+symbol_table* check_st_stack(vector<symbol_table*> st, astree* at, bool &found){
     for(auto table: st){
         if(occurs(*table, at->lexinfo)){
             found = true;
-            foundtable = table;
-            break;
+            return table;
         }
     }
+    found = false;
+    return nullptr;
+}
+
+symbol_table* check_st(vector<symbol_table*> st, astree* at){
+    bool found;
+    symbol_table* foundtable = check_st_stack(st, at, found);
     if(!found){
-        cerr << "Variable used but not previously declared: " << *at->lexinfo << endl;
+        cerr << "Identifier not found: " << *at->lexinfo << endl;
         exit(-6);
     }
+    // Give the touched variable its attributes
+    at->symblattributes = (*foundtable)[at->lexinfo];
     return foundtable;
 }
 
@@ -346,6 +362,14 @@ void check_struct(vector<symbol_table*> st, symbol_table struct_st, astree* stru
         cerr << "Field " << *field->lexinfo << "is not a part of struct: " << *sym->struct_name << endl;
         exit(-7);
     }
+}
+
+void check_struct_type(symbol_table struct_st, astree* at){
+    if(!occurs(struct_st, at->lexinfo)){
+        cerr << "Undeclared struct " << *at->lexinfo << " defined." << endl;
+        exit(-9);
+    }
+    at->symblattributes = struct_st[at->lexinfo];
 }
 
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
@@ -369,6 +393,9 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &
         break;
     case TOK_IDENT:
         check_st(st, at);
+        break;
+    case TOK_TYPEID:
+        check_struct_type(struct_st, at);
         break;
     }
 
