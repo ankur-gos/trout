@@ -197,7 +197,10 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st, astree *at)
         sym->attributes[ATTR_struct] = true;
         sym->struct_name = at->lexinfo;
         break;
-    case TOK_VOID
+    case TOK_VOID:
+        sym->attributes[ATTR_void] = true;
+        sym->attributes[ATTR_vaddr] = false;
+        break;
     case TOK_ARRAY:
         sym->attributes[ATTR_array] = true;
         set_function_attributes(sym, struct_st, at->children[0]);
@@ -377,7 +380,7 @@ void check_fn(vector<symbol_table*> st, astree*at){
         exit(-8);
     }
     // Give the touched variable its attributes
-    at->symblattributes = foundtable[at->lexinfo];
+    at->symblattributes = (*foundtable)[at->lexinfo];
 }
 
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st, symbol_table &struct_st, astree *at)
