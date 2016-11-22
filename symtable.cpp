@@ -345,7 +345,7 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
     bool found;
     symbol_table* foundtable = check_st_stack(st, at, found);
     if(!found){
-        cerr << "Variable used but not previously declared: " << *at->lexinfo << endl;
+        cerr << "Identifier not found: " << *at->lexinfo << endl;
         exit(-6);
     }
     // Give the touched variable its attributes
