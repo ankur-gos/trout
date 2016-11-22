@@ -81,6 +81,9 @@ void check_attributes(symbol *a, symbol *b){
     if(!a->attributes[ATTR_vaddr] && b->attributes[ATTR_null])
         type_err(-22, *a->lloc, "non null value.");
 
+    if(a->attributes[ATTR_vaddr] && b->attributes[ATTR_null])
+        return
+
     if (a->attributes[ATTR_int] && !b->attributes[ATTR_int]) 
         type_err(-22, *b->lloc, "expression of type int or int array");
 
