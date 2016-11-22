@@ -302,7 +302,7 @@ void add_parameters(FILE* file, vector<astree*> parameters, vector<symbol_table 
         for (auto parameter : parameters)
         {
             auto parametersym = parameter->symblattributes;
-            sym->parameters[index] = parametersym;
+            sym->parameters.push_back(parametersym);
             newsymtbl[parameter->children[0]->lexinfo] = sym->parameters[index];
             dump_symbol(file, parameter->children[0], sym->parameters[index]);
             index++;
