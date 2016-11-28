@@ -2,8 +2,6 @@ struct a{
    int i;
 }
 
-void i(string j, int k){
+a fun = new a();
 
-}
-
-i(null, "");
+fun.i = 2;
