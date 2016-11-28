@@ -1,0 +1,7 @@
+struct a{
+   int i;
+}
+
+a fun = new a();
+
+fun.i = 2;

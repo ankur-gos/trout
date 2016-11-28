@@ -2,9 +2,16 @@
 // stringset implementation
 
 #include <iomanip>
+#include <unordered_set>
 #include "stringset.h"
 
 using namespace std;
+
+unordered_set<string> stringset::set;
+
+stringset::stringset() {
+   set.max_load_factor(0.5);
+}
 
 const string* stringset::intern_stringset(const char* val){
    string sval = val;
