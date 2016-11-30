@@ -172,15 +172,13 @@ void handle_vardecl(astree* at){
 
 void handle_new_array(astree* at){
     auto basetype = at->children[0];
-    if(!basetype->symblattributes->attributes[ATTR_array])
-        type_err(-24, basetype->lloc, 
-        "array allocation to be performed on array type");
     auto index = at->children[1];
     if(!index->symblattributes->attributes[ATTR_int] 
         || index->symblattributes->attributes[ATTR_array])
         type_err(-24, index->lloc, "array index to be of type int");
 
     auto sym = new symbol(basetype->symblattributes);
+    sym->attributes[ATTR_array] = true;
     sym->attributes[ATTR_vaddr] = false;
     sym->attributes[ATTR_vreg] = true;
     at->symblattributes = sym;
@@ -207,19 +205,7 @@ void handle_new_arg(astree* at){
 }
 
 void handle_new(astree* at){
-    auto typechild = at->children[0];
-    switch(typechild->symbol){
-        case TOK_NEWARRAY:
-            handle_new_array(at);
-            break;
-        case TOK_NEWSTRING:
-            if(at->children.size() == 2){
-                handle_new_arg(at);
-                break;
-            }
-        case TOK_TYPEID:
-            handle_new_empty_arg(at);
-    }
+    handle_new_empty_arg(at);
 }
 
 void handle_selector(astree* at){
@@ -245,6 +231,12 @@ void handle_selector(astree* at){
 
 void handle_call(astree* at){
     auto fnname = at->children[0];
+
+    if(fnname->symblattributes->attributes[ATTR_prototype]){
+        errllocprintf (fnname->lloc, "error - prototype has no definition: %s\n", (*fnname->lexinfo).c_str());
+        exit(-27);
+    }
+
     if(!fnname->symblattributes->attributes[ATTR_function])
         type_err(-27, fnname->lloc, "a function");
     
@@ -324,6 +316,11 @@ void check_types (astree* at) {
     case TOK_NEW:
         handle_new(at);
         break;
+    case TOK_NEWARRAY:
+        handle_new_array(at);
+        break;
+    case TOK_NEWSTRING:
+        handle_new_arg(at);
     case '.':
         handle_selector(at);
         break;

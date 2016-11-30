@@ -25,7 +25,7 @@ void __exit (int status);
         {if (!(expr)) __assert_fail (#expr, __FILE__, __LINE__);}
 void __assert_fail (string expr, string file, int line);
 void putb (bool b);
-void putc (char c);
+void putc (int c);
 void puti (int i);
 void puts (string s);
 void endl ();

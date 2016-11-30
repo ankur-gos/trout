@@ -167,6 +167,8 @@ void add_symtbl(vector<symbol_table *> &st)
 }
 void dump_symbol(FILE *file, astree *val_child, symbol *sym)
 {
+    if(sym->attributes[ATTR_field])
+        fprintf(file, "%*s", 3, "");
     fprintf(file, "%*s", (int)sym->block_nr * 3, "");
     fprintf(file, "%s (%zd.%zd.%zd)",
          val_child->lexinfo->c_str(),
@@ -235,10 +237,12 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st,
     case TOK_ARRAY:
         sym->attributes[ATTR_array] = true;
         set_function_attributes(sym, struct_st, at->children[0]);
-        return at->children[0]->children[0];
+        return at->children[1];
     }
-
-    return at->children[0];
+    if(at->children.size() > 0){
+        return at->children[0];
+    }
+    return nullptr;
 }
 
 astree *def_prototype(symbol *sym, symbol_table struct_st, astree *at)
@@ -249,6 +253,9 @@ astree *def_prototype(symbol *sym, symbol_table struct_st, astree *at)
     auto func_name_node = set_function_attributes(sym, struct_st,
                                                   return_child);
     auto param_child = at->children[1];
+    auto paramsym = new symbol();
+    paramsym->block_nr = next_block - 1;
+    param_child->symblattributes = paramsym;
     for (auto child : param_child->children)
     {
         auto child_sym = new symbol();
@@ -293,16 +300,21 @@ bool symbol::compare(symbol s)
     return true;
 }
 
-void insert_prototype(vector<symbol_table *> &st,
+void insert_prototype(FILE *file, vector<symbol_table *> &st,
                      symbol_table struct_st, astree *at)
 {
     
     add_symtbl(st);
     symbol_table &symtbl = *st.back();
     auto sym = new symbol();
+    sym->attributes[ATTR_prototype] = true;
     auto name_node = def_prototype(sym, struct_st, at);
     at->symblattributes = sym;
+    if (symbol::occurs(symtbl, name_node->lexinfo))
+        identerror(-19, at->lloc,
+        "Redeclaration of prototype: " + *(name_node->lexinfo));
     symtbl[name_node->lexinfo] = sym;
+    dump_symbol(file, name_node, sym);
 }
 
 void add_parameters(FILE* file, vector<astree*> parameters,
@@ -475,7 +487,7 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st,
         new_block(st);
         break;
     case TOK_PROTOTYPE:
-        insert_prototype(st, struct_st, at);
+        insert_prototype(file, st, struct_st, at);
         break;
     case TOK_IDENT:
         check_st(st, at);
@@ -504,6 +516,9 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st,
     case TOK_INT:
         set_int(at);
         break;
+    case TOK_CHAR:
+        set_int(at);
+        break;
     }
 
     // pre-order traversal, left node is first in vector
@@ -528,7 +543,9 @@ string symbol::get_attributes()
     string build = "";
     if (abit[ATTR_field]){
         build = build + "field {";
-        string cpy = *field_struct;
+        string cpy = "";
+        if(field_struct)
+            cpy = *field_struct;
         build = build + cpy;
         build = build + "} ";
     } else{
@@ -549,7 +566,9 @@ string symbol::get_attributes()
     if (abit[ATTR_struct])
     {
         build = build + "struct \"";
-        string cpy = *struct_name;
+        string cpy = "";
+        if (struct_name)
+            cpy = *struct_name;
         build = build + cpy;
         build = build + "\" ";
     }
@@ -557,6 +576,8 @@ string symbol::get_attributes()
         build = build + "[] ";
     if (abit[ATTR_function])
         build = build + "function ";
+    if (abit[ATTR_prototype])
+        build = build + "prototype ";
     if (abit[ATTR_variable])
         build = build + "variable ";
     if (abit[ATTR_lval])
@@ -565,7 +586,7 @@ string symbol::get_attributes()
         build = build + "const ";
     if (abit[ATTR_param])
         build = build + "param ";
-        return build;
+    return build;
 }
 
 void symbol::print_structtable(FILE *file, symbol_table st)
