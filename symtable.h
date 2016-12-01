@@ -51,6 +51,7 @@ struct symbol{
     string get_attributes();
     bool compare(symbol s);
     static bool occurs(symbol_table st, const string* key);
+    static vector<astree*> strings;
 };
 
 #endif

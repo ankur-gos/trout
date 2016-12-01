@@ -28,6 +28,8 @@ struct astree {
    const string* lexinfo;    // pointer to lexical information
    vector<astree*> children; // children of this n-way node
 
+   string vreg;
+
    // Functions.
    astree (int symbol, const location&, const char* lexinfo);
    astree (astree *at);

@@ -1,3 +1,0 @@
-struct s_stack {
-        int  f_i;
-};

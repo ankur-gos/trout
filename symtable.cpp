@@ -26,6 +26,13 @@ symbol::symbol(symbol* sym){
     field_struct = sym->field_struct;
 }
 
+vector<astree*> makevec(){
+    vector<astree*> v;
+    return v;
+}
+
+vector<astree*> symbol::strings = makevec();
+
 bool symbol::occurs(symbol_table st, const string* key)
 {
     auto found = st.find(key);
@@ -438,6 +445,8 @@ void set_con(astree* at, int contype){
         sym->attributes[ATTR_vreg] = true;
     } else{
         sym->attributes[ATTR_vaddr] = true;
+        // String constant, add to strings table
+        symbol::strings.push_back(at);
     }
     sym->attributes[ATTR_const] = true;
     at->symblattributes = sym;
