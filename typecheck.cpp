@@ -8,6 +8,8 @@
  #include "typecheck.h"
  #include "lyutils.h"
 
+ void check_attributes(symbol *a, symbol *b);
+
  void type_err (int status, location lloc, string expected) {
      errllocprintf (lloc, "type error - expected %s\n", expected.c_str());
      exit(status);
@@ -22,7 +24,25 @@ void handle_int_binop (astree* at) {
     if (!right->symblattributes->attributes[ATTR_int]) {
         type_err(-20, right->lloc, "int");
     }
-    at->symblattributes = left->symblattributes;
+    auto sym = new symbol(left->symblattributes);
+    sym->attributes[ATTR_vaddr] = false;
+    sym->attributes[ATTR_vreg] = true;
+    at->symblattributes = sym;
+}
+
+void handle_compare (astree* at){
+    astree* left = at->children[0];
+    astree* right = at->children[1];
+    check_attributes(left->symblattributes, right->symblattributes);
+    auto sym = new symbol(left->symblattributes);
+    sym->attributes[ATTR_void] = false;
+    sym->attributes[ATTR_null] = false;
+    sym->attributes[ATTR_string] = false;
+    sym->attributes[ATTR_struct] = false;
+    sym->attributes[ATTR_int] = true;
+    sym->attributes[ATTR_vaddr] = false;
+    sym->attributes[ATTR_vreg] = true;
+    at->symblattributes = sym;
 }
 
 void handle_int_unop (astree* at) {
@@ -232,13 +252,8 @@ void handle_selector(astree* at){
 void handle_call(astree* at){
     auto fnname = at->children[0];
 
-    if(fnname->symblattributes->attributes[ATTR_prototype]){
-        errllocprintf (fnname->lloc, "error - prototype has no definition: %s\n", (*fnname->lexinfo).c_str());
-        exit(-27);
-    }
-
-    if(!fnname->symblattributes->attributes[ATTR_function])
-        type_err(-27, fnname->lloc, "a function");
+    if(!fnname->symblattributes->attributes[ATTR_function] && !fnname->symblattributes->attributes[ATTR_prototype])
+        type_err(-27, fnname->lloc, "a valid function");
     
     if((at->children.size()-1) 
         != fnname->symblattributes->parameters.size())
@@ -284,10 +299,22 @@ void check_types (astree* at) {
         handle_int_binop (at);
         break;
     case TOK_EQ:
-        handle_int_binop (at);
+        handle_compare (at);
         break;
     case TOK_NE:
-        handle_int_binop (at);
+        handle_compare (at);
+        break;
+    case TOK_LE:
+        handle_compare (at);
+        break;
+    case TOK_GE:
+        handle_compare (at);
+        break;
+    case TOK_LT:
+        handle_compare (at);
+        break;
+    case TOK_GT:
+        handle_compare (at);
         break;
     case TOK_POS:
         handle_int_unop (at);

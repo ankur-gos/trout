@@ -501,6 +501,9 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st,
     case TOK_STRINGCON:
         set_con(at, ATTR_string);
         break;
+    case TOK_CHARCON:
+        set_con(at, ATTR_int);
+        break;
     case TOK_NULL:
         set_con(at, ATTR_null);
         break;
