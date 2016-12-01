@@ -42,6 +42,9 @@ void handle_compare (astree* at){
     sym->attributes[ATTR_int] = true;
     sym->attributes[ATTR_vaddr] = false;
     sym->attributes[ATTR_vreg] = true;
+    // If the right side is a string constant, we need to know
+    if(right->symblattributes->attributes[ATTR_const])
+        sym->attributes[ATTR_const] = true;
     at->symblattributes = sym;
 }
 

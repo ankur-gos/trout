@@ -29,6 +29,10 @@ string declaration(astree *at){
     return "_" + to_string(block_nr) + "_" + get_name(at);
 }
 
+string global(astree *at){
+    return "__" + get_name(at);
+}
+
 string emitter::type(astree *at){
     auto attributes = at->symblattributes->attributes;
     string type;
@@ -55,19 +59,33 @@ string emitter::type(astree *at){
 void emitter::structgen(FILE* file, astree *root){
     for(auto child: root->children){
         if(child->symbol == TOK_STRUCT){
-            string name = *at->symblattributes->struct_name;
+            string name = *root->symblattributes->struct_name;
             string struct_header = "struct s_" + name + " {\n";
             fprintf(file, struct_header.c_str());
-            for(size_t i = 1; i < at->children.size(); i++){
+            for(size_t i = 1; i < root->children.size(); i++){
                 fprintf(file, "%*s", 8, "");
-                auto child = at->children[i];
+                auto child = root->children[i];
                 string field = type(child) + " f_" + get_name(child) + ";\n";
                 fprintf(file, field.c_str());
             }
             fprintf(file, "};\n");
         }
     }
+}
 
+void emitter::stringgen(FILE* file, astree *root){
+    for(auto child: root->children){
+        if(child->symbol == TOK_VARDECL){
+            auto attributes = child->symblattributes->attributes;
+            if(attributes[ATTR_string] && attributes[ATTR_const]){
+                string line = "char* " + global(child->children[0]);
+                line = line + " = ";
+                string con = *child->children[1]->lexinfo;
+                line = line + con + ";\n";
+                fprintf(file, line.c_str());
+            }
+        }
+    }
 }
 
 string emitter::codegen(FILE* file, astree *at){
