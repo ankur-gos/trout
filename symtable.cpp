@@ -377,6 +377,8 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
 symbol_table* check_st_stack(vector<symbol_table*> st, astree* at,
                              bool &found){
     for(auto table: st){
+        if(table == nullptr)
+            continue;
         if(symbol::occurs(*table, at->lexinfo)){
             found = true;
             return table;
@@ -390,8 +392,7 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
     bool found;
     symbol_table* foundtable = check_st_stack(st, at, found);
     if(!found){
-        cerr << "Identifier not defined: " << *at->lexinfo << endl;
-        exit(-6);
+        identerror(-6,  at->lloc, "Identifier not defined");
     }
     // Give the touched variable its attributes
     at->symblattributes = (*foundtable)[at->lexinfo];
