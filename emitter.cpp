@@ -97,7 +97,7 @@ void emitter::funcgen(FILE* file, astree* root) {
             }
             fprintf(file, ")\n{\n");
             codegen(file, child->children[2]);
-            fprintf(file, "{\n");
+            fprintf(file, "}\n");
         }
     }
 }
@@ -126,11 +126,15 @@ string emitter::codegen(FILE* file, astree *at){
         case TOK_INTCON:
             return *at->lexinfo;
         case TOK_VARDECL:{
+            if (at->symblattributes->block_nr == 0)
+                break;
+
             string line = type(at->children[0]) + declaration(at->children[0]);
             line = line + " = " + codegen(file, at->children[1]) + ";\n";
+            fprintf(file, "%*s", 8, "");
             fprintf(file, line.c_str());
             return line;
-            }
+        }
         case TOK_PARAMLIST:
             break;
     }
