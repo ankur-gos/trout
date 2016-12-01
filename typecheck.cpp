@@ -149,6 +149,10 @@ void handle_assignment (astree* at) {
     auto sym = new symbol(left->symblattributes);
     sym->attributes[ATTR_vaddr] = false;
     sym->attributes[ATTR_vreg] = true;
+    // If the right side is a string constant, we need to know
+    if(right->symblattributes->attributes[ATTR_const])
+        sym->attributes[ATTR_const] = true;
+
     at->symblattributes = sym;
 }
 
@@ -184,7 +188,11 @@ void handle_vardecl(astree* at){
     auto exprattr = at->children[1]->symblattributes;
 
     check_attributes(declattr, exprattr);
-    at->symblattributes = declattr;
+    auto sym = new symbol(declattr);
+    if(exprattr->attributes[ATTR_const])
+        sym->attributes[ATTR_const] = true;
+
+    at->symblattributes = sym;
 
 }
 

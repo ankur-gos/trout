@@ -19,6 +19,7 @@ struct emitter{
     static void structgen(FILE* file, astree* root);
     static void funcgen(FILE* file, astree* root);
     static string codegen(FILE* file, astree* at);
+    static void stringgen(FILE* file, astree* root);
 };
 
 #endif
