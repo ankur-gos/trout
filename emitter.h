@@ -12,11 +12,10 @@
 #include "astree.h"
 #include "lyutils.h"
 
-int counter = 0;
-
 struct emitter{
     static string vreg(astree* at);
     static string type(astree* at);
+    static void emit_oil(FILE* file, astree* root);
     static void structgen(FILE* file, astree* root);
     static string codegen(FILE* file, astree* at);
 };

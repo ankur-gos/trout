@@ -94,7 +94,7 @@ void dump_ast(string filename) {
 
 void write_oil(string filename){
       string fout_name = filename + ".oil";
-      emitter::codegen((fopen(fout_name.c_str(), "w")), parser::root);
+      emitter::emit_oil((fopen(fout_name.c_str(), "w")), parser::root);
 }
 
 int main(int argc, char** argv){

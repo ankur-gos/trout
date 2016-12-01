@@ -1,3 +1,7 @@
-hello world!
+struct stack {
+   int i;
+}
 
-My name is ankur goswami.
+int func(stack var) {
+   return var.i;
+}

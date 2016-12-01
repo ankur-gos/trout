@@ -1,0 +1,16 @@
+; TOK_ROOT "" (0.0.0) 
+;    TOK_STRUCT "struct" (6.1.1) {0} struct "stack" 
+;       TOK_TYPEID "stack" (6.1.8) {0} typeid struct "stack" (6.1.1)
+;       TOK_INT "int" (6.2.4) {0} typeid int 
+;          TOK_FIELD "i" (6.2.8) field {stack} int lval (6.2.4)
+;    TOK_FUNCTION "" (6.4.1) {0} int function (6.4.1)
+;       TOK_INT "int" (6.4.1) {1} typeid int 
+;          TOK_DECLID "func" (6.4.5) {1} 
+;       TOK_PARAMLIST "(" (6.4.9) {0} 
+;          TOK_TYPEID "stack" (6.4.10) {0} typeid struct "stack" (6.1.1)
+;             TOK_DECLID "var" (6.4.16) {1} 
+;       TOK_BLOCK "{" (6.4.21) 
+;          TOK_RETURN "return" (6.5.4) 
+;             '.' "." (6.5.14) field {stack} int lval 
+;                TOK_IDENT "var" (6.5.11) {1} struct "stack" variable lval param (6.4.10)
+;                TOK_FIELD "i" (6.5.15) field {stack} int lval (6.2.4)

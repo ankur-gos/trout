@@ -1,0 +1,4 @@
+stack (6.1.1){0} struct "stack" 
+   i (6.2.4)field {stack} int lval 
+func (6.4.1){0} int function 
+   var (6.4.10){1} struct "stack" variable lval param 
