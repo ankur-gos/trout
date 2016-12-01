@@ -6,6 +6,8 @@
 
 #include "emitter.h"
 
+int counter = 0;
+
 string emitter::vreg(astree *at){
     string name = "";
     if(at->symblattributes->attributes[ATTR_int])
@@ -56,16 +58,20 @@ string emitter::type(astree *at){
     return type;
 }
 
+void emitter::emit_oil(FILE* file, astree* root) {
+    structgen(file, root);
+}
+
 void emitter::structgen(FILE* file, astree *root){
     for(auto child: root->children){
         if(child->symbol == TOK_STRUCT){
-            string name = *root->symblattributes->struct_name;
+            string name = *child->symblattributes->struct_name;
             string struct_header = "struct s_" + name + " {\n";
             fprintf(file, struct_header.c_str());
-            for(size_t i = 1; i < root->children.size(); i++){
+            for(size_t i = 1; i < child->children.size(); i++){
                 fprintf(file, "%*s", 8, "");
-                auto child = root->children[i];
-                string field = type(child) + " f_" + get_name(child) + ";\n";
+                auto struct_child = child->children[i];
+                string field = type(struct_child) + " f_" + get_name(struct_child) + ";\n";
                 fprintf(file, field.c_str());
             }
             fprintf(file, "};\n");
