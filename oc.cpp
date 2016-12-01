@@ -19,6 +19,7 @@
 #include "lyutils.h"
 #include "symtable.h"
 #include "typecheck.h"
+#include "emitter.h"
 
 using namespace std;
 
@@ -91,6 +92,11 @@ void dump_ast(string filename) {
       astree::print((fopen(fout_name.c_str(), "w")), parser::root);
 }
 
+void write_oil(string filename){
+      string fout_name = filename + ".oil";
+      emitter::codegen((fopen(fout_name.c_str(), "w")), parser::root);
+}
+
 int main(int argc, char** argv){
    yy_flex_debug = yydebug = 0;
    int opt;
@@ -146,6 +152,7 @@ int main(int argc, char** argv){
    create_symbol_table(no_ext);
    check_types(parser::root);
    dump_ast(no_ext);
+   write_oil(no_ext);
    
    if(pclose(yyin) != 0){
       cerr << "Pipe close failed." << endl;

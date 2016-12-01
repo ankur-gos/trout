@@ -229,6 +229,7 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st,
         }
         sym->attributes[ATTR_struct] = true;
         sym->struct_name = at->lexinfo;
+        sym->fields = struct_st[at->lexinfo]->fields;
         break;
     case TOK_VOID:
         sym->attributes[ATTR_void] = true;
@@ -261,6 +262,7 @@ astree *def_prototype(symbol *sym, symbol_table struct_st, astree *at)
         auto child_sym = new symbol();
         child_sym->attributes[ATTR_param] = true;
         child_sym->attributes[ATTR_variable] = true;
+        child_sym->attributes[ATTR_lval] = true;
         set_function_attributes(child_sym, struct_st, child);
         child_sym->block_nr = next_block;
         child_sym->lloc = &child->lloc;
@@ -328,8 +330,13 @@ void add_parameters(FILE* file, vector<astree*> parameters,
         int index = 0;
         for (auto parameter : parameters)
         {
-            newsymtbl[parameter->children[0]->lexinfo] = sym->parameters[index];
-            dump_symbol(file, parameter->children[0], sym->parameters[index]);
+            astree* namechild;
+            if(parameter->symbol == TOK_ARRAY)
+                namechild = parameter->children[1];
+            else
+                namechild = parameter->children[0];
+            newsymtbl[namechild->lexinfo] = sym->parameters[index];
+            dump_symbol(file, namechild, sym->parameters[index]);
             index++;
         }
     }
@@ -340,7 +347,7 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
     add_symtbl(st);
     symbol_table &symtbl = *st.back();
     auto sym = new symbol();
-     sym->attributes[ATTR_function] = true;
+    sym->attributes[ATTR_function] = true;
     auto name_node = def_prototype(sym, struct_st, at);
     // I need a vector of names to hash on
     astree *paramtree = at->children[1];
@@ -395,7 +402,7 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
         identerror(-6,  at->lloc, "Identifier not defined");
     }
     // Give the touched variable its attributes
-    at->symblattributes = (*foundtable)[at->lexinfo];
+    at->symblattributes = new symbol((*foundtable)[at->lexinfo]);
     return foundtable;
 }
 

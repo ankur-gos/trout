@@ -57,9 +57,7 @@ symbl* returnptr = nullptr;
 
 void handle_return (astree* at) {
     if (returnptr != nullptr) {
-        if(!returnptr->compare(*at->children[0]->symblattributes)) {
-            type_err(-21, at->lloc, "matching return types");
-        }
+        check_attributes(returnptr, at->children[0]->symblattributes);
     }
     else {
         returnptr = at->children[0]->symblattributes;
