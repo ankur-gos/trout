@@ -60,6 +60,7 @@ string emitter::type(astree *at){
 
 void emitter::emit_oil(FILE* file, astree* root) {
     structgen(file, root);
+    stringgen(file, root);
 }
 
 void emitter::structgen(FILE* file, astree *root){
