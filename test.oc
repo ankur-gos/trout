@@ -1,7 +1,3 @@
-struct stack {
-   int i;
-}
-
-int func(stack var) {
-   return var.i;
+string func() {
+   return "whatever";
 }

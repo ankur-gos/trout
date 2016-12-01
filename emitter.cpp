@@ -56,6 +56,7 @@ string emitter::type(astree *at){
 
 void emitter::emit_oil(FILE* file, astree* root) {
     structgen(file, root);
+    funcgen(file, root);
 }
 
 void emitter::structgen(FILE* file, astree *root){
@@ -71,6 +72,27 @@ void emitter::structgen(FILE* file, astree *root){
                 fprintf(file, field.c_str());
             }
             fprintf(file, "};\n");
+        }
+    }
+}
+
+void emitter::funcgen(FILE* file, astree* root) {
+    for(auto child: root->children) {
+        if(child->symbol == TOK_FUNCTION) {
+            string type = *child->children[0]->lexinfo;
+            string name = *child->children[0]->children[0]->lexinfo;
+            fprintf(file, "%s __%s (\n", type.c_str(), name.c_str());
+            auto paramlist = child->children[1]->children;
+            for(size_t i = 0; i < paramlist.size(); i++) {
+                string paramtype = *paramlist[i]->lexinfo;
+                string paramname = *paramlist[i]->children[0]->lexinfo;
+                fprintf(file, "        %s _1_%s", paramtype.c_str(), paramname.c_str());
+                if(i < paramlist.size() - 1)
+                    fprintf(file, ",\n");
+            }
+            fprintf(file, ")\n{\n");
+            codegen(file, child->children[2]);
+            fprintf(file, "{\n");
         }
     }
 }
