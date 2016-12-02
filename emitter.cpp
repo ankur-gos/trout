@@ -8,6 +8,10 @@
 
 int counter = 0;
 
+void printtab(FILE* file){
+    fprintf(file, "%*s", 8, "");
+}
+
 string emitter::vreg(astree *at){
     string name = "";
     if(at->symblattributes->attributes[ATTR_int])
@@ -219,6 +223,30 @@ void emitter::funcgen(FILE* file, astree* root) {
     }
 }
 
+string emitter::handle_while(FILE* file, astree* at){
+    auto lloc = at->lloc;
+    string location = to_string(lloc.filenr) + "_"
+                        + to_string(lloc.linenr) + "_"
+                        + to_string(lloc.offset);
+    string w = "while_" + location;
+    w = w + ":";
+    string wend = w + ";\n";
+    fprintf(file, wend.c_str());
+    auto child = codegen(file, at->children[0]);
+    printtab(file);
+    string ifstmnt = "if (!" + child + ") goto break_";
+    ifstmnt = ifstmnt + location;
+    ifstmnt = ifstmnt + ";\n";
+    fprintf(file, ifstmnt.c_str());
+    codegen(file, at->children[1]);
+    printtab(file);
+    auto restart = "goto " + w + ";\n";
+    fprintf(file, restart.c_str());
+    auto br = "break_" + location + ":;\n";
+    fprintf(file, br.c_str());
+    return "";
+}
+
 string emitter::codegen(FILE* file, astree* at){
     switch(at->symbol){
         case TOK_ROOT:
@@ -242,8 +270,7 @@ string emitter::codegen(FILE* file, astree* at){
         case TOK_CALL:
             return handle_call(file, at);
         case TOK_WHILE:
-            break;
-            //return handle_while(file, at);
+            return handle_while(file, at);
         case TOK_RETURN: {
             string retval = codegen(file, at->children[0]);
             fprintf(file, "%*sreturn %s;\n", 8, "", retval.c_str());

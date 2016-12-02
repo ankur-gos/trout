@@ -1,3 +1,6 @@
 string func() {
    return "whatever";
 }
+while(1){
+   func();
+}
