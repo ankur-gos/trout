@@ -247,14 +247,39 @@ string emitter::handle_while(FILE* file, astree* at){
     return "";
 }
 
+string emitter::handle_num_binop(FILE* file, astree* at) {
+    string lreg = codegen(file, at->children[0]);
+    string rreg = codegen(file, at->children[1]);
+    string op = *at->lexinfo;
+    string outreg = vreg(at);
+    fprintf(file, "%*sint %s = %s %s %s;\n", 8, "", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
+    return outreg;
+}
+
+string emitter::handle_cmp_binop(FILE* file, astree*at) {
+    string lreg = codegen(file, at->children[0]);
+    string rreg = codegen(file, at->children[1]);
+    string op = *at->lexinfo;
+    string outreg = vreg(at);
+    fprintf(file, "%*schar %s = %s %s %s;\n", 8, "", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
+    return outreg;
+}
+
 string emitter::codegen(FILE* file, astree* at){
     switch(at->symbol){
         case TOK_ROOT:
         case TOK_BLOCK:
             for(auto child: at->children)
                 codegen(file, child);
-        case TOK_INTCON:
+        case TOK_INTCON: {
+            string val = *at->lexinfo;
+            return val.erase(0, min(val.find_first_not_of('0'), val.size()-1));
+        }
+        case TOK_CHARCON: {
             return *at->lexinfo;
+        }
+        case TOK_NULL:
+            return "0";
         case TOK_VARDECL: {
             if (at->symblattributes->block_nr == 0)
                 break;
@@ -285,6 +310,19 @@ string emitter::codegen(FILE* file, astree* at){
         case TOK_IF:
             handle_if(file, at);
             break;
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '%':
+            return handle_num_binop(file, at);
+        case TOK_EQ:
+        case TOK_NE:
+        case TOK_LT:
+        case TOK_LE:
+        case TOK_GT:
+        case TOK_GE:
+            return handle_cmp_binop(file, at);
     }
     return "";
 }

@@ -24,6 +24,8 @@ struct emitter{
     static void handle_ifelse(FILE* file, astree* at);
     static void handle_if(FILE* file, astree* at);
     static string handle_while(FILE* file, astree* at);
+    static string handle_num_binop(FILE* file, astree* at);
+    static string handle_cmp_binop(FILE* file, astree* at);
 };
 
 #endif
