@@ -17,6 +17,7 @@
 #include "astree.h"
 
 extern int next_block;
+extern bool fail;
 
 struct astree;
 struct location;

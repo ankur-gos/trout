@@ -12,7 +12,7 @@
 
  void type_err (int status, location lloc, string expected) {
      errllocprintf (lloc, "type error - expected %s\n", expected.c_str());
-     exit(status);
+     fail = true;
  }
 
 void handle_int_binop (astree* at) {
