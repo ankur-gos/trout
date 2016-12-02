@@ -282,6 +282,10 @@ void handle_call(astree* at){
     at->symblattributes = sym;
 }
 
+void assign_child(astree* at){
+    at->symblattributes = at->children[0]->symblattributes;
+}
+
 void check_types (astree* at) {
     // postorder traversal
     for (auto child: at->children) {
@@ -360,6 +364,9 @@ void check_types (astree* at) {
         break;
     case TOK_CALL:
         handle_call(at);
+        break;
+    case TOK_ARRAY:
+        assign_child(at);
         break;
     }
 }
