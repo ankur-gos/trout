@@ -284,6 +284,7 @@ void handle_call(astree* at){
 
 void assign_child(astree* at){
     at->symblattributes = at->children[0]->symblattributes;
+    at->symblattributes->attributes[ATTR_array] = true;
 }
 
 void check_types (astree* at) {
