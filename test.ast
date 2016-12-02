@@ -1,13 +1,30 @@
 ; TOK_ROOT "" (0.0.0) 
-;    TOK_FUNCTION "" (6.1.1) {0} string function (6.1.1)
-;       TOK_STRING "string" (6.1.1) {1} typeid string 
-;          TOK_DECLID "func" (6.1.8) {1} 
-;       TOK_PARAMLIST "(" (6.1.12) {0} 
-;       TOK_BLOCK "{" (6.1.15) 
-;          TOK_RETURN "return" (6.2.4) 
-;             TOK_STRINGCON ""whatever"" (6.2.11) {2} string const 
-;    TOK_WHILE "while" (6.4.1) 
-;       TOK_INTCON "1" (6.4.7) {0} int const 
-;       TOK_BLOCK "{" (6.4.9) 
-;          TOK_CALL "(" (6.5.8) {0} string function 
-;             TOK_IDENT "func" (6.5.4) {0} string function (6.1.1)
+;    TOK_STRUCT "struct" (6.1.1) {0} struct "c" 
+;       TOK_TYPEID "c" (6.1.8) {0} typeid struct "c" (6.1.1)
+;    ';' ";" (6.1.11) 
+;    TOK_FUNCTION "" (6.3.1) {0} string function (6.3.1)
+;       TOK_STRING "string" (6.3.1) {1} typeid string 
+;          TOK_DECLID "func" (6.3.8) {1} 
+;       TOK_PARAMLIST "(" (6.3.12) {0} 
+;       TOK_BLOCK "{" (6.3.15) 
+;          TOK_RETURN "return" (6.4.4) 
+;             TOK_STRINGCON ""whatever"" (6.4.11) {2} string const 
+;    TOK_WHILE "while" (6.6.1) 
+;       TOK_INTCON "1" (6.6.7) {0} int const 
+;       TOK_BLOCK "{" (6.6.9) 
+;          TOK_CALL "(" (6.7.8) {1} string function 
+;             TOK_IDENT "func" (6.7.4) {1} string function (6.3.1)
+;          TOK_VARDECL "=" (6.8.15) {1} string [] 
+;             TOK_ARRAY "[]" (6.8.10) {1} string [] 
+;                TOK_STRING "string" (6.8.4) {1} typeid string 
+;                TOK_DECLID "b" (6.8.13) {1} 
+;             TOK_NEWARRAY "new" (6.8.17) {1} typeid string [] 
+;                TOK_STRING "string" (6.8.21) {1} typeid string 
+;                TOK_INTCON "1" (6.8.28) {1} int const 
+;          TOK_VARDECL "=" (6.9.12) {1} struct "c" [] 
+;             TOK_ARRAY "[]" (6.9.5) {1} struct "c" [] 
+;                TOK_TYPEID "c" (6.9.4) {1} typeid struct "c" (6.1.1)
+;                TOK_DECLID "lol" (6.9.8) {1} 
+;             TOK_NEWARRAY "new" (6.9.14) {1} typeid struct "c" [] 
+;                TOK_TYPEID "c" (6.9.18) {1} typeid struct "c" (6.1.1)
+;                TOK_INTCON "3" (6.9.20) {1} int const 

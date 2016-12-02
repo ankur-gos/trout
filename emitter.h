@@ -22,6 +22,9 @@ struct emitter{
     static string handle_call(FILE* file, astree* at);
     static void define_globals(FILE* file, astree* root);
     static string handle_while(FILE* file, astree* at);
+    static string handle_new(FILE* file, astree* at);
+    static string handle_new_string(FILE* file, astree* at);
+    static string handle_new_array(FILE* file, astree* at);
 };
 
 #endif

@@ -82,7 +82,7 @@ void handle_function (astree* at) {
             && !returnptr->attributes[ATTR_string]) {
             type_err(-21, at->lloc, "string return type");
         }
-        else if (at->symblattributes->attributes[ATTR_struct] 
+        else if (at->symblattributes->attributes[ATTR_struct]
             && !returnptr->attributes[ATTR_struct]) {
             type_err(-21, at->lloc, "struct return type");
         }
@@ -224,7 +224,7 @@ void handle_new_arg(astree* at){
         || arg->symblattributes->attributes[ATTR_array])
         type_err(-24, arg->lloc, 
         "string construct argument to be of type int");
-    auto sym = new symbol(arg->symblattributes);
+    auto sym = new symbol(at->children[0]->symblattributes);
     sym->attributes[ATTR_vaddr] = false;
     sym->attributes[ATTR_vreg] = true;
     at->symblattributes = sym;
@@ -354,6 +354,7 @@ void check_types (astree* at) {
         break;
     case TOK_NEWSTRING:
         handle_new_arg(at);
+        break;
     case '.':
         handle_selector(at);
         break;
