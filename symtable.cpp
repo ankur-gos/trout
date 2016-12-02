@@ -435,6 +435,7 @@ void check_struct_type(symbol_table &struct_st, astree* at){
     }
     auto sym = new symbol(struct_st[at->lexinfo]);
     sym->attributes[ATTR_typeid] = true;
+    sym->block_nr = next_block - 1;
     at->symblattributes = sym;
 }
 
