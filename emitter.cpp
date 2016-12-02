@@ -100,6 +100,27 @@ void end_main(FILE* file){
     fprintf(file, "}\n");
 }
 
+void emitter::handle_ifelse(FILE* file, astree* at) {
+    string operand = codegen(file, at->children[0]);
+    location loc = at->lloc;
+    string locstring = to_string(loc.filenr) + "_" + to_string(loc.linenr) + "_" + to_string(loc.offset);
+    fprintf(file, "%*sif (!%s) goto else_%s;\n", 8, "", operand.c_str(), locstring.c_str());
+    codegen(file, at->children[1]);
+    fprintf(file, "%*sgoto fi_%s;\n", 8, "", locstring.c_str());
+    fprintf(file, "else_%s:;\n", locstring.c_str());
+    codegen(file, at->children[2]);
+    fprintf(file, "fi_%s:;\n", locstring.c_str());
+}
+
+void emitter::handle_if(FILE* file, astree* at) {
+    string operand = codegen(file, at->children[0]);
+    location loc = at->lloc;
+    string locstring = to_string(loc.filenr) + "_" + to_string(loc.linenr) + "_" + to_string(loc.offset);
+    fprintf(file, "%*sif (!%s) goto fi_%s;\n", 8, "", operand.c_str(), locstring.c_str());
+    codegen(file, at->children[1]);
+    fprintf(file, "fi_%s:;\n", locstring.c_str());
+}
+
 void emitter::emit_oil(FILE* file, astree* root) {
     structgen(file, root);
     stringgen(file);
@@ -230,6 +251,12 @@ string emitter::codegen(FILE* file, astree* at){
         }
         case TOK_RETURNVOID:
             fprintf(file, "%*sreturn;\n", 8, "");
+            break;
+        case TOK_IFELSE:
+            handle_ifelse(file, at);
+            break;
+        case TOK_IF:
+            handle_if(file, at);
             break;
     }
     return "";
