@@ -448,7 +448,8 @@ void set_con(astree* at, int contype){
     } else{
         sym->attributes[ATTR_vaddr] = true;
         // String constant, add to strings table
-        symbol::strings.push_back(at);
+        if(contype == ATTR_string)
+            symbol::strings.push_back(at);
     }
     sym->attributes[ATTR_const] = true;
     at->symblattributes = sym;
