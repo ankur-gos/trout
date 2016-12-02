@@ -251,7 +251,6 @@ string emitter::handle_while(FILE* file, astree* at){
     return "";
 }
 
-<<<<<<< HEAD
 string emitter::handle_new(FILE* file, astree* at){
     auto vr = vreg(at);
     string emit = type(at->children[0]) + vr;
@@ -336,14 +335,12 @@ string emitter::codegen(FILE* file, astree* at){
             return handle_call(file, at);
         case TOK_WHILE:
             return handle_while(file, at);
-<<<<<<< HEAD
         case TOK_NEW:
             return handle_new(file, at);
         case TOK_NEWSTRING:
             return handle_new_string(file, at);
         case TOK_NEWARRAY:
             return handle_new_array(file, at);
-=======
         case TOK_RETURN: {
             string retval = codegen(file, at->children[0]);
             fprintf(file, "%*sreturn %s;\n", 8, "", retval.c_str());
@@ -371,7 +368,6 @@ string emitter::codegen(FILE* file, astree* at){
         case TOK_GT:
         case TOK_GE:
             return handle_cmp_binop(file, at);
->>>>>>> 72f88a9192e5662597117e029a300cc50f8d9196
     }
     return "";
 }
