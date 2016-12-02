@@ -304,6 +304,19 @@ string emitter::handle_cmp_binop(FILE* file, astree*at) {
     return outreg;
 }
 
+string emitter::handle_selector(FILE* file, astree* at){
+    auto reg = vreg(at);
+    string tp = type(at) + "*";
+    auto line = tp + reg;
+    string ident = *at->children[1]->lexinfo;
+    ident = "f_" + ident;
+    line = line + " = &" + codegen(file, at->children[0])
+             + "->" + ident + ";\n";
+    printtab(file);
+    fprintf(file, line.c_str());
+    return "*" + reg;
+}
+
 string emitter::codegen(FILE* file, astree* at){
     switch(at->symbol){
         case TOK_ROOT:
@@ -355,6 +368,8 @@ string emitter::codegen(FILE* file, astree* at){
         case TOK_IF:
             handle_if(file, at);
             break;
+        case '.':
+            return handle_selector(file, at);
         case '+':
         case '-':
         case '*':

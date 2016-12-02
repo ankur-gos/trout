@@ -1,4 +1,6 @@
-struct c{};
+struct c{
+   int i;
+};
 
 string func() {
    return "whatever";
@@ -7,5 +9,7 @@ while(1){
    func();
    string[] b = new string[1];
    c[] lol = new c[3];
+   c d = new c();
+   d.i = 3;
 }
 

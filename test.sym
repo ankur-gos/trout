@@ -1,4 +1,6 @@
 c (6.1.1){0} struct "c" 
-func (6.3.1){0} string function 
-   b (6.8.15){1} string [] variable lval 
-   lol (6.9.12){1} struct "c" [] variable lval 
+   i (6.2.4)field {c} int lval 
+func (6.5.1){0} string function 
+   b (6.10.15){1} string [] variable lval 
+   lol (6.11.12){1} struct "c" [] variable lval 
+   d (6.12.8){1} struct "c" variable lval 

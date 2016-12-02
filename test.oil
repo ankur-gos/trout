@@ -1,19 +1,23 @@
 struct s_c {
+        int  f_i;
 };
 char* s1 = "whatever";
 string __func (
 )
 {
+        return s1;
 }
 void __ocmain (void)
 {
-while_6_6_1:;
-        if (!1) goto break_6_6_1;
+while_6_8_1:;
+        if (!1) goto break_6_8_1;
         char* s2 = __func ();
         char** s3 = xcalloc (1, sizeof (char*));
         char** _1_b = s3;
         struct s_c** p4 = xcalloc (3, sizeof (struct s_c*));
         struct s_c** _1_lol = p4;
-        goto while_6_6_1:;
-break_6_6_1:;
+        struct s_c* p5 = xcalloc (1, sizeof (struct c));
+        struct s_c* _1_d = p5;
+        goto while_6_8_1:;
+break_6_8_1:;
 }
