@@ -21,6 +21,7 @@ struct emitter{
     static void stringgen(FILE* file);
     static string handle_call(FILE* file, astree* at);
     static void define_globals(FILE* file, astree* root);
+    static string handle_while(FILE* file, astree* at);
 };
 
 #endif

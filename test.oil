@@ -1,4 +1,13 @@
+char* s1 = "whatever";
 string __func (
 )
 {
+}
+void __ocmain (void)
 {
+while_6_4_1:;
+        if (!1) goto break_6_4_1;
+        char* s2 = __func ();
+        goto while_6_4_1:;
+break_6_4_1:;
+}

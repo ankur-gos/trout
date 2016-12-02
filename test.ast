@@ -6,3 +6,8 @@
 ;       TOK_BLOCK "{" (6.1.15) 
 ;          TOK_RETURN "return" (6.2.4) 
 ;             TOK_STRINGCON ""whatever"" (6.2.11) {2} string const 
+;    TOK_WHILE "while" (6.4.1) 
+;       TOK_INTCON "1" (6.4.7) {0} int const 
+;       TOK_BLOCK "{" (6.4.9) 
+;          TOK_CALL "(" (6.5.8) {0} string function 
+;             TOK_IDENT "func" (6.5.4) {0} string function (6.1.1)
