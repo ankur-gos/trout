@@ -34,7 +34,9 @@ string vrega(){
 
 string get_name(astree *at){
     astree* namenode;
-    if(at->symblattributes->attributes[ATTR_array])
+    if(at->symblattributes->attributes[ATTR_array]
+        && !at->symblattributes->attributes[ATTR_function]
+        && !at->symblattributes->attributes[ATTR_prototype])
         namenode = at->children[1];
     else
         namenode = at->children[0];
@@ -189,7 +191,7 @@ string emitter::handle_call(FILE* file, astree* at){
         fprintf(file, "%*s", 8, "");
         fprintf(file, line.c_str());
     }
-    string funcname = global(at->children[0]);
+    string funcname = global(at);
     auto funcline = funcname + " (";
     for(size_t i = 0; i < parameters.size(); i++){
         if(i == 0){
