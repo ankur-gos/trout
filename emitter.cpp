@@ -191,7 +191,7 @@ string emitter::handle_call(FILE* file, astree* at){
         fprintf(file, "%*s", 8, "");
         fprintf(file, line.c_str());
     }
-    string funcname = global(at);
+    string funcname = global(at->children[0]);
     auto funcline = funcname + " (";
     for(size_t i = 0; i < parameters.size(); i++){
         if(i == 0){
