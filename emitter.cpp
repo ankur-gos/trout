@@ -291,7 +291,8 @@ string emitter::handle_num_binop(FILE* file, astree* at) {
     string rreg = codegen(file, at->children[1]);
     string op = *at->lexinfo;
     string outreg = vreg(at);
-    fprintf(file, "%*sint %s = %s %s %s;\n", 8, "", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
+    printtab(file);
+    fprintf(file, "int %s = %s %s %s;\n", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
     return outreg;
 }
 
@@ -300,7 +301,8 @@ string emitter::handle_cmp_binop(FILE* file, astree*at) {
     string rreg = codegen(file, at->children[1]);
     string op = *at->lexinfo;
     string outreg = vreg(at);
-    fprintf(file, "%*schar %s = %s %s %s;\n", 8, "", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
+    printtab(file);
+    fprintf(file, "char %s = %s %s %s;\n", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
     return outreg;
 }
 
@@ -315,6 +317,16 @@ string emitter::handle_selector(FILE* file, astree* at){
     printtab(file);
     fprintf(file, line.c_str());
     return "*" + reg;
+}
+
+string emitter::handle_ident(astree* at) {
+    string varname = "";
+    if (at->symblattributes->block_nr == 0) {
+        varname = "__" + *at->lexinfo;
+    } else {
+        varname = "_" + to_string(at->symblattributes->block_nr) + "_" + *at->lexinfo;
+    }
+    return varname;
 }
 
 string emitter::codegen(FILE* file, astree* at){
@@ -338,7 +350,7 @@ string emitter::codegen(FILE* file, astree* at){
 
             string line = type(at->children[0]) + declaration(at->children[0]);
             line = line + " = " + codegen(file, at->children[1]) + ";\n";
-            fprintf(file, "%*s", 8, "");
+            printtab(file);
             fprintf(file, line.c_str());
             return line;
         }
@@ -356,11 +368,13 @@ string emitter::codegen(FILE* file, astree* at){
             return handle_new_array(file, at);
         case TOK_RETURN: {
             string retval = codegen(file, at->children[0]);
-            fprintf(file, "%*sreturn %s;\n", 8, "", retval.c_str());
+            printtab(file);
+            fprintf(file, "return %s;\n", retval.c_str());
             break;
         }
         case TOK_RETURNVOID:
-            fprintf(file, "%*sreturn;\n", 8, "");
+            printtab(file);
+            fprintf(file, "return;\n");
             break;
         case TOK_IFELSE:
             handle_ifelse(file, at);
@@ -383,6 +397,32 @@ string emitter::codegen(FILE* file, astree* at){
         case TOK_GT:
         case TOK_GE:
             return handle_cmp_binop(file, at);
+        case TOK_POS:
+        case TOK_NEG: {
+            string exp = codegen(file, at->children[0]);
+            string op = *at->lexinfo;
+            string outreg = vreg(at);
+            printtab(file);
+            fprintf(file, "int %s = %s %s;\n", outreg.c_str(), op.c_str(), exp.c_str());
+            return outreg;
+        }
+        case '!': {
+            string exp = codegen(file, at->children[0]);
+            string op = *at->lexinfo;
+            string outreg = vreg(at);
+            printtab(file);
+            fprintf(file, "char %s = %s%s;\n", outreg.c_str(), op.c_str(), exp.c_str());
+            return outreg;
+        }
+        case TOK_IDENT:
+            return handle_ident(at);
+        case '=': {
+            string lexp = codegen(file, at->children[0]);
+            string rexp = codegen(file, at->children[1]);
+            printtab(file);
+            fprintf(file, "%s = %s;\n", lexp.c_str(), rexp.c_str());
+            break;
+        }
     }
     return "";
 }
