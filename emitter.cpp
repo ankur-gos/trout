@@ -223,6 +223,14 @@ string emitter::codegen(FILE* file, astree* at){
         case TOK_WHILE:
             break;
             //return handle_while(file, at);
+        case TOK_RETURN: {
+            string retval = codegen(file, at->children[0]);
+            fprintf(file, "%*sreturn %s;\n", 8, "", retval.c_str());
+            break;
+        }
+        case TOK_RETURNVOID:
+            fprintf(file, "%*sreturn;\n", 8, "");
+            break;
     }
     return "";
 }
