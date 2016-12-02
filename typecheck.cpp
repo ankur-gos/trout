@@ -93,7 +93,7 @@ if (at->symblattributes->struct_name->compare(*returnptr->struct_name) != 0) {
             }
         }
         else if (at->symblattributes->attributes[ATTR_array] 
-            && returnptr->attributes[ATTR_array]) {
+            && !returnptr->attributes[ATTR_array]) {
             type_err (-21, at->lloc, "array return type");
         }
     }
