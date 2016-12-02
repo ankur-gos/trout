@@ -1,7 +1,5 @@
-struct stack {
-   int i;
+void func(string i) {
+   return;
 }
 
-int func(stack var) {
-   return var.i;
-}
+func("to");

@@ -16,10 +16,12 @@ struct emitter{
     static string vreg(astree* at);
     static void emit_oil(FILE* file, astree* root);
     static void structgen(FILE* file, astree* root);
+    static void funcgen(FILE* file, astree* root);
     static string codegen(FILE* file, astree* at);
     static void stringgen(FILE* file);
     static void define_globals(FILE* file, astree* root);
     static string handle_call(FILE* file, astree* at);
+    static void parse_tree(FILE* file, astree* at);
 };
 
 #endif

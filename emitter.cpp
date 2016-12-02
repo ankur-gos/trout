@@ -14,6 +14,8 @@ string emitter::vreg(astree *at){
         name = "i";
     if(at->symblattributes->attributes[ATTR_string])
         name = "s";
+    if(at->symblattributes->attributes[ATTR_void])
+        return "";
     name = name + to_string(++counter);
     return name;
 }
@@ -102,8 +104,10 @@ void emitter::emit_oil(FILE* file, astree* root) {
     structgen(file, root);
     stringgen(file);
     globalgen(file, root);
+    funcgen(file, root);
     write_main(file);
     define_globals(file, root);
+    codegen(file, root);
     end_main(file);
 }
 
@@ -138,19 +142,19 @@ void emitter::stringgen(FILE* file){
 }
 
 string emitter::handle_call(FILE* file, astree* at){
-    auto parameternode = at->children[1];
     vector<string> parameters;
-    for(auto child: parameternode->children){
+    for(size_t i = 1; i < at->children.size(); i++){
+        auto child = at->children[i];
         auto gen = codegen(file, child);
         // POSSIBLE SEGFAULT HERE
         string vr = vreg(child);
         parameters.push_back(vr);
-        string line = type(child) + " " + vr;
-        line = line + " = " + gen;
+        string line = type(child) + vr;
+        line = line + " = " + gen + ";\n";
         fprintf(file, "%*s", 8, "");
         fprintf(file, line.c_str());
     }
-    string funcname = *at->children[0]->lexinfo;
+    string funcname = global(at);
     auto funcline = funcname + " (";
     for(size_t i = 0; i < parameters.size(); i++){
         if(i == 0){
@@ -159,8 +163,39 @@ string emitter::handle_call(FILE* file, astree* at){
         }
         funcline = funcline + ", " + parameters[i];
     }
-    funcline = funcline + ")";
-    return funcline;
+    funcline = funcline + ");\n";
+    string vr = vreg(at);
+    if(vr.empty()){
+        fprintf(file, "%*s", 8, "");
+        fprintf(file, funcline.c_str());
+    } else{
+        string ln = type(at) + vr;
+        ln = ln + " = " + funcline;
+        fprintf(file, "%*s", 8, "");
+        fprintf(file, ln.c_str());
+    }
+    return vr;
+}
+
+void emitter::funcgen(FILE* file, astree* root) {
+    for(auto child: root->children) {
+        if(child->symbol == TOK_FUNCTION) {
+            string type = *child->children[0]->lexinfo;
+            string name = *child->children[0]->children[0]->lexinfo;
+            fprintf(file, "%s __%s (\n", type.c_str(), name.c_str());
+            auto paramlist = child->children[1]->children;
+            for(size_t i = 0; i < paramlist.size(); i++) {
+                string paramtype = *paramlist[i]->lexinfo;
+                string paramname = *paramlist[i]->children[0]->lexinfo;
+                fprintf(file, "        %s _1_%s", paramtype.c_str(), paramname.c_str());
+                if(i < paramlist.size() - 1)
+                    fprintf(file, ",\n");
+            }
+            fprintf(file, ")\n{\n");
+            codegen(file, child->children[2]);
+            fprintf(file, "{\n");
+        }
+    }
 }
 
 string emitter::codegen(FILE* file, astree* at){

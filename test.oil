@@ -1,0 +1,10 @@
+char* s1 = "to";
+void __func (
+        string _1_i)
+{
+{
+void __ocmain (void)
+{
+        char* s2 = s1;
+        __func (s2);
+}

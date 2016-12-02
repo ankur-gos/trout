@@ -169,9 +169,9 @@ expr           : expr '=' expr          { $$ = $2->adopt($1, $3); }
 allocator      : TOK_NEW TOK_IDENT '(' ')'      
 { $$ = $1->adopt_child_sym(TOK_TYPEID, $3, $4, $2); }
                | TOK_NEW TOK_STRING '(' expr ')'
-{ $$ = $1->destroy_3_sym_adopt_3($3, $5, nullptr, TOK_NEWSTRING, nullptr, $2, $4)}
+{ $$ = $1->destroy_3_sym_adopt_3($3, $5, nullptr, TOK_NEWSTRING, nullptr, $2, $4); }
                | TOK_NEW basetype   '[' expr ']'
-{ $$ = $1->destroy_3_sym_adopt_3($3, $5, nullptr, TOK_NEWARRAY, nullptr, $2, $4)}
+{ $$ = $1->destroy_3_sym_adopt_3($3, $5, nullptr, TOK_NEWARRAY, nullptr, $2, $4); }
                ;
               
 call           : TOK_IDENT '(' ')'      
