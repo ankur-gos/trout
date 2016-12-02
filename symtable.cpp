@@ -279,7 +279,8 @@ astree *def_prototype(symbol *sym, symbol_table struct_st, astree *at)
     }
     if(next_block != 1){
         identerror(at->lloc,
-"Function can only be defined at global scope: " + *func_name_node->lexinfo);
+"Function can only be defined at global scope: " 
+                + *func_name_node->lexinfo);
     };
     return func_name_node;
 }
@@ -351,7 +352,8 @@ void add_parameters(FILE* file, vector<astree*> parameters,
     }
 }
 
-void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct_st, astree *at)
+void insert_function(FILE *file, vector<symbol_table *> &st,
+                         symbol_table struct_st, astree *at)
 {
     add_symtbl(st);
     symbol_table &symtbl = *st.back();

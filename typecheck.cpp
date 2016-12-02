@@ -11,7 +11,8 @@
  void check_attributes(symbol *a, symbol *b);
 
  void type_err (location lloc, string expected) {
-     errllocprintf (lloc, "type error - expected %s\n", expected.c_str());
+     errllocprintf (lloc, "type error - expected %s\n",
+                                 expected.c_str());
      fail = true;
  }
 
@@ -88,7 +89,8 @@ void handle_function (astree* at) {
         }
         else if (at->symblattributes->attributes[ATTR_struct] 
             && !returnptr->attributes[ATTR_struct]) {
-if (at->symblattributes->struct_name->compare(*returnptr->struct_name) != 0) {
+            auto sname = at->symblattributes->struct_name;
+            if (sname->compare(*returnptr->struct_name) != 0) {
                 type_err(at->lloc, "matching struct name");
             }
         }
@@ -246,9 +248,8 @@ void handle_selector(astree* at){
             *fieldarg->lexinfo + " is be a part of struct's fields");
     auto syms = *structarg->symblattributes->fields;
     fieldarg->symblattributes = syms[fieldarg->lexinfo];
-    
-    auto sym = 
-    new symbol((*structarg->symblattributes->fields)[fieldarg->lexinfo]);
+    auto fields = *structarg->symblattributes->fields;
+    auto sym = new symbol((fields)[fieldarg->lexinfo]);
     sym->attributes[ATTR_lval] = true;
     sym->attributes[ATTR_vaddr] = true;
     sym->attributes[ATTR_vreg] = false;
@@ -258,7 +259,8 @@ void handle_selector(astree* at){
 void handle_call(astree* at){
     auto fnname = at->children[0];
 
-    if(!fnname->symblattributes->attributes[ATTR_function] && !fnname->symblattributes->attributes[ATTR_prototype])
+    if(!fnname->symblattributes->attributes[ATTR_function]
+     && !fnname->symblattributes->attributes[ATTR_prototype])
         type_err(fnname->lloc, "a valid function");
     
     if((at->children.size()-1) 

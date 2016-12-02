@@ -119,8 +119,10 @@ void end_main(FILE* file){
 void emitter::handle_ifelse(FILE* file, astree* at) {
     string operand = codegen(file, at->children[0]);
     location loc = at->lloc;
-    string locstring = to_string(loc.filenr) + "_" + to_string(loc.linenr) + "_" + to_string(loc.offset);
-    fprintf(file, "%*sif (!%s) goto else_%s;\n", 8, "", operand.c_str(), locstring.c_str());
+    string locstring = to_string(loc.filenr) 
+    + "_" + to_string(loc.linenr) + "_" + to_string(loc.offset);
+    fprintf(file, "%*sif (!%s) goto else_%s;\n", 8,
+     "", operand.c_str(), locstring.c_str());
     codegen(file, at->children[1]);
     fprintf(file, "%*sgoto fi_%s;\n", 8, "", locstring.c_str());
     fprintf(file, "else_%s:;\n", locstring.c_str());
@@ -131,8 +133,10 @@ void emitter::handle_ifelse(FILE* file, astree* at) {
 void emitter::handle_if(FILE* file, astree* at) {
     string operand = codegen(file, at->children[0]);
     location loc = at->lloc;
-    string locstring = to_string(loc.filenr) + "_" + to_string(loc.linenr) + "_" + to_string(loc.offset);
-    fprintf(file, "%*sif (!%s) goto fi_%s;\n", 8, "", operand.c_str(), locstring.c_str());
+    string locstring = to_string(loc.filenr) 
+    + "_" + to_string(loc.linenr) + "_" + to_string(loc.offset);
+    fprintf(file, "%*sif (!%s) goto fi_%s;\n", 8,
+     "", operand.c_str(), locstring.c_str());
     codegen(file, at->children[1]);
     fprintf(file, "fi_%s:;\n", locstring.c_str());
 }
@@ -157,7 +161,8 @@ void emitter::structgen(FILE* file, astree *root){
             for(size_t i = 1; i < child->children.size(); i++){
                 fprintf(file, "%*s", 8, "");
                 auto struct_child = child->children[i];
-                string field = type(struct_child) + " f_" + get_name(struct_child) + ";\n";
+                string field = type(struct_child) + " f_" +
+                         get_name(struct_child) + ";\n";
                 fprintf(file, field.c_str());
             }
             fprintf(file, "};\n");
@@ -191,7 +196,7 @@ string emitter::handle_call(FILE* file, astree* at){
         fprintf(file, "%*s", 8, "");
         fprintf(file, line.c_str());
     }
-    string funcname = global(at->children[0]);
+    string funcname = global(at);
     auto funcline = funcname + " (";
     for(size_t i = 0; i < parameters.size(); i++){
         if(i == 0){
@@ -219,12 +224,14 @@ void emitter::funcgen(FILE* file, astree* root) {
         if(child->symbol == TOK_FUNCTION) {
             string child_type = type(child);
             string name = *child->children[0]->children[0]->lexinfo;
-            fprintf(file, "%s __%s (\n", child_type.c_str(), name.c_str());
+            fprintf(file, "%s __%s (\n", child_type.c_str(),
+                                     name.c_str());
             auto paramlist = child->children[1]->children;
             for(size_t i = 0; i < paramlist.size(); i++) {
                 string paramtype = type(paramlist[i]);
                 string paramname = *paramlist[i]->children[0]->lexinfo;
-                fprintf(file, "        %s _1_%s", paramtype.c_str(), paramname.c_str());
+                fprintf(file, "        %s _1_%s", paramtype.c_str(),
+                             paramname.c_str());
                 if(i < paramlist.size() - 1)
                     fprintf(file, ",\n");
             }
@@ -302,7 +309,8 @@ string emitter::handle_num_binop(FILE* file, astree* at) {
     string op = *at->lexinfo;
     string outreg = vreg(at);
     printtab(file);
-    fprintf(file, "int %s = %s %s %s;\n", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
+    fprintf(file, "int %s = %s %s %s;\n", outreg.c_str(),
+             lreg.c_str(), op.c_str(), rreg.c_str());
     return outreg;
 }
 
@@ -312,7 +320,8 @@ string emitter::handle_cmp_binop(FILE* file, astree*at) {
     string op = *at->lexinfo;
     string outreg = vreg(at);
     printtab(file);
-    fprintf(file, "char %s = %s %s %s;\n", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
+    fprintf(file, "char %s = %s %s %s;\n", outreg.c_str(),
+             lreg.c_str(), op.c_str(), rreg.c_str());
     return outreg;
 }
 
@@ -336,7 +345,8 @@ string emitter::handle_ident(astree* at) {
     if (at->symblattributes->block_nr == 0) {
         varname = "__" + *at->lexinfo;
     } else {
-        varname = "_" + to_string(at->symblattributes->block_nr) + "_" + *at->lexinfo;
+        varname = "_" + to_string(at->symblattributes->block_nr)
+                         + "_" + *at->lexinfo;
     }
     return varname;
 }
@@ -363,7 +373,8 @@ string emitter::codegen(FILE* file, astree* at){
                 codegen(file, child);
         case TOK_INTCON: {
             string val = *at->lexinfo;
-            return val.erase(0, min(val.find_first_not_of('0'), val.size()-1));
+            return val.erase(0, min(val.find_first_not_of('0'),
+                                 val.size()-1));
         }
         case TOK_CHARCON: {
             return *at->lexinfo;
@@ -374,8 +385,10 @@ string emitter::codegen(FILE* file, astree* at){
             if (at->symblattributes->block_nr == 0)
                 break;
 
-            string line = type(at->children[0]) + declaration(at->children[0]);
-            line = line + " = " + codegen(file, at->children[1]) + ";\n";
+            string line = type(at->children[0])
+             + declaration(at->children[0]);
+            line = line + " = " + codegen(file,
+                     at->children[1]) + ";\n";
             printtab(file);
             fprintf(file, line.c_str());
             return line;
@@ -431,7 +444,8 @@ string emitter::codegen(FILE* file, astree* at){
             string op = *at->lexinfo;
             string outreg = vreg(at);
             printtab(file);
-            fprintf(file, "int %s = %s %s;\n", outreg.c_str(), op.c_str(), exp.c_str());
+            fprintf(file, "int %s = %s %s;\n", outreg.c_str(),
+                     op.c_str(), exp.c_str());
             return outreg;
         }
         case '!': {
@@ -439,7 +453,8 @@ string emitter::codegen(FILE* file, astree* at){
             string op = *at->lexinfo;
             string outreg = vreg(at);
             printtab(file);
-            fprintf(file, "char %s = %s%s;\n", outreg.c_str(), op.c_str(), exp.c_str());
+            fprintf(file, "char %s = %s%s;\n", outreg.c_str(),
+                     op.c_str(), exp.c_str());
             return outreg;
         }
         case TOK_IDENT:
