@@ -74,7 +74,9 @@ string type(astree *at){
         type = "int ";
     else if(attributes[ATTR_string])
         type = "char* ";
-    else{
+    else if (attributes[ATTR_void])
+        type = "void ";
+    else {
         string sname = *at->symblattributes->struct_name;
         type = "struct s_" + sname + "* ";
     }
@@ -215,12 +217,12 @@ string emitter::handle_call(FILE* file, astree* at){
 void emitter::funcgen(FILE* file, astree* root) {
     for(auto child: root->children) {
         if(child->symbol == TOK_FUNCTION) {
-            string type = *child->children[0]->lexinfo;
+            string child_type = type(child);
             string name = *child->children[0]->children[0]->lexinfo;
-            fprintf(file, "%s __%s (\n", type.c_str(), name.c_str());
+            fprintf(file, "%s __%s (\n", child_type.c_str(), name.c_str());
             auto paramlist = child->children[1]->children;
             for(size_t i = 0; i < paramlist.size(); i++) {
-                string paramtype = *paramlist[i]->lexinfo;
+                string paramtype = type(paramlist[i]);
                 string paramname = *paramlist[i]->children[0]->lexinfo;
                 fprintf(file, "        %s _1_%s", paramtype.c_str(), paramname.c_str());
                 if(i < paramlist.size() - 1)
