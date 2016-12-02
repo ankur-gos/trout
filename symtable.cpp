@@ -410,7 +410,6 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
     }
     // Give the touched variable its attributes
     at->symblattributes = new symbol((*foundtable)[at->lexinfo]);
-    at->symblattributes->block_nr = next_block - 1;
     return foundtable;
 }
 
