@@ -410,6 +410,7 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
     }
     // Give the touched variable its attributes
     at->symblattributes = new symbol((*foundtable)[at->lexinfo]);
+    at->symblattributes->block_nr = next_block - 1;
     return foundtable;
 }
 
@@ -432,6 +433,7 @@ void check_struct_type(symbol_table &struct_st, astree* at){
 "Undeclared struct " + *at->lexinfo + " defined.");
     }
     auto sym = new symbol(struct_st[at->lexinfo]);
+    sym->block_nr = next_block - 1;
     sym->attributes[ATTR_typeid] = true;
     at->symblattributes = sym;
 }

@@ -14,12 +14,16 @@ void printtab(FILE* file){
 
 string emitter::vreg(astree *at){
     string name = "";
+    if(at->symblattributes->attributes[ATTR_array])
+        name = "p";
     if(at->symblattributes->attributes[ATTR_int])
         name = "i";
-    if(at->symblattributes->attributes[ATTR_string])
+    else if(at->symblattributes->attributes[ATTR_string])
         name = "s";
-    if(at->symblattributes->attributes[ATTR_void])
+    else if(at->symblattributes->attributes[ATTR_void])
         return "";
+    else
+        name = "p";
     name = name + to_string(++counter);
     return name;
 }
@@ -247,6 +251,41 @@ string emitter::handle_while(FILE* file, astree* at){
     return "";
 }
 
+string emitter::handle_new(FILE* file, astree* at){
+    auto vr = vreg(at);
+    string emit = type(at->children[0]) + vr;
+    emit = emit + " = xcalloc (1, sizeof (struct ";
+    string struct_name = *at->symblattributes->struct_name;
+    emit = emit + struct_name + "));\n";
+    printtab(file);
+    fprintf(file, emit.c_str());
+    return vr;
+}
+
+string emitter::handle_new_string(FILE* file, astree* at){
+    auto reg = codegen(file, at->children[1]);
+    auto vr = vreg(at);
+    string emit = type(at->children[0]) + vr;
+    emit = emit + " = xcalloc (" + reg + ", sizeof(char));\n";
+    printtab(file);
+    fprintf(file, emit.c_str());
+    return vr;
+}
+
+string emitter::handle_new_array(FILE* file, astree* at){
+    auto reg = codegen(file, at->children[1]);
+    auto vr = vreg(at->children[0]);
+    string tp = type(at);
+    string emit = tp + vr;
+    tp.pop_back();
+    tp.pop_back();
+    emit = emit + " = xcalloc (" + reg + ", sizeof ("
+            + tp + "));\n";
+    printtab(file);
+    fprintf(file, emit.c_str());
+    return vr;
+}
+
 string emitter::handle_num_binop(FILE* file, astree* at) {
     string lreg = codegen(file, at->children[0]);
     string rreg = codegen(file, at->children[1]);
@@ -308,6 +347,12 @@ string emitter::codegen(FILE* file, astree* at){
             return handle_call(file, at);
         case TOK_WHILE:
             return handle_while(file, at);
+        case TOK_NEW:
+            return handle_new(file, at);
+        case TOK_NEWSTRING:
+            return handle_new_string(file, at);
+        case TOK_NEWARRAY:
+            return handle_new_array(file, at);
         case TOK_RETURN: {
             string retval = codegen(file, at->children[0]);
             printtab(file);

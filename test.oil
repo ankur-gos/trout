@@ -1,3 +1,5 @@
+struct s_c {
+};
 char* s1 = "whatever";
 string __func (
 )
@@ -5,9 +7,13 @@ string __func (
 }
 void __ocmain (void)
 {
-while_6_4_1:;
-        if (!1) goto break_6_4_1;
+while_6_6_1:;
+        if (!1) goto break_6_6_1;
         char* s2 = __func ();
-        goto while_6_4_1:;
-break_6_4_1:;
+        char** s3 = xcalloc (1, sizeof (char*));
+        char** _1_b = s3;
+        struct s_c** p4 = xcalloc (3, sizeof (struct s_c*));
+        struct s_c** _1_lol = p4;
+        goto while_6_6_1:;
+break_6_6_1:;
 }
