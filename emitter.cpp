@@ -346,8 +346,8 @@ string emitter::handle_index(FILE* file, astree* at){
     tp = tp + "* ";
     auto line = tp + reg;
     auto index = codegen(file, at->children[1]);
-    line = line + " = &" + codegen(file, at->children[0])
-             + "[" + index + "]" + ";\n";
+    line = line + " = &(" + codegen(file, at->children[0])
+             + ")[" + index + "]" + ";\n";
     printtab(file);
     fprintf(file, line.c_str());
     return "*" + reg;
