@@ -247,9 +247,11 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st,
         set_function_attributes(sym, struct_st, at->children[0]);
         return at->children[1];
     }
+    at->symblattributes = sym;
     if(at->children.size() > 0){
         return at->children[0];
     }
+    
     return nullptr;
 }
 
@@ -486,6 +488,12 @@ void set_int(astree* at){
     at->symblattributes = sym;
 }
 
+void set_block(astree* at){
+    auto sym = new symbol();
+    sym->lloc = &at->lloc;
+    sym->block_nr = next_block - 1;
+    at->symblattributes = sym;
+}
 
 void symbol::parse_astree(FILE *file, vector<symbol_table *> &st,
                          symbol_table &struct_st, astree *at)
@@ -502,6 +510,7 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st,
         insert_variable(file, st, struct_st, at);
         break;
     case TOK_BLOCK:
+        set_block(at);
         new_block(st);
         break;
     case TOK_PROTOTYPE:
@@ -539,6 +548,9 @@ void symbol::parse_astree(FILE *file, vector<symbol_table *> &st,
         break;
     case TOK_CHAR:
         set_int(at);
+        break;
+    case TOK_VOID:
+        set_block(at);
         break;
     }
 
