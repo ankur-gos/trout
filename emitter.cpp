@@ -34,7 +34,9 @@ string vrega(){
 
 string get_name(astree *at){
     astree* namenode;
-    if(at->symblattributes->attributes[ATTR_array])
+    if(at->symblattributes->attributes[ATTR_array]
+        && !at->symblattributes->attributes[ATTR_function]
+        && !at->symblattributes->attributes[ATTR_prototype])
         namenode = at->children[1];
     else
         namenode = at->children[0];
