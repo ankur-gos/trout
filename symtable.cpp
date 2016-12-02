@@ -26,6 +26,13 @@ symbol::symbol(symbol* sym){
     field_struct = sym->field_struct;
 }
 
+vector<astree*> makevector(){
+    vector<astree*> v;
+    return v;
+}
+
+vector<astree*> symbol::strings = makevector();
+
 bool symbol::occurs(symbol_table st, const string* key)
 {
     auto found = st.find(key);

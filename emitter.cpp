@@ -220,6 +220,9 @@ string emitter::codegen(FILE* file, astree* at){
             return at->vreg;
         case TOK_CALL:
             return handle_call(file, at);
+        case TOK_WHILE:
+            break;
+            //return handle_while(file, at);
     }
     return "";
 }
