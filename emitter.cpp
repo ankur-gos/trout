@@ -322,8 +322,8 @@ string emitter::handle_selector(FILE* file, astree* at){
     auto line = tp + reg;
     string ident = *at->children[1]->lexinfo;
     ident = "f_" + ident;
-    line = line + " = &" + codegen(file, at->children[0])
-             + "->" + ident + ";\n";
+    line = line + " = &(" + codegen(file, at->children[0])
+             + ")->" + ident + ";\n";
     printtab(file);
     fprintf(file, line.c_str());
     return "*" + reg;
