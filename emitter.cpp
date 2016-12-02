@@ -401,6 +401,13 @@ string emitter::codegen(FILE* file, astree* at){
         }
         case TOK_IDENT:
             return handle_ident(at);
+        case '=': {
+            string lexp = codegen(file, at->children[0]);
+            string rexp = codegen(file, at->children[1]);
+            printtab(file);
+            fprintf(file, "%s = %s;\n", lexp.c_str(), rexp.c_str());
+            break;
+        }
     }
     return "";
 }
