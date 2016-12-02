@@ -260,6 +260,7 @@ string emitter::handle_new(FILE* file, astree* at){
     string emit = type(at->children[0]) + vr;
     emit = emit + " = xcalloc (1, sizeof (struct ";
     string struct_name = *at->symblattributes->struct_name;
+    struct_name = "s_" + struct_name;
     emit = emit + struct_name + "));\n";
     printtab(file);
     fprintf(file, emit.c_str());
