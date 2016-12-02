@@ -153,9 +153,6 @@ int main(int argc, char** argv){
    create_symbol_table(no_ext);
    check_types(parser::root);
    dump_ast(no_ext);
-   if(fail){
-         exit(EXIT_FAILURE);
-   }
    write_oil(no_ext);
    
    if(pclose(yyin) != 0){
