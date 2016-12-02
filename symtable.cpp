@@ -11,7 +11,7 @@
 
 string get_attributes(symbol* sym);
 void dump_symbol(FILE* file, astree* at, symbol* sym);
-
+bool fail = false;
 int next_block = 1;
 
 symbol::symbol(){}
@@ -41,7 +41,7 @@ bool symbol::occurs(symbol_table st, const string* key)
 
 void identerror(int status, location lloc, string expected){
     errllocprintf (lloc, "Identifier error - %s\n", expected.c_str());
-    exit(status);
+    fail = true;
 }
 
 static void assign_attributes(symbol* sym, astree* type_ast,
