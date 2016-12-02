@@ -223,15 +223,23 @@ void emitter::funcgen(FILE* file, astree* root) {
     for(auto child: root->children) {
         if(child->symbol == TOK_FUNCTION) {
             string child_type = type(child);
-            string name = *child->children[0]->children[0]->lexinfo;
+            string name = "";
+            if(child->children[0]->symbol == TOK_ARRAY)
+                name = *child->children[0]->children[1]->lexinfo;
+            else name = *child->children[0]->children[0]->lexinfo;
             fprintf(file, "%s __%s (\n", child_type.c_str(),
-                                     name.c_str());
+                                                 name.c_str());
             auto paramlist = child->children[1]->children;
             for(size_t i = 0; i < paramlist.size(); i++) {
                 string paramtype = type(paramlist[i]);
-                string paramname = *paramlist[i]->children[0]->lexinfo;
-                fprintf(file, "        %s _1_%s", paramtype.c_str(),
-                             paramname.c_str());
+                string paramname = "";
+                if(paramlist[i]->symbol == TOK_ARRAY) 
+                    paramname = *paramlist[i]->children[1]->lexinfo;
+                else 
+                    paramname = *paramlist[i]->children[0]->lexinfo;
+                printtab(file);
+                fprintf(file, "%s _1_%s", paramtype.c_str(),
+                                         paramname.c_str());
                 if(i < paramlist.size() - 1)
                     fprintf(file, ",\n");
             }

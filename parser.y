@@ -83,7 +83,8 @@ basetype       : TOK_VOID   { $$ = $1; }
 function       : identdecl '(' ')' block            
 { $$ = $1->fn($2, $3, $4, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
                | identdecl '(' identdecl ')' block  
-{ $$ = $1->fn($2->adopt($3), $4, $5, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
+{ $$ = $1->fn($2->adopt($3), $4, $5, TOK_PARAMLIST,
+                         TOK_PROTOTYPE, TOK_FUNCTION); }
                | identdecl identdeclarray ')' block 
 { $$ = $1->fn($2, $3, $4, TOK_PARAMLIST, TOK_PROTOTYPE, TOK_FUNCTION); }
                ;
@@ -119,7 +120,7 @@ statement      : block { $$ = $1; }
 
 statementarray : statementarray statement { $$ = $1->adopt($2); }
                | '{' statement statement  
-               { $$ = $1->destroy_sym_adopt(nullptr, TOK_BLOCK, $2, $3); }
+{ $$ = $1->destroy_sym_adopt(nullptr, TOK_BLOCK, $2, $3); }
                ;
 
 vardecl        : identdecl '=' expr ';' 
@@ -161,7 +162,7 @@ expr           : expr '=' expr          { $$ = $2->adopt($1, $3); }
                { $$ = $1->adopt_sym($2, TOK_NEG); }
                | allocator              { $$ = $1; }
                | call                   { $$ = $1; }
-               | '(' expr ')'           { $$ = $2->destroy_paren($1, $3); }
+               | '(' expr ')'   { $$ = $2->destroy_paren($1, $3); }
                | variable               { $$ = $1; }
                | constant               { $$ = $1; }
                ;
@@ -169,9 +170,11 @@ expr           : expr '=' expr          { $$ = $2->adopt($1, $3); }
 allocator      : TOK_NEW TOK_IDENT '(' ')'      
 { $$ = $1->adopt_child_sym(TOK_TYPEID, $3, $4, $2); }
                | TOK_NEW TOK_STRING '(' expr ')'
-{ $$ = $1->destroy_3_sym_adopt_3($3, $5, nullptr, TOK_NEWSTRING, nullptr, $2, $4)}
+{ $$ = $1->destroy_3_sym_adopt_3($3, $5, nullptr,
+                     TOK_NEWSTRING, nullptr, $2, $4)}
                | TOK_NEW basetype   '[' expr ']'
-{ $$ = $1->destroy_3_sym_adopt_3($3, $5, nullptr, TOK_NEWARRAY, nullptr, $2, $4)}
+{ $$ = $1->destroy_3_sym_adopt_3($3, $5, nullptr,
+                     TOK_NEWARRAY, nullptr, $2, $4)}
                ;
               
 call           : TOK_IDENT '(' ')'      

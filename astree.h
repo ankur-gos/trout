@@ -63,7 +63,8 @@ struct astree {
                                     astree* child3);
    static astree* generate_root(int sym);
    static astree* generate_function_tree(astree* identdecl,
-                 astree* paramlist, astree* block, int prototok, int functok);
+                 astree* paramlist, astree* block,
+                 int prototok, int functok);
    void dump_node (FILE*);
    void dump_tree (FILE*, int depth = 0);
    static void dump (FILE* outfile, astree* tree);
