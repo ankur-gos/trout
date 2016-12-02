@@ -39,7 +39,7 @@ bool symbol::occurs(symbol_table st, const string* key)
     return !(found == st.end());
 }
 
-void identerror(int status, location lloc, string expected){
+void identerror(location lloc, string expected){
     errllocprintf (lloc, "Identifier error - %s\n", expected.c_str());
     fail = true;
 }
@@ -48,7 +48,7 @@ static void assign_attributes(symbol* sym, astree* type_ast,
                               symbol_table struct_st)
 {
     if (type_ast->symbol == TOK_VOID){
-        identerror(-12, type_ast->lloc, "Invalid variable type void.");
+        identerror(type_ast->lloc, "Invalid variable type void.");
     }
     if (type_ast->symbol == TOK_INT)
     {
@@ -64,7 +64,7 @@ static void assign_attributes(symbol* sym, astree* type_ast,
             sym->struct_name = type_ast->lexinfo;
             if (!symbol::occurs(struct_st, type_ast->lexinfo))
             {
-                identerror(-10, type_ast->lloc, 
+                identerror(type_ast->lloc, 
                 "Struct " + *type_ast->lexinfo + " not found.");
             }
             sym->fields = struct_st[type_ast->lexinfo]->fields;
@@ -83,7 +83,7 @@ static void assign_attributes(symbol* sym, astree* type_ast,
                 // Field value is a struct, check it's in the table
                 if (!symbol::occurs(struct_st, type_child->lexinfo))
                 {
-                    identerror(-11, type_child->lloc,
+                    identerror(type_child->lloc,
                     "Struct " + *type_child->lexinfo + " not found.");
                 }
                 sym->attributes[ATTR_struct] = true;
@@ -114,7 +114,7 @@ static void insert_struct(FILE *file, symbol_table &struct_st,
 {
     if (next_block != 1)
     {
-        identerror(-19, at->lloc, 
+        identerror(at->lloc, 
             "structs can only be define in the global scope");
     }
     const string *ident;
@@ -199,7 +199,7 @@ void insert_variable(FILE *file, vector<symbol_table *> &st,
         val_child = type_child->children[0];
     if (symbol::occurs(symtbl, val_child->lexinfo))
     {
-        identerror(-2, val_child->lloc,
+        identerror(val_child->lloc,
         "Variable " + *val_child->lexinfo + " is already declared.");
     }
 
@@ -231,7 +231,7 @@ astree *set_function_attributes(symbol *sym, symbol_table struct_st,
     case TOK_TYPEID:
         if (!symbol::occurs(struct_st, at->lexinfo))
         {
-            identerror(-2, at->lloc,
+            identerror(at->lloc,
             "Struct not defined: " + *at->lexinfo);
         }
         sym->attributes[ATTR_struct] = true;
@@ -278,7 +278,7 @@ astree *def_prototype(symbol *sym, symbol_table struct_st, astree *at)
         sym->parameters.push_back(child_sym);
     }
     if(next_block != 1){
-        identerror(-5, at->lloc,
+        identerror(at->lloc,
 "Function can only be defined at global scope: " + *func_name_node->lexinfo);
     };
     return func_name_node;
@@ -322,7 +322,7 @@ void insert_prototype(FILE *file, vector<symbol_table *> &st,
     auto name_node = def_prototype(sym, struct_st, at);
     at->symblattributes = sym;
     if (symbol::occurs(symtbl, name_node->lexinfo))
-        identerror(-19, at->lloc,
+        identerror(at->lloc,
         "Redeclaration of prototype: " + *(name_node->lexinfo));
     symtbl[name_node->lexinfo] = sym;
     dump_symbol(file, name_node, sym);
@@ -367,14 +367,14 @@ void insert_function(FILE *file, vector<symbol_table *> &st, symbol_table struct
         if (protosym->attributes[ATTR_function])
         {
             // Duplicate function, throw error
-            identerror(-3, at->lloc,
+            identerror( at->lloc,
 "Duplicate function found: " + *name_node->lexinfo);
         }
         protosym->attributes[ATTR_function] = true;
         // prototype exists, verify each parameter
         if (!protosym->compare(*sym))
         {
-            identerror(-4, at->lloc,
+            identerror(at->lloc,
 "Function does not match given prototype: " + *name_node->lexinfo);
         }
         at->symblattributes = sym;
@@ -408,7 +408,7 @@ symbol_table* check_st(vector<symbol_table*> st, astree* at){
     bool found;
     symbol_table* foundtable = check_st_stack(st, at, found);
     if(!found){
-        identerror(-6,  at->lloc, "Identifier not defined");
+        identerror(at->lloc, "Identifier not defined");
     }
     // Give the touched variable its attributes
     at->symblattributes = new symbol((*foundtable)[at->lexinfo]);
@@ -422,7 +422,7 @@ void check_struct(vector<symbol_table*> st, symbol_table struct_st,
     auto struct_sym = struct_st[sym->struct_name];
     auto fields = struct_sym->fields;
     if(!symbol::occurs(*fields, field->lexinfo)){
-        identerror(-7, structname->lloc,
+        identerror(structname->lloc,
 "Field " + *field->lexinfo + " is not a part of struct: " +
 *sym->struct_name);
     }
@@ -430,7 +430,7 @@ void check_struct(vector<symbol_table*> st, symbol_table struct_st,
 
 void check_struct_type(symbol_table &struct_st, astree* at){
     if(!symbol::occurs(struct_st, at->lexinfo)){
-        identerror(-9, at->lloc,
+        identerror(at->lloc,
 "Undeclared struct " + *at->lexinfo + " defined.");
     }
     auto sym = new symbol(struct_st[at->lexinfo]);
