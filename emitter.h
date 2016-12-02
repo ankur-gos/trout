@@ -21,10 +21,14 @@ struct emitter{
     static void stringgen(FILE* file);
     static string handle_call(FILE* file, astree* at);
     static void define_globals(FILE* file, astree* root);
+    static void handle_ifelse(FILE* file, astree* at);
+    static void handle_if(FILE* file, astree* at);
     static string handle_while(FILE* file, astree* at);
     static string handle_new(FILE* file, astree* at);
     static string handle_new_string(FILE* file, astree* at);
     static string handle_new_array(FILE* file, astree* at);
+    static string handle_num_binop(FILE* file, astree* at);
+    static string handle_cmp_binop(FILE* file, astree* at);
 };
 
 #endif

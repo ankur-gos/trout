@@ -108,6 +108,27 @@ void end_main(FILE* file){
     fprintf(file, "}\n");
 }
 
+void emitter::handle_ifelse(FILE* file, astree* at) {
+    string operand = codegen(file, at->children[0]);
+    location loc = at->lloc;
+    string locstring = to_string(loc.filenr) + "_" + to_string(loc.linenr) + "_" + to_string(loc.offset);
+    fprintf(file, "%*sif (!%s) goto else_%s;\n", 8, "", operand.c_str(), locstring.c_str());
+    codegen(file, at->children[1]);
+    fprintf(file, "%*sgoto fi_%s;\n", 8, "", locstring.c_str());
+    fprintf(file, "else_%s:;\n", locstring.c_str());
+    codegen(file, at->children[2]);
+    fprintf(file, "fi_%s:;\n", locstring.c_str());
+}
+
+void emitter::handle_if(FILE* file, astree* at) {
+    string operand = codegen(file, at->children[0]);
+    location loc = at->lloc;
+    string locstring = to_string(loc.filenr) + "_" + to_string(loc.linenr) + "_" + to_string(loc.offset);
+    fprintf(file, "%*sif (!%s) goto fi_%s;\n", 8, "", operand.c_str(), locstring.c_str());
+    codegen(file, at->children[1]);
+    fprintf(file, "fi_%s:;\n", locstring.c_str());
+}
+
 void emitter::emit_oil(FILE* file, astree* root) {
     structgen(file, root);
     stringgen(file);
@@ -230,6 +251,7 @@ string emitter::handle_while(FILE* file, astree* at){
     return "";
 }
 
+<<<<<<< HEAD
 string emitter::handle_new(FILE* file, astree* at){
     auto vr = vreg(at);
     string emit = type(at->children[0]) + vr;
@@ -263,7 +285,24 @@ string emitter::handle_new_array(FILE* file, astree* at){
     printtab(file);
     fprintf(file, emit.c_str());
     return vr;
+}
 
+string emitter::handle_num_binop(FILE* file, astree* at) {
+    string lreg = codegen(file, at->children[0]);
+    string rreg = codegen(file, at->children[1]);
+    string op = *at->lexinfo;
+    string outreg = vreg(at);
+    fprintf(file, "%*sint %s = %s %s %s;\n", 8, "", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
+    return outreg;
+}
+
+string emitter::handle_cmp_binop(FILE* file, astree*at) {
+    string lreg = codegen(file, at->children[0]);
+    string rreg = codegen(file, at->children[1]);
+    string op = *at->lexinfo;
+    string outreg = vreg(at);
+    fprintf(file, "%*schar %s = %s %s %s;\n", 8, "", outreg.c_str(), lreg.c_str(), op.c_str(), rreg.c_str());
+    return outreg;
 }
 
 string emitter::codegen(FILE* file, astree* at){
@@ -272,8 +311,15 @@ string emitter::codegen(FILE* file, astree* at){
         case TOK_BLOCK:
             for(auto child: at->children)
                 codegen(file, child);
-        case TOK_INTCON:
+        case TOK_INTCON: {
+            string val = *at->lexinfo;
+            return val.erase(0, min(val.find_first_not_of('0'), val.size()-1));
+        }
+        case TOK_CHARCON: {
             return *at->lexinfo;
+        }
+        case TOK_NULL:
+            return "0";
         case TOK_VARDECL: {
             if (at->symblattributes->block_nr == 0)
                 break;
@@ -290,12 +336,42 @@ string emitter::codegen(FILE* file, astree* at){
             return handle_call(file, at);
         case TOK_WHILE:
             return handle_while(file, at);
+<<<<<<< HEAD
         case TOK_NEW:
             return handle_new(file, at);
         case TOK_NEWSTRING:
             return handle_new_string(file, at);
         case TOK_NEWARRAY:
             return handle_new_array(file, at);
+=======
+        case TOK_RETURN: {
+            string retval = codegen(file, at->children[0]);
+            fprintf(file, "%*sreturn %s;\n", 8, "", retval.c_str());
+            break;
+        }
+        case TOK_RETURNVOID:
+            fprintf(file, "%*sreturn;\n", 8, "");
+            break;
+        case TOK_IFELSE:
+            handle_ifelse(file, at);
+            break;
+        case TOK_IF:
+            handle_if(file, at);
+            break;
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '%':
+            return handle_num_binop(file, at);
+        case TOK_EQ:
+        case TOK_NE:
+        case TOK_LT:
+        case TOK_LE:
+        case TOK_GT:
+        case TOK_GE:
+            return handle_cmp_binop(file, at);
+>>>>>>> 72f88a9192e5662597117e029a300cc50f8d9196
     }
     return "";
 }
