@@ -87,7 +87,7 @@ void handle_function (astree* at) {
             type_err(-21, at->lloc, "struct return type");
         }
         else if (at->symblattributes->attributes[ATTR_struct] 
-            && returnptr->attributes[ATTR_struct]) {
+            && !returnptr->attributes[ATTR_struct]) {
 if (at->symblattributes->struct_name->compare(*returnptr->struct_name) != 0) {
                 type_err(-21, at->lloc, "matching struct name");
             }
