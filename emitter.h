@@ -31,6 +31,7 @@ struct emitter{
     static string handle_cmp_binop(FILE* file, astree* at);
     static string handle_selector(FILE* file, astree* at);
     static string handle_ident(astree* at);
+    static string handle_index(FILE* file, astree* at);
 };
 
 #endif

@@ -2,6 +2,7 @@ struct s_c {
         int  f_i;
 };
 char* s1 = "whatever";
+char* s2 = "20";
 string __func (
 )
 {
@@ -11,13 +12,17 @@ void __ocmain (void)
 {
 while_6_8_1:;
         if (!1) goto break_6_8_1;
-        char* s2 = __func ();
-        char** s3 = xcalloc (1, sizeof (char*));
-        char** _1_b = s3;
-        struct s_c** p4 = xcalloc (3, sizeof (struct s_c*));
-        struct s_c** _1_lol = p4;
-        struct s_c* p5 = xcalloc (1, sizeof (struct c));
-        struct s_c* _1_d = p5;
+        char* s3 = __func ();
+        char** s4 = xcalloc (1, sizeof (char*));
+        char** _1_b = s4;
+        struct s_c** p5 = xcalloc (3, sizeof (struct s_c*));
+        struct s_c** _1_lol = p5;
+        struct s_c* p6 = xcalloc (1, sizeof (struct c));
+        struct s_c* _1_d = p6;
+        int* a7 = &_1_d->f_i;
+        *a7 = 3;
+        char** a8 = &_1_b[0];
+        *a8 = s2;
         goto while_6_8_1:;
 break_6_8_1:;
 }

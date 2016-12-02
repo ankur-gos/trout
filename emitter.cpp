@@ -28,6 +28,10 @@ string emitter::vreg(astree *at){
     return name;
 }
 
+string vrega(){
+    return "a" + to_string(++counter);
+}
+
 string get_name(astree *at){
     astree* namenode;
     if(at->symblattributes->attributes[ATTR_array])
@@ -307,8 +311,10 @@ string emitter::handle_cmp_binop(FILE* file, astree*at) {
 }
 
 string emitter::handle_selector(FILE* file, astree* at){
-    auto reg = vreg(at);
-    string tp = type(at) + "*";
+    auto reg = vrega();
+    string tp = type(at);
+    tp.pop_back();
+    tp = tp + "* ";
     auto line = tp + reg;
     string ident = *at->children[1]->lexinfo;
     ident = "f_" + ident;
@@ -327,6 +333,20 @@ string emitter::handle_ident(astree* at) {
         varname = "_" + to_string(at->symblattributes->block_nr) + "_" + *at->lexinfo;
     }
     return varname;
+}
+
+string emitter::handle_index(FILE* file, astree* at){
+    auto reg = vrega();
+    string tp = type(at);
+    tp.pop_back();
+    tp = tp + "* ";
+    auto line = tp + reg;
+    auto index = codegen(file, at->children[1]);
+    line = line + " = &" + codegen(file, at->children[0])
+             + "[" + index + "]" + ";\n";
+    printtab(file);
+    fprintf(file, line.c_str());
+    return "*" + reg;
 }
 
 string emitter::codegen(FILE* file, astree* at){
@@ -384,6 +404,8 @@ string emitter::codegen(FILE* file, astree* at){
             break;
         case '.':
             return handle_selector(file, at);
+        case TOK_INDEX:
+            return handle_index(file, at);
         case '+':
         case '-':
         case '*':
