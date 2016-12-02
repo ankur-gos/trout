@@ -248,6 +248,7 @@ string emitter::handle_while(FILE* file, astree* at){
     fprintf(file, ifstmnt.c_str());
     codegen(file, at->children[1]);
     printtab(file);
+    w.pop_back();
     auto restart = "goto " + w + ";\n";
     fprintf(file, restart.c_str());
     auto br = "break_" + location + ":;\n";
